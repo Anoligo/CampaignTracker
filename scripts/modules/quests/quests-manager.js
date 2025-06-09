@@ -19,8 +19,7 @@ export class QuestsManager {
             dataManager.appState.quests = [];
         }
 
-        // Create the UI with the service and data manager
-        this.questUI = new QuestUI(this.questService, dataManager);
+
 
         // Initialize the UI when the DOM is ready
         if (document.readyState === 'loading') {
@@ -44,8 +43,12 @@ export class QuestsManager {
             console.log('Found existing quests in appState:', this.dataManager.appState.quests);
         }
         
-        // Create the UI with the service and data manager
-        this.questUI = new QuestUI(this.questService, this.dataManager);
+        // Create the UI with the quest service and expose it globally
+        this.questUI = new QuestUI(this.questService);
+        if (typeof window !== 'undefined') {
+            window.app = window.app || {};
+            window.app.questsUI = this.questUI;
+        }
         
         // Get all quests from the service
         let quests = this.questService.getAllQuests();
