@@ -12,12 +12,12 @@ export const formHandler = {
 
         const formHtml = `
             <form id="questForm" class="quest-form">
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="questName">Quest Name *</label>
                     <input type="text" id="questName" name="name" value="${quest ? quest.name : ''}" required>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6 mb-3">
                         <label for="questType">Type</label>
                         <select id="questType" name="type" required>
                             ${Object.values(QuestType).map(type =>
@@ -25,7 +25,7 @@ export const formHandler = {
                             ).join('')}
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="col-12 col-sm-6 mb-3">
                         <label for="questStatus">Status</label>
                         <select id="questStatus" name="status" required>
                             ${Object.values(QuestStatus).map(status =>
@@ -34,44 +34,44 @@ export const formHandler = {
                         </select>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="questDescription">Description</label>
                     <textarea id="questDescription" name="description" rows="5">${quest ? quest.description : ''}</textarea>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="questNotes">Notes</label>
                     <textarea id="questNotes" name="notes" rows="3">${quest ? quest.notes || '' : ''}</textarea>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6 mb-3">
                         <label for="questLocations">Locations</label>
                         <select id="questLocations" name="relatedLocations" multiple></select>
                     </div>
-                    <div class="form-group">
+                    <div class="col-12 col-sm-6 mb-3">
                         <label for="questItems">Items</label>
                         <select id="questItems" name="relatedItems" multiple></select>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6 mb-3">
                         <label for="questFactions">Factions</label>
                         <select id="questFactions" name="relatedFactions" multiple></select>
                     </div>
-                    <div class="form-group">
+                    <div class="col-12 col-sm-6 mb-3">
                         <label for="relatedQuests">Related Quests</label>
                         <select id="relatedQuests" name="relatedQuests" multiple></select>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="row g-3">
+                    <div class="col-12 col-md-4 mb-3">
                         <label for="resolutionSession">Resolution Session</label>
                         <input type="text" id="resolutionSession" name="resolutionSession" value="${quest && quest.resolution ? quest.resolution.session : ''}">
                     </div>
-                    <div class="form-group">
+                    <div class="col-12 col-md-4 mb-3">
                         <label for="resolutionDate">Resolution Date</label>
                         <input type="date" id="resolutionDate" name="resolutionDate" value="${quest && quest.resolution && quest.resolution.date ? new Date(quest.resolution.date).toISOString().split('T')[0] : ''}">
                     </div>
-                    <div class="form-group">
+                    <div class="col-12 col-md-4 mb-3">
                         <label for="resolutionXp">XP Gain</label>
                         <input type="number" id="resolutionXp" name="resolutionXp" value="${quest && quest.resolution ? quest.resolution.xp : 0}" min="0">
                     </div>

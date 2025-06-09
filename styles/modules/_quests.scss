@@ -156,6 +156,13 @@
   }
 }
 
+// Scrollable quest details panel
+#questDetails {
+  min-height: 100%;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
 @media (max-width: 768px) {
   .quest-list {
     grid-template-columns: 1fr;
