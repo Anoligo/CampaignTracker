@@ -12,15 +12,18 @@ export class QuestService {
                 return [];
             }
             
-            // Ensure quests is an array
-            if (!Array.isArray(this.dataManager.appState.quests)) {
+            // Access quests from the internal state
+            const state = this.dataManager.appState.state || {};
+
+            // Ensure quests is an array within the state
+            if (!Array.isArray(state.quests)) {
                 console.log('Initializing quests array in appState');
-                this.dataManager.appState.quests = [];
-                this._saveQuests([]);
-                return [];
+                this.dataManager.appState.update({ quests: [] });
             }
-            
-            const quests = this.dataManager.appState.quests || [];
+
+            const quests = this.dataManager.appState.state.quests || [];
+            // Keep legacy reference in sync
+            this.dataManager.appState.quests = quests;
             console.log('QuestService.getAllQuests: Found', quests.length, 'quests in state');
             
             // Convert plain objects to Quest instances
@@ -239,6 +242,8 @@ export class QuestService {
             if (this.dataManager.appState && typeof this.dataManager.appState.update === 'function') {
                 // Use the update method which will handle saving to storage
                 this.dataManager.appState.update({ quests: questsToSave });
+                // Keep legacy reference in sync
+                this.dataManager.appState.quests = this.dataManager.appState.state.quests;
                 console.log('State updated via appState.update');
             } else {
                 console.error('appState.update is not available');
@@ -246,6 +251,9 @@ export class QuestService {
                 // Fallback to direct assignment if update method is not available
                 if (this.dataManager.appState) {
                     this.dataManager.appState.quests = questsToSave;
+                    if (this.dataManager.appState.state) {
+                        this.dataManager.appState.state.quests = questsToSave;
+                    }
                     
                     // Try to save to local storage directly
                     if (typeof Storage !== 'undefined' && this.dataManager.appState._saveState) {
