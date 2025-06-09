@@ -1,22 +1,27 @@
 import { Entity } from '../../entity.js';
-import { LocationType } from '../constants/location-constants.js';
+import { LocationType, DiscoveryStatus } from '../constants/location-constants.js';
 
 /**
  * Represents a location in the game world
  */
 export class Location extends Entity {
-    constructor(name, description, type = LocationType.CITY, x = 0, y = 0, discovered = false, relatedQuests = [], relatedItems = [], npcs = [], connections = [], createdAt = new Date(), updatedAt = new Date()) {
+    constructor(name, description, type = LocationType.CITY, x = 0, y = 0, discoveryStatus = DiscoveryStatus.UNDISCOVERED, relatedQuests = [], relatedItems = [], npcs = [], connections = [], tags = [], createdAt = new Date(), updatedAt = new Date()) {
         super(null, new Date(createdAt), new Date(updatedAt));
         this.name = name;
         this.description = description;
         this.type = type;
         this.x = x;
         this.y = y;
-        this.discovered = discovered;
+        this.discoveryStatus = discoveryStatus;
         this.relatedQuests = Array.isArray(relatedQuests) ? [...relatedQuests] : [];
         this.relatedItems = Array.isArray(relatedItems) ? [...relatedItems] : [];
         this.npcs = Array.isArray(npcs) ? [...npcs] : [];
         this.connections = Array.isArray(connections) ? [...connections] : [];
+        this.tags = Array.isArray(tags) ? [...tags] : [];
+    }
+
+    get coordinates() {
+        return { x: this.x, y: this.y };
     }
 
     /**

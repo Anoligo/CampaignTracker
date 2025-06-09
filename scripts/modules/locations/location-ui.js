@@ -262,6 +262,13 @@ export class LocationUI {
                                 <p>${location.formattedNotes}</p>
                             </div>
                         ` : ''}
+
+                        ${location.tags && location.tags.length ? `
+                            <div class="section">
+                                <h4>Tags</h4>
+                                <p>${location.tags.join(', ')}</p>
+                            </div>
+                        ` : ''}
                         
                         ${location.coordinates ? `
                             <div class="section">
@@ -320,6 +327,7 @@ export class LocationUI {
         // Pan to location on map if it has coordinates
         if (this.selectedLocation?.coordinates && this.interactiveMap) {
             this.interactiveMap.panTo(this.selectedLocation.coordinates);
+            this.interactiveMap.highlightMarker(this.selectedLocation.id);
         }
         
         // Notify parent component
@@ -370,6 +378,10 @@ export class LocationUI {
         // If we have coordinates from the map, include them
         if (this.selectedLocation?.coordinates) {
             locationData.coordinates = this.selectedLocation.coordinates;
+        }
+
+        if (locationData.x !== undefined && locationData.y !== undefined) {
+            locationData.coordinates = { x: Number(locationData.x), y: Number(locationData.y) };
         }
 
         let saved = null;

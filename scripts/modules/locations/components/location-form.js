@@ -162,10 +162,17 @@ export class LocationForm {
         const form = event.target;
         const formData = new FormData(form);
         const location = {};
-        
+
         // Convert FormData to object
         for (const [key, value] of formData.entries()) {
-            location[key] = value.trim();
+            if (key === 'x' || key === 'y') {
+                const num = parseFloat(value);
+                if (!isNaN(num)) location[key] = num;
+            } else if (key === 'tags') {
+                location[key] = value.split(',').map(t => t.trim()).filter(t => t);
+            } else {
+                location[key] = value.trim();
+            }
         }
         
         // Validate location
