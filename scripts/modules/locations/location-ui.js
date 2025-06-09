@@ -20,7 +20,8 @@ export class LocationUI {
         containerId = 'location-manager',
         onSave = () => {},
         onDelete = () => {},
-        onSelect = () => {}
+        onSelect = () => {},
+        locationService = null
     } = {}) {
         // DOM elements
         this.container = document.getElementById(containerId);
@@ -33,9 +34,10 @@ export class LocationUI {
         this.onSave = onSave;
         this.onDelete = onDelete;
         this.onSelect = onSelect;
+        this.locationService = locationService;
         
         // State
-        this.locations = [];
+        this.locations = this.locationService ? this.locationService.getAllLocations() : [];
         this.selectedLocation = null;
         this.isEditing = false;
         this.searchQuery = '';
@@ -364,18 +366,33 @@ export class LocationUI {
         if (this.selectedLocation?.id) {
             locationData.id = this.selectedLocation.id;
         }
-        
+
         // If we have coordinates from the map, include them
         if (this.selectedLocation?.coordinates) {
             locationData.coordinates = this.selectedLocation.coordinates;
         }
-        
-        // Call the save callback
-        if (typeof this.onSave === 'function') {
-            this.onSave(locationData);
+
+        let saved = null;
+        if (this.locationService) {
+            const data = { ...locationData };
+            if (data.coordinates) {
+                data.x = data.coordinates.x;
+                data.y = data.coordinates.y;
+                delete data.coordinates;
+            }
+            if (locationData.id) {
+                saved = this.locationService.updateLocation(locationData.id, data);
+            } else {
+                saved = this.locationService.createLocation(data);
+            }
+            this.locations = this.locationService.getAllLocations();
+            this.updateMapMarkers();
         }
-        
-        // Update UI
+
+        if (typeof this.onSave === 'function') {
+            this.onSave(saved || locationData);
+        }
+
         this.isEditing = false;
         this.render();
     }

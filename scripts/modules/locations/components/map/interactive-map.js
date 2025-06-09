@@ -36,6 +36,8 @@ export class InteractiveMap {
         this.mapImagePath = options.mapImagePath || './images/WorldMap.png';
         this.onLocationClick = typeof options.onLocationClick === 'function' ? options.onLocationClick : null;
         this.onMapClick = typeof options.onMapClick === 'function' ? options.onMapClick : null;
+        this.onAddLocation = typeof options.onAddLocation === 'function' ? options.onAddLocation : null;
+        this.lastClickCoordinates = null;
         this._pendingCenter = null;
 
         // Initialize locations array
@@ -578,8 +580,32 @@ export class InteractiveMap {
      * @private
      */
     _handleMapClick(e) {
-        if (this.onMapClick) {
-            this.onMapClick(e);
+        if (!this.mapContainer || !this.mapImage) return;
+
+        const rect = this.mapContainer.getBoundingClientRect();
+        const x = (e.clientX - rect.left - this.offsetX) / this.scale;
+        const y = (e.clientY - rect.top - this.offsetY) / this.scale;
+
+        const location = this._getLocationAt(x, y);
+        if (location) {
+            if (this.onLocationClick) {
+                this.onLocationClick(location.id);
+            }
+            return;
+        }
+
+        if (this.mapImage.naturalWidth && this.mapImage.naturalHeight) {
+            const coords = {
+                x: (x / this.mapImage.naturalWidth) * 100,
+                y: (y / this.mapImage.naturalHeight) * 100
+            };
+            this.lastClickCoordinates = coords;
+            if (this.onAddLocation) {
+                this.onAddLocation(coords);
+            }
+            if (this.onMapClick) {
+                this.onMapClick(coords);
+            }
         }
     }
 
