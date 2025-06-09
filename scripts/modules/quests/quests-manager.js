@@ -1,5 +1,5 @@
 import { QuestService } from './services/quest-service.js';
-import { QuestUI } from './ui/quest-ui-new.js';
+import { QuestUI } from './ui/quest-ui-main.js';
 
 /**
  * QuestsManager coordinates between the UI and the QuestService
