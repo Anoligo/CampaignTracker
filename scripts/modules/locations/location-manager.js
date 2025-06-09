@@ -152,7 +152,10 @@ export class LocationManager {
         // Create the UI if it doesn't exist yet
         if (!this.locationUI) {
             console.log('Creating LocationUI');
-            this.locationUI = new LocationUI(this.locationService, this.dataManager);
+            this.locationUI = new LocationUI({
+                containerId: 'locationUIContainer',
+                locationService: this.locationService
+            });
             
             // Initialize the UI after a short delay to ensure DOM is ready
             console.log('Initializing LocationUI');
