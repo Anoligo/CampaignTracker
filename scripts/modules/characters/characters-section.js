@@ -3,7 +3,7 @@
  * Handles the initialization of the characters section
  */
 
-import { CharactersManager } from './index.js';
+import { CharactersManager } from './characters-manager.js';
 import { CharacterUI } from './ui/character-ui.js';
 
 /**
