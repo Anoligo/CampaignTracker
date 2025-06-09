@@ -113,6 +113,18 @@ export class QuestService {
                 if (Array.isArray(questData.relatedCharacters)) {
                     newQuest.relatedCharacters = [...questData.relatedCharacters];
                 }
+                if (Array.isArray(questData.relatedFactions)) {
+                    newQuest.relatedFactions = [...questData.relatedFactions];
+                }
+                if (Array.isArray(questData.relatedQuests)) {
+                    newQuest.relatedQuests = [...questData.relatedQuests];
+                }
+                if (questData.notes !== undefined) {
+                    newQuest.notes = questData.notes;
+                }
+                if (questData.resolution !== undefined) {
+                    newQuest.resolution = { ...newQuest.resolution, ...questData.resolution };
+                }
                 
                 quests[existingQuestIndex] = newQuest;
                 console.log('Updated existing quest:', newQuest);
@@ -141,7 +153,19 @@ export class QuestService {
                 if (Array.isArray(questData.relatedCharacters)) {
                     newQuest.relatedCharacters = [...questData.relatedCharacters];
                 }
-                
+                if (Array.isArray(questData.relatedFactions)) {
+                    newQuest.relatedFactions = [...questData.relatedFactions];
+                }
+                if (Array.isArray(questData.relatedQuests)) {
+                    newQuest.relatedQuests = [...questData.relatedQuests];
+                }
+                if (questData.notes !== undefined) {
+                    newQuest.notes = questData.notes;
+                }
+                if (questData.resolution !== undefined) {
+                    newQuest.resolution = { ...newQuest.resolution, ...questData.resolution };
+                }
+
                 quests.push(newQuest);
                 console.log('Created new quest:', newQuest);
             }
@@ -173,6 +197,12 @@ export class QuestService {
         if (updates.relatedItems !== undefined) updatedQuest.relatedItems = [...updates.relatedItems];
         if (updates.relatedLocations !== undefined) updatedQuest.relatedLocations = [...updates.relatedLocations];
         if (updates.relatedCharacters !== undefined) updatedQuest.relatedCharacters = [...updates.relatedCharacters];
+        if (updates.relatedFactions !== undefined) updatedQuest.relatedFactions = [...updates.relatedFactions];
+        if (updates.relatedQuests !== undefined) updatedQuest.relatedQuests = [...updates.relatedQuests];
+        if (updates.notes !== undefined) updatedQuest.notes = updates.notes;
+        if (updates.resolution !== undefined) {
+            updatedQuest.resolution = { ...updatedQuest.resolution, ...updates.resolution };
+        }
         
         // Always update the timestamp
         updatedQuest.updatedAt = new Date();

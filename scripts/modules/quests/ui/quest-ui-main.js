@@ -4,7 +4,7 @@ import { detailsView } from './quest-details-view.js';
 import { formHandler } from './quest-form-handler.js';
 
 export class QuestUI extends BaseUI {
-    constructor(questService) {
+    constructor(questService, dataManager = null) {
         super({
             containerId: 'quests',
             listId: 'questList',
@@ -20,6 +20,7 @@ export class QuestUI extends BaseUI {
         });
 
         this.questService = questService;
+        this.dataManager = dataManager;
         this.currentQuest = null;
         this.isEditing = false;
         this.initialize();
