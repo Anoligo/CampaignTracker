@@ -35,6 +35,7 @@ export const detailsView = {
 
     renderQuestDetails(quest) {
         const { details } = this.elements;
+        const contentEl = details.querySelector('#questDetailsContent') || details;
         const statusClass = `status-${quest.status.toLowerCase().replace(/\s+/g, '-')}`;
         const typeClass = `type-${quest.type.toLowerCase()}`;
 
@@ -47,7 +48,7 @@ export const detailsView = {
         };
 
         const resolution = quest.resolution || {};
-        details.innerHTML = `
+        contentEl.innerHTML = `
             <div class="quest-details">
                 <div class="quest-header">
                     <h2>${escapeHtml(quest.name)}</h2>

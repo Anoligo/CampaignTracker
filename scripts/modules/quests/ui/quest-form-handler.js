@@ -8,6 +8,7 @@ export const formHandler = {
         this.isEditing = !!quest;
         this.currentQuest = quest || null;
         const { details } = this.elements;
+        const contentEl = details.querySelector('#questDetailsContent') || details;
 
         const formHtml = `
             <form id="questForm" class="quest-form">
@@ -81,7 +82,7 @@ export const formHandler = {
                 </div>
             </form>`;
 
-        details.innerHTML = formHtml;
+        contentEl.innerHTML = formHtml;
 
         const form = document.getElementById('questForm');
         form.addEventListener('submit', (e) => this.handleFormSubmit(e));
@@ -100,7 +101,8 @@ export const formHandler = {
             if (this.currentQuest) {
                 this.showQuestDetails(this.currentQuest.id);
             } else {
-                this.elements.details.innerHTML = '';
+                const c = this.elements.details.querySelector('#questDetailsContent') || this.elements.details;
+                c.innerHTML = '';
             }
         });
     },
@@ -139,7 +141,8 @@ export const formHandler = {
             if (this.isEditing && this.currentQuest) {
                 this.showQuestDetails(this.currentQuest.id);
             } else {
-                this.elements.details.innerHTML = '';
+                const c = this.elements.details.querySelector('#questDetailsContent') || this.elements.details;
+                c.innerHTML = '';
             }
         } catch (error) {
             console.error('Error saving quest:', error);
@@ -156,7 +159,8 @@ export const formHandler = {
             showToast('Quest deleted successfully', 'success');
             if (this.currentQuest && this.currentQuest.id === questId) {
                 this.currentQuest = null;
-                this.elements.details.innerHTML = `
+                const c = this.elements.details.querySelector('#questDetailsContent') || this.elements.details;
+                c.innerHTML = `
                     <div class="text-muted text-center py-5">
                         <i class="fas fa-scroll fa-3x mb-3"></i>
                         <p>Select a quest or create a new one</p>
