@@ -1,0 +1,290 @@
+/**
+ * Tables
+ * Styles for data tables and data grids
+ */
+
+// Base table styles
+table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: var(--text);
+  border-collapse: collapse;
+  
+  // Table header
+  thead {
+    th {
+      padding: 0.75rem;
+      font-weight: 600;
+      text-align: left;
+      background-color: var(--bg-dark);
+      border-bottom: 2px solid var(--border-color);
+      
+      // Sortable headers
+      &.sortable {
+        cursor: pointer;
+        user-select: none;
+        
+        &:hover {
+          background-color: var(--bg-hover);
+        }
+        
+        &::after {
+          content: "↕";
+          margin-left: 0.5rem;
+          opacity: 0.3;
+          font-size: 0.8em;
+        }
+        
+        &.sort-asc::after {
+          content: "↑";
+          opacity: 1;
+        }
+        
+        &.sort-desc::after {
+          content: "↓";
+          opacity: 1;
+        }
+      }
+    }
+  }
+  
+  // Table body
+  tbody {
+    tr {
+      transition: background-color 0.2s ease;
+      
+      &:nth-of-type(even) {
+        background-color: var(--bg-dark);
+      }
+      
+      &:hover {
+        background-color: var(--bg-hover);
+      }
+      
+      // Row selection
+      &.selected {
+        background-color: rgba(var(--accent-rgb), 0.1);
+        
+        &:hover {
+          background-color: rgba(var(--accent-rgb), 0.15);
+        }
+      }
+      
+      // Disabled row
+      &.disabled {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+    }
+    
+    td {
+      padding: 0.75rem;
+      border-top: 1px solid var(--border-color);
+      vertical-align: middle;
+      
+      // Compact cells
+      &.compact {
+        width: 1%;
+        white-space: nowrap;
+      }
+      
+      // Action buttons
+      .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        
+        + .btn {
+          margin-left: 0.25rem;
+        }
+      }
+    }
+  }
+  
+  // Table footer
+  tfoot {
+    td {
+      padding: 0.75rem;
+      font-weight: 600;
+      background-color: var(--bg-dark);
+      border-top: 2px solid var(--border-color);
+    }
+  }
+  
+  // Table caption
+  caption {
+    padding: 0.75rem;
+    color: var(--text-muted);
+    caption-side: bottom;
+    text-align: left;
+  }
+}
+
+// Table variations
+.table {
+  // Bordered table
+  &.table-bordered {
+    border: 1px solid var(--border-color);
+    
+    th,
+    td {
+      border: 1px solid var(--border-color);
+    }
+  }
+  
+  // Borderless table
+  &.table-borderless {
+    th,
+    td,
+    thead th,
+    tbody + tbody {
+      border: 0;
+    }
+  }
+  
+  // Hoverable rows
+  &.table-hover {
+    tbody tr:hover {
+      background-color: var(--bg-hover);
+    }
+  }
+  
+  // Striped rows
+  &.table-striped {
+    tbody tr:nth-of-type(odd) {
+      background-color: var(--bg-dark);
+    }
+  }
+  
+  // Small table
+  &.table-sm {
+    th,
+    td {
+      padding: 0.3rem;
+    }
+  }
+  
+  // Contextual row colors
+  @each $color, $value in $theme-colors {
+    $background: theme-color-level($color, -10);
+    $border: theme-color-level($color, -5);
+    
+    &-hover-#{$color} {
+      &:hover {
+        background-color: $background;
+        
+        > th,
+        > td {
+          background-color: $background;
+        }
+      }
+    }
+    
+    &-#{$color} {
+      background-color: $background;
+      
+      th,
+      td,
+      thead th,
+      tbody + tbody {
+        border-color: $border;
+      }
+    }
+  }
+}
+
+// Responsive tables
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  
+  // Hide scrollbar for Firefox
+  scrollbar-width: none;
+  
+  // Hide scrollbar for WebKit/Blink
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  // Add shadow to indicate scrollable content
+  &.has-scroll {
+    position: relative;
+    
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 20px;
+      background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.1) 100%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    &.scrolled::after {
+      opacity: 1;
+    }
+  }
+}
+
+// Data grid
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  
+  .grid-item {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .grid-item-header {
+      padding: 0.75rem;
+      background-color: var(--bg-dark);
+      border-bottom: 1px solid var(--border-color);
+      
+      h4 {
+        margin: 0;
+        font-size: 1rem;
+      }
+    }
+    
+    .grid-item-body {
+      padding: 0.75rem;
+      
+      p:last-child {
+        margin-bottom: 0;
+      }
+    }
+    
+    .grid-item-footer {
+      padding: 0.75rem;
+      background-color: var(--bg-dark);
+      border-top: 1px solid var(--border-color);
+      text-align: right;
+    }
+  }
+}
+
+// Responsive adjustments
+@include media-breakpoint-down(md) {
+  .data-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@include media-breakpoint-down(sm) {
+  .data-grid {
+    grid-template-columns: 1fr;
+  }
+}

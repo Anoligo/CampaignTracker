@@ -1,0 +1,59 @@
+/**
+ * Footer Layout
+ * Styles for the main footer
+ */
+
+.footer {
+  padding: 1.5rem 0;
+  margin-top: auto;
+  background-color: var(--bg-dark);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  border-top: 1px solid var(--border-color);
+  
+  a {
+    color: var(--text-muted);
+    text-decoration: none;
+    
+    &:hover {
+      color: var(--text);
+      text-decoration: underline;
+    }
+  }
+  
+  .footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    
+    li {
+      display: inline-block;
+    }
+  }
+  
+  .footer-copyright {
+    margin: 0;
+  }
+  
+  @include media-breakpoint-down(md) {
+    text-align: center;
+    
+    .footer-content {
+      flex-direction: column;
+    }
+    
+    .footer-links {
+      margin-top: 0.5rem;
+    }
+  }
+}

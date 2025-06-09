@@ -1,0 +1,567 @@
+import { PlayerClass } from '../enums/player-enums.js';
+
+export class PlayerUI {
+    constructor(playerManager) {
+        this.playerManager = playerManager;
+        this.service = playerManager.service;
+    }
+
+    initializePlayersSection() {
+        const playersSection = document.getElementById('players');
+        if (!playersSection) {
+            console.error('playersSection element not found');
+            return;
+        }
+        
+        // Set up event listeners
+        const addPlayerBtn = document.getElementById('addPlayerBtn');
+        if (addPlayerBtn) {
+            addPlayerBtn.addEventListener('click', () => {
+                this.handleAddPlayer();
+            });
+        }
+        
+        const playerSearch = document.getElementById('playerSearch');
+        if (playerSearch) {
+            playerSearch.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const players = this.service.getAllPlayers();
+                const filteredPlayers = players.filter(player => 
+                    player.name.toLowerCase().includes(searchTerm) || 
+                    (player.class && player.class.toLowerCase().includes(searchTerm))
+                );
+                this.renderPlayerList(filteredPlayers);
+            });
+        }
+        
+        // Initial render of the player list
+        this.renderPlayerList();
+        
+        // Log initialization status
+        console.log('Player section initialized');
+    }
+
+    renderPlayerList(players = null) {
+        const playerList = document.getElementById('playerList');
+        if (!playerList) {
+            console.error('Could not find playerList element');
+            return;
+        }
+
+        const playersToRender = players || this.service.getAllPlayers();
+        
+        if (!Array.isArray(playersToRender)) {
+            console.error('Players data is not an array:', playersToRender);
+            return;
+        }
+
+        // Clear the list first
+        playerList.innerHTML = '';
+        
+        if (playersToRender.length === 0) {
+            playerList.innerHTML = '<div class="text-center p-3 text-muted">No players found. Click "Add Player" to create one.</div>';
+            return;
+        }
+
+        // Add each player to the list
+        playersToRender.forEach(player => {
+            const playerItem = document.createElement('a');
+            playerItem.href = '#';
+            playerItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+            playerItem.setAttribute('data-player-id', player.id);
+            
+            // Create the content for the player item
+            playerItem.innerHTML = `
+                <div class="d-flex flex-column">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-friends me-2"></i>
+                        <strong>${player.name}</strong>
+                    </div>
+                    <small>${this.formatClassName(player.class) || 'Unknown Class'} (Level ${player.level || 1})</small>
+                </div>
+                <span class="badge bg-secondary rounded-pill">${player.status || 'Active'}</span>
+            `;
+            
+            // Add click event to show player details
+            playerItem.addEventListener('click', () => this.showPlayerDetails(player.id));
+            
+            // Add the player item to the list
+            playerList.appendChild(playerItem);
+        });
+    }
+
+    showPlayerDetails(playerId) {
+        const playerDetailsContainer = document.getElementById('playerDetails');
+        if (!playerDetailsContainer) {
+            console.error('Could not find playerDetails element');
+            return;
+        }
+        
+        // If no player ID is provided, show empty state
+        if (!playerId) {
+            playerDetailsContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-user-friends fa-3x mb-3"></i>
+                    <p class="empty-state-message">Select a player to view details</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const player = this.service.getPlayerById(playerId);
+        if (!player) {
+            playerDetailsContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                    <p class="empty-state-message">Player not found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Mark the selected player in the list
+        document.querySelectorAll('#playerList a').forEach(item => {
+            if (item.getAttribute('data-player-id') === playerId) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+        
+        // Get all quests and items from the data manager
+        const quests = this.playerManager.dataManager.appState.quests || [];
+        const items = this.playerManager.dataManager.appState.loot || [];
+        
+        // Initialize player properties if they don't exist
+        const playerActiveQuests = player.activeQuests || [];
+        const playerCompletedQuests = player.completedQuests || [];
+        const playerInventory = player.inventory || [];
+        
+        // Filter out quests that are already assigned to the player
+        const availableQuests = quests.filter(quest => 
+            !playerActiveQuests.some(q => q.id === quest.id) && 
+            !playerCompletedQuests.some(q => q.id === quest.id)
+        );
+        
+        // Filter out items that are already in the player's inventory
+        const availableItems = items.filter(item => 
+            !playerInventory.some(i => i === item.id)
+        );
+
+        // Create HTML for inventory items
+        let inventoryHtml = '';
+        if (playerInventory.length > 0) {
+            inventoryHtml = playerInventory.map(itemId => {
+                const item = items.find(i => i.id === itemId);
+                if (!item) return '';
+                return `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>${item.name || 'Unnamed Item'}</span>
+                        <button class="btn btn-sm btn-outline-danger remove-item" data-item-id="${item.id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            inventoryHtml = '<p class="text-muted">No items in inventory</p>';
+        }
+
+        // Create HTML for active quests
+        let activeQuestsHtml = '';
+        if (playerActiveQuests.length > 0) {
+            activeQuestsHtml = playerActiveQuests.map(quest => {
+                return `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>${quest.name || 'Unnamed Quest'}</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-success me-1 complete-quest" data-quest-id="${quest.id}">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger remove-quest" data-quest-id="${quest.id}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            activeQuestsHtml = '<p class="text-muted">No active quests</p>';
+        }
+
+        // Create the details panel content
+        let detailsContent = `
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">${player.name}</h5>
+                <div>
+                    <button class="btn btn-sm btn-primary me-2" id="edit-player-btn">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-danger" id="delete-player-btn">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="text-accent mb-3">Basic Information</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Class:</strong> ${this.formatClassName(player.class) || 'Unknown'}</p>
+                            <p><strong>Level:</strong> ${player.level || 1}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Experience:</strong> ${player.experience || 0}</p>
+                            <p><strong>Status:</strong> <span class="badge bg-secondary">${player.status || 'Active'}</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Section -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-accent mb-0">Inventory</h6>
+                        ${availableItems.length > 0 ? `
+                            <button class="btn btn-sm btn-success" id="addItemBtn">
+                                <i class="fas fa-plus"></i> Add Item
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div id="inventoryItems">
+                        ${inventoryHtml}
+                    </div>
+                </div>
+                
+                <!-- Active Quests Section -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-accent mb-0">Active Quests</h6>
+                        ${availableQuests.length > 0 ? `
+                            <button class="btn btn-sm btn-success" id="addActiveQuestBtn">
+                                <i class="fas fa-plus"></i> Add Quest
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div id="activeQuestsList">
+                        ${activeQuestsHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Update the details container with the new content
+        playerDetailsContainer.innerHTML = detailsContent;
+        
+        // Set up event listeners for the details panel
+        this.setupPlayerDetailsEventListeners(player);
+                    </div>
+                    <div id="addItemForm" class="mt-3" style="display: none;">
+                        ${availableItems.length === 0 ? '<p class="text-warning">No items available to add. Create some items in the Loot section first.</p>' : ''}
+                        <div class="input-group">
+                            <select class="form-select" id="itemSelect">
+                                <option value="" selected disabled>Select an item...</option>
+                                ${availableItems.map(item => 
+                                    `<option value="${item.id}">${item.name || 'Unnamed Item'}</option>`
+                                ).join('')}
+                            </select>
+                            <button class="btn btn-primary" id="saveItemBtn" disabled>Add</button>
+                            <button class="btn btn-outline-secondary" id="cancelItemBtn">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Active Quests</h4>
+                    ${availableQuests.length > 0 ? `
+                        <button class="btn btn-sm btn-success" id="addActiveQuestBtn">+ Add Quest</button>
+                    ` : ''}
+                </div>
+                <div class="card-body">
+                    <div id="activeQuestsList">
+                        ${player.activeQuests.length > 0 ? 
+                            player.activeQuests.map((quest, index) => `
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>${quest.name || 'Unnamed Quest'}</span>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-success complete-quest me-1" data-quest-id="${quest.id}">✓</button>
+                                        <button class="btn btn-sm btn-outline-danger remove-quest" data-quest-id="${quest.id}">×</button>
+                                    </div>
+                                </div>
+                            `).join('') : 
+                            '<p class="text-muted mb-0">No active quests</p>'
+                        }
+                    </div>
+                    <div id="addActiveQuestForm" class="mt-3" style="display: none;">
+                        <div class="input-group">
+                            <select class="form-select" id="questSelect">
+                                <option value="" selected disabled>Select a quest...</option>
+                                ${availableQuests.map(quest => 
+                                    `<option value="${quest.id}">${quest.name || 'Unnamed Quest'}</option>`
+                                ).join('')}
+                            </select>
+                            <button class="btn btn-primary" id="saveActiveQuestBtn" disabled>Add</button>
+                            <button class="btn btn-outline-secondary" id="cancelActiveQuestBtn">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4 class="mb-0">Completed Quests</h4>
+                </div>
+                <div class="card-body">
+                    <div id="completedQuestsList">
+                        ${player.completedQuests.length > 0 ? 
+                            player.completedQuests.map((quest, index) => `
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>${quest.name || 'Unnamed Quest'}</span>
+                                    <button class="btn btn-sm btn-outline-danger remove-completed-quest" data-quest-id="${quest.id}">×</button>
+                                </div>
+                            `).join('') : 
+                            '<p class="text-muted mb-0">No completed quests</p>'
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <button class="btn btn-primary" id="editPlayerBtn">Edit Player</button>
+                <button class="btn btn-danger ms-2" id="deletePlayerBtn">Delete Player</button>
+            </div>
+        `)({ items: allItems, availableItems, player });
+
+        this.setupPlayerDetailsEventListeners(player);
+    }
+
+    setupPlayerDetailsEventListeners(player) {
+        // Existing buttons
+        const editBtn = document.getElementById('editPlayerBtn');
+        const deleteBtn = document.getElementById('deletePlayerBtn');
+        
+        // Add Item button
+        const addItemBtn = document.getElementById('addItemBtn');
+        const addItemForm = document.getElementById('addItemForm');
+        const itemSelect = document.getElementById('itemSelect');
+        const saveItemBtn = document.getElementById('saveItemBtn');
+        const cancelItemBtn = document.getElementById('cancelItemBtn');
+        
+        // Make sure player.inventory is an array
+        if (!Array.isArray(player.inventory)) {
+            player.inventory = [];
+        }
+        
+        // Clean up any non-string items in inventory (legacy data)
+        const items = this.playerManager.dataManager.appState.loot || [];
+        const validItemIds = new Set(items.map(item => item.id));
+        
+        player.inventory = player.inventory.filter(itemId => {
+            if (typeof itemId !== 'string' || !validItemIds.has(itemId)) {
+                console.warn('Removing invalid item from inventory:', itemId);
+                return false;
+            }
+            return true;
+        });
+        
+        // Update the player's inventory in the service if we made changes
+        if (player.inventory.length !== player.inventory.length) {
+            this.playerManager.service.updatePlayer(player.id, { inventory: player.inventory });
+        }
+        
+        // Get available items (items not in player's inventory)
+        const playerItemIds = new Set(player.inventory);
+        const availableItems = items.filter(item => !playerItemIds.has(item.id));
+        
+        console.log('Available items:', availableItems);
+        console.log('Player inventory IDs:', player.inventory);
+        
+        // Active quests elements
+        const addActiveQuestBtn = document.getElementById('addActiveQuestBtn');
+        const addActiveQuestForm = document.getElementById('addActiveQuestForm');
+        const questSelect = document.getElementById('questSelect');
+        const saveActiveQuestBtn = document.getElementById('saveActiveQuestBtn');
+        const cancelActiveQuestBtn = document.getElementById('cancelActiveQuestBtn');
+        
+        // Get references to the player service
+        const playerService = this.playerManager.service;
+        
+        // Edit/Delete player
+        if (editBtn) {
+            editBtn.addEventListener('click', () => {
+                this.playerManager.forms.showEditPlayerForm(player.id);
+            });
+        }
+        
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => {
+                if (confirm(`Are you sure you want to delete ${player.name}? This cannot be undone.`)) {
+                    this.playerManager.deletePlayer(player.id);
+                }
+            });
+        }
+        
+        // Inventory management
+        if (addItemBtn) {
+            addItemBtn.addEventListener('click', () => {
+                addItemForm.style.display = 'block';
+                addItemBtn.style.display = 'none';
+                if (itemSelect) itemSelect.focus();
+            });
+        }
+        
+        // Enable/disable save button based on selection
+        if (itemSelect) {
+            itemSelect.addEventListener('change', () => {
+                if (saveItemBtn) {
+                    saveItemBtn.disabled = !itemSelect.value;
+                }
+            });
+        }
+        
+        if (saveItemBtn) {
+            saveItemBtn.addEventListener('click', () => {
+                if (!itemSelect || !itemSelect.value) return;
+                
+                // Find the selected item in the loot array
+                const selectedItem = this.playerManager.dataManager.appState.loot.find(item => item.id === itemSelect.value);
+                if (selectedItem) {
+                    // Add the item to the player's inventory using the service
+                    if (playerService.addItemToPlayer(player.id, selectedItem)) {
+                        // Refresh the player details view
+                        this.showPlayerDetails(player.id);
+                    }
+                }
+            });
+        }
+        
+        if (cancelItemBtn) {
+            cancelItemBtn.addEventListener('click', () => {
+                addItemForm.style.display = 'none';
+                addItemBtn.style.display = 'block';
+                if (itemSelect) itemSelect.value = '';
+                if (saveItemBtn) saveItemBtn.disabled = true;
+            });
+        }
+        
+        // Remove inventory item
+        document.querySelectorAll('.remove-item').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const itemId = e.target.getAttribute('data-item-id');
+                if (confirm('Are you sure you want to remove this item from the inventory?')) {
+                    // Use the service method to remove the item
+                    if (playerService.removeItemFromPlayer(player.id, itemId)) {
+                        // Refresh the player details view
+                        this.showPlayerDetails(player.id);
+                    }
+                }
+            });
+        });
+        
+        // Active quests management
+        if (addActiveQuestBtn) {
+            addActiveQuestBtn.addEventListener('click', () => {
+                addActiveQuestForm.style.display = 'block';
+                addActiveQuestBtn.style.display = 'none';
+                if (questSelect) questSelect.focus();
+            });
+        }
+        
+        // Enable/disable save button based on selection
+        if (questSelect) {
+            questSelect.addEventListener('change', () => {
+                if (saveActiveQuestBtn) {
+                    saveActiveQuestBtn.disabled = !questSelect.value;
+                }
+            });
+        }
+        
+        if (saveActiveQuestBtn) {
+            saveActiveQuestBtn.addEventListener('click', () => {
+                if (!questSelect || !questSelect.value) return;
+                
+                // Find the selected quest in the quests array
+                const selectedQuest = this.playerManager.dataManager.appState.quests.find(quest => quest.id === questSelect.value);
+                if (selectedQuest) {
+                    // Add the quest to the player's active quests
+                    const updatedActiveQuests = [...player.activeQuests, selectedQuest];
+                    if (playerService.updatePlayer(player.id, { activeQuests: updatedActiveQuests })) {
+                        // Refresh the player details view
+                        this.showPlayerDetails(player.id);
+                    }
+                }
+            });
+        }
+        
+        if (cancelActiveQuestBtn) {
+            cancelActiveQuestBtn.addEventListener('click', () => {
+                addActiveQuestForm.style.display = 'none';
+                addActiveQuestBtn.style.display = 'block';
+                if (questSelect) questSelect.value = '';
+                if (saveActiveQuestBtn) saveActiveQuestBtn.disabled = true;
+            });
+        }
+        
+        // Complete quest
+        document.querySelectorAll('.complete-quest').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const questId = e.target.getAttribute('data-quest-id');
+                // Find the quest in the active quests
+                const questIndex = player.activeQuests.findIndex(q => q.id === questId);
+                if (questIndex !== -1) {
+                    // Move the quest from active to completed
+                    const updatedActiveQuests = player.activeQuests.filter(q => q.id !== questId);
+                    const completedQuest = player.activeQuests.find(q => q.id === questId);
+                    const updatedCompletedQuests = [...player.completedQuests, completedQuest];
+                    
+                    if (playerService.updatePlayer(player.id, {
+                        activeQuests: updatedActiveQuests,
+                        completedQuests: updatedCompletedQuests
+                    })) {
+                        // Refresh the player details view
+                        this.showPlayerDetails(player.id);
+                    }
+                }
+            });
+        });
+        
+        // Remove active quest
+        document.querySelectorAll('.remove-quest').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const questId = e.target.getAttribute('data-quest-id');
+                if (confirm('Are you sure you want to remove this quest?')) {
+                    // Remove the quest from active quests
+                    const updatedActiveQuests = player.activeQuests.filter(q => q.id !== questId);
+                    if (playerService.updatePlayer(player.id, { activeQuests: updatedActiveQuests })) {
+                        // Refresh the player details view
+                        this.showPlayerDetails(player.id);
+                    }
+                }
+            });
+        });
+        
+        // Remove completed quest
+        document.querySelectorAll('.remove-completed-quest').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const questId = e.target.getAttribute('data-quest-id');
+                if (confirm('Are you sure you want to remove this completed quest?')) {
+                    // Remove the quest from completed quests
+                    const updatedCompletedQuests = player.completedQuests.filter(q => q.id !== questId);
+                    if (playerService.updatePlayer(player.id, { completedQuests: updatedCompletedQuests })) {
+                        // Refresh the player details view
+                        this.showPlayerDetails(player.id);
+                    }
+                }
+            });
+        });
+    }
+
+    formatClassName(className) {
+        if (!className) return '';
+        return className
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    }
+}

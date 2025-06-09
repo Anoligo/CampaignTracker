@@ -1,0 +1,176 @@
+/**
+ * Factions Module
+ * Styles for the factions management interface
+ */
+
+.factions-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+// Factions Header
+.factions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    h1 {
+        margin: 0;
+        color: var(--text-heading);
+        font-size: 1.8rem;
+    }
+}
+
+// Factions Controls
+.factions-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.faction-search {
+    flex: 1;
+    max-width: 400px;
+}
+
+// Faction List
+.faction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.faction-item {
+    background-color: var(--bg-card);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    &__name {
+        font-weight: 500;
+        color: var(--text-heading);
+        margin: 0;
+    }
+
+    &__meta {
+        display: flex;
+        gap: 1rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+}
+
+// Attitude Badges
+.attitude-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+
+    &--friendly {
+        background-color: var(--success-light);
+        color: var(--success-dark);
+    }
+
+    &--neutral {
+        background-color: var(--warning-light);
+        color: var(--warning-dark);
+    }
+
+    &--hostile {
+        background-color: var(--danger-light);
+        color: var(--danger-dark);
+    }
+}
+
+// Faction Details
+.faction-details {
+    background-color: var(--bg-card);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-top: 1rem;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    &__title {
+        margin: 0;
+        color: var(--text-heading);
+    }
+
+    &__meta {
+        display: flex;
+        gap: 1rem;
+        margin: 0.5rem 0 1.5rem;
+        color: var(--text-muted);
+    }
+
+    &__section {
+        margin-bottom: 1.5rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 0.75rem;
+        color: var(--text-heading);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        &::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+            margin-left: 0.75rem;
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .factions-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .factions-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .faction-search {
+        max-width: 100%;
+    }
+}

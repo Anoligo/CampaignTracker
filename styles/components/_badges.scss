@@ -1,0 +1,350 @@
+@use 'sass:color';
+
+/**
+ * Badges
+ * Small count and labeling component
+ */
+
+// Base badge styles
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.6em;
+  font-size: 75%;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 10rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  
+  // Empty badge
+  &:empty {
+    display: none;
+  }
+  
+  // Pill badges (more rounded)
+  &.badge-pill {
+    padding-right: 0.6em;
+    padding-left: 0.6em;
+    border-radius: 50rem;
+  }
+  
+  // Square badges
+  &.badge-square {
+    border-radius: 0.25rem;
+  }
+  
+  // Badge with dot
+  &.badge-dot {
+    position: relative;
+    padding-left: 1.25rem;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0.5rem;
+      width: 0.5rem;
+      height: 0.5rem;
+      background-color: currentColor;
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+  }
+  
+  // Badge with close button
+  .badge-close {
+    margin-left: 0.25rem;
+    padding: 0 0.25rem;
+    color: inherit;
+    opacity: 0.7;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    
+    &:hover {
+      opacity: 1;
+    }
+    
+    &::after {
+      content: '×';
+      font-size: 1.1em;
+      line-height: 1;
+    }
+  }
+  
+  // Badge with icon
+  .badge-icon {
+    margin-right: 0.25rem;
+    font-size: 0.9em;
+  }
+  
+  // Badge with avatar
+  .badge-avatar {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.25rem;
+    border-radius: 50%;
+    vertical-align: middle;
+  }
+  
+  // Badge with counter
+  .badge-counter {
+    display: inline-block;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.35em;
+    margin-left: 0.25rem;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1.25rem;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    background-color: var(--dark);
+    border-radius: 10rem;
+  }
+}
+
+// Button badges
+.btn {
+  .badge {
+    position: relative;
+    top: -1px;
+    margin-left: 0.25rem;
+  }
+}
+
+// Badge variations
+@each $color, $value in $theme-colors {
+  .badge-#{$color} {
+    $lightness: color.channel($value, 'lightness', $space: hsl);
+    $text-color: if($lightness > 60%, #212529, #ffffff);
+    color: $text-color;
+    background-color: $value;
+    
+    @if $color == 'light' {
+      color: var(--dark);
+    }
+    
+    // Outline variant
+    &.badge-outline {
+      color: $value;
+      background-color: transparent;
+      border: 1px solid $value;
+      
+      @if $color == 'light' {
+        color: var(--dark);
+        border-color: var(--border-color);
+      }
+    }
+    
+    // Soft variant
+    &.badge-soft {
+      color: $value;
+      background-color: rgba($value, 0.1);
+      
+      @if $color == 'light' {
+        color: var(--dark);
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}
+
+// Badge with pulse animation
+.badge-pulse {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+  }
+}
+
+// Badge with glow effect
+.badge-glow {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  
+  @each $color, $value in $theme-colors {
+    &.badge-#{$color} {
+      box-shadow: 0 0 10px 0 rgba($value, 0.5);
+    }
+  }
+}
+
+// Badge with border
+.badge-border {
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 0 0 1px var(--border-color);
+}
+
+// Badge with shadow
+.badge-shadow {
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+}
+
+// Badge with hover effect
+.badge-hover {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Badge with status indicator
+.badge-status {
+  position: relative;
+  padding-left: 1.25rem;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0.5rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: currentColor;
+    border-radius: 50%;
+    transform: translateY(-50%);
+  }
+  
+  // Status colors
+  @each $color, $value in $theme-colors {
+    &.status-#{$color}::before {
+      background-color: $value;
+    }
+  }
+}
+
+// Badge with progress
+.badge-progress {
+  position: relative;
+  overflow: hidden;
+  
+  .progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    
+    .progress-bar {
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.5);
+      transition: width 0.3s ease;
+    }
+  }
+  
+  .badge-content {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Badge with image
+.badge-with-image {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  
+  .badge-image {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+}
+
+// Badge with checkbox
+.badge-checkbox {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem 0.25rem 0.5rem;
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    margin-right: 0.5rem;
+  }
+  
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+// Badge with close button on hover
+.badge-dismissible {
+  padding-right: 1.5em;
+  position: relative;
+  
+  .badge-close {
+    position: absolute;
+    top: 50%;
+    right: 0.25rem;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  &:hover .badge-close {
+    opacity: 1;
+  }
+}
+
+// Badge with animation
+.badge-animate {
+  animation: bounce 2s infinite;
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+}
+
+// Badge group
+.badge-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  
+  .badge {
+    margin: 0;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .badge {
+    font-size: 70%;
+    padding: 0.2em 0.5em;
+    
+    &.badge-pill {
+      padding-right: 0.5em;
+      padding-left: 0.5em;
+    }
+  }
+}

@@ -1,0 +1,59 @@
+# General Code Style & Formatting
+
+* Visual philosophy: dark, clean, “arcane-terminal” look—light text on matte-black backgrounds with gold/yellow accents used only to guide the eye.
+* Palette definition: declare every colour as a CSS custom property in `_variables.scss` (e.g. `--bg-dark`, `--accent`) and use only those tokens—never hard-code hex values.
+* Surface rules:
+
+  * Cards: `.card`, `.report`, `.player-card`; `border-left: 3px solid #555`; no heavy glows; hover lift `transform: translateY(-2px)`.
+  * Buttons: `.btn` / `.button`; background `#2c2c2c`; border `var(--border-light)`; on hover `border-color: var(--accent)`.
+  * Sidebar: background `#1f1f1f`; active/hover `background-color: rgba(255,217,102,.15)`.
+* Typography:
+
+  * Headings: `clamp(1.25rem, 2vw, 2rem)`; colour `--accent-light`; no all-caps.
+  * Body text: `--text` at `1rem` (desktop) / `0.95rem` (mobile); `line-height: 1.6`.
+  * Meta text: `.text-meta` `0.85rem`; `#bbbbbb` at 85 % opacity.
+  * Buttons: bold, sentence-case, size scales with viewport.
+* Accessibility baseline: WCAG AA 4.5 : 1 contrast, never colour-only cues, dropdowns and lists keyboard-navigable, hit areas ≥ 40 × 40 px.
+* **File-size limits & structure:**
+
+  * JS/TS modules ≤ 300 logical LOC; SCSS partials ≤ 250 LOC; HTML templates ≤ 250 LOC. Split the file once it reaches \~80 % of the limit.
+  * One **responsibility** per file: one component, one service, or one cohesive utility cluster—no “misc” catch-alls.
+  * Keep a flat folder when possible; deeply nested paths ( > 3 levels ) signal over-coupling.
+* SCSS syntax: max two-level nesting, one component per file, blank lines only between blocks—never inside a rule set.
+
+# Naming Conventions
+
+* **CSS/SCSS classes:** kebab-case (e.g. `.player-card`, `.quest-badge`).
+* **Utility classes:** prefix with `u-` (e.g. `.u-hidden`).
+* **CSS custom properties & SCSS variables:** kebab-case (`--bg-card`, `$z-index-modal`).
+* **JavaScript/TypeScript:** camelCase for variables & functions; PascalCase for classes; UPPER\_SNAKE for environment variables.
+* **Files & folders:**
+
+  * kebab-case only (`player-card.js`, `quest-details.scss`).
+  * File name must clearly describe its primary export—avoid vague names such as `helper.js`, `misc.scss`, `stuff.ts`.
+  * Conventional suffixes:
+
+    * `.component.js` / `.component.ts` for UI components
+    * `.service.js` / `.service.ts` for API or data services
+    * `.util.js` / `.util.ts` for stateless helpers
+    * `.store.js` / `.store.ts` for state containers
+  * `index.js` or `index.ts` files are reserved **solely** for re-export barrels—no logic inside.
+* Avoid magic numbers—store constants in `constants.js` or `_variables.scss`.
+
+# Functions & Logic
+
+* Keep handlers/helpers short and single-purpose (< 20 lines); early-return to flatten nesting.
+* Arrow functions for simple tasks (< 3 statements), named functions otherwise.
+* Core UX rule: all relational additions (loot to quest, location to event, etc.) **must** use searchable dropdowns—never free-text IDs or modals. Wrap `<select>` elements with **Tom Select**, **Select2**, or **Choices.js**, enabling type-to-search, clearable tags, single/multi-select, optional grouping.
+* Prefer `map`, `filter`, `reduce` over imperative loops.
+* Encapsulate repeated DOM logic in utility modules.
+* Provide keyboard shortcuts and `aria-*` attributes alongside JS behaviour.
+
+# Data Handling
+
+* Centralise colours, breakpoints, spacing, and z-indices in SCSS maps or JS config objects—no inline literals.
+* Treat theme tokens as immutable (`!default` in SCSS, `Object.freeze` in JS).
+* Store form state as structured objects; avoid passing ungrouped primitives.
+* Use `data-*` attributes to bind metadata to DOM elements instead of hidden inputs.
+* Perform validation in dedicated classes/components, not random helpers.
+* Follow RO-RO (Receive Object, Return Object) for multi-field parameters.

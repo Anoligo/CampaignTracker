@@ -1,0 +1,107 @@
+// Import variables and color functions at the top of the file
+@use 'sass:color';
+@use '../variables' as vars;
+
+/**
+ * Forms - File Input
+ * Styles for file input controls
+ */
+
+// Form file
+.form-file {
+  position: relative;
+  
+  .form-file-input {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: calc(1.5em + 0.75rem + 2px);
+    margin: 0;
+    opacity: 0;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    
+    &:focus ~ .form-file-label {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.25);
+    }
+    
+    // Disabled and read-only styles
+    &:disabled ~ .form-file-label,
+    &[readonly] ~ .form-file-label {
+      background-color: var(--bg-card);
+    }
+    
+    // Button variants for file input
+    @each $color, $value in vars.$theme-colors {
+      $r: color.channel($value, 'red', rgb);
+      $g: color.channel($value, 'green', rgb);
+      $b: color.channel($value, 'blue', rgb);
+      
+      &:focus:not(:disabled):not([readonly]) ~ .form-file-label.btn-#{$color} {
+        box-shadow: 0 0 0 0.2rem rgba($r, $g, $b, 0.5);
+      }
+    }
+  }
+  
+  .form-file-label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    
+    &::after {
+      content: "Browse";
+      display: inline-block;
+      margin-left: auto;
+      padding: 0.375rem 0.75rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--text);
+      background-color: var(--border-color);
+      border-left: inherit;
+      border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+      height: 100%;
+      margin-top: -0.375rem;
+      margin-right: -0.75rem;
+      margin-bottom: -0.375rem;
+    }
+  }
+  
+  // Size variations
+  &.form-file-sm {
+    height: calc(1.5em + 0.5rem + 2px);
+    
+    .form-file-input,
+    .form-file-label {
+      height: calc(1.5em + 0.5rem + 2px);
+    }
+    
+    .form-file-label::after {
+      padding: 0.25rem 0.5rem;
+    }
+  }
+  
+  &.form-file-lg {
+    height: calc(1.5em + 1rem + 2px);
+    
+    .form-file-input,
+    .form-file-label {
+      height: calc(1.5em + 1rem + 2px);
+    }
+    
+    .form-file-label::after {
+      padding: 0.5rem 1rem;
+    }
+  }
+}

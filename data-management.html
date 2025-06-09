@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Management - Pathfinder World Tracker</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="dist/css/main.min.css">
+    <style>
+        :root {
+            --bg-dark: #1a1a2e;
+            --bg-darker: #16213e;
+            --bg-darkest: #0f172a;
+            --primary: #3a7bd5;
+            --primary-hover: #2c5fb3;
+            --text-light: #e6e6e6;
+            --text-muted: #a0aec0;
+            --border-color: #2a3a5f;
+            --card-bg: #1e293b;
+            --card-header-bg: #1e40af;
+        }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+        
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background-color: var(--bg-darkest);
+            min-height: 100vh;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+        
+        .card-header {
+            background-color: var(--card-header-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            color: white;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+        
+        .btn-secondary {
+            background-color: #4a5568;
+            border-color: #4a5568;
+        }
+        
+        .btn-secondary:hover, .btn-secondary:focus {
+            background-color: #2d3748;
+            border-color: #2d3748;
+        }
+        
+        .form-control, .form-select {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(58, 123, 213, 0.25);
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .form-label, .form-text {
+            color: var(--text-light);
+        }
+        
+        .form-text {
+            opacity: 0.8;
+        }
+        
+        .border-bottom {
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+        
+        .form-control:focus {
+            background-color: var(--bg-darker);
+            border-color: var(--primary);
+            color: var(--text-light);
+            box-shadow: 0 0 0 0.2rem rgba(58, 123, 213, 0.25);
+        }
+        .alert {
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            color: var(--text-light);
+        }
+        
+        .alert-success {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .alert-error, .alert-danger {
+            background-color: #ef4444;
+            border-color: #dc2626;
+        }
+        
+        .alert-info {
+            background-color: #3b82f6;
+            border-color: #2563eb;
+        }
+        
+        .alert-warning {
+            background-color: #f59e0b;
+            border-color: #d97706;
+        }
+    </style>
+</head>
+<body class="app-container">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background-color: #0f172a;">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-light">Pathfinder</h4>
+                        <p class="text-muted mb-0">World Tracker</p>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="index.html">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="index.html#quests">
+                                <i class="fas fa-scroll me-2"></i>Quests
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="index.html#players">
+                                <i class="fas fa-users me-2"></i>Players
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="index.html#characters">
+                                <i class="fas fa-user-shield me-2"></i>Characters
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="index.html#loot">
+                                <i class="fas fa-coins me-2"></i>Loot & Curses
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="index.html#locations">
+                                <i class="fas fa-map-marked-alt me-2"></i>Locations
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="index.html#notes">
+                                <i class="fas fa-book me-2"></i>Backstories & Notes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="index.html#guild">
+                                <i class="fas fa-shield-alt me-2"></i>Guild Logs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="index.html#factions">
+                                <i class="fas fa-flag me-2"></i>Factions
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link active" href="#" style="background-color: rgba(255, 255, 255, 0.1);">
+                                <i class="fas fa-database me-2"></i>Data Management
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-database me-2"></i>Data Management
+                    </h1>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- Export Card -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-file-export me-2"></i>Export Data
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Export all your campaign data to a JSON file for backup or transfer.</p>
+                                <button id="exportDataBtn" class="btn btn-primary">
+                                    <i class="fas fa-download me-2"></i>Export Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <!-- Import Card -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-file-import me-2"></i>Import Data
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Import data from a previously exported JSON file. This will overwrite your current data.</p>
+                                <div class="mb-3">
+                                    <label for="importFileInput" class="form-label">Select backup file:</label>
+                                    <input class="form-control" type="file" id="importFileInput" accept=".json">
+                                </div>
+                                <button id="importDataBtn" class="btn btn-secondary" disabled>
+                                    <i class="fas fa-upload me-2"></i>Import Data
+                                </button>
+                                <div id="importStatus" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script type="module">
+        import { DataManagementPage } from './scripts/pages/data-management.js';
+        
+        // Initialize the data management page when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                window.dataManagementPage = new DataManagementPage();
+                console.log('Data management page initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize data management page:', error);
+                // Show an error message to the user
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger m-3';
+                alertDiv.role = 'alert';
+                alertDiv.innerHTML = `
+                    <h4 class="alert-heading">Error</h4>
+                    <p>Failed to initialize the data management page. Please check the console for details.</p>
+                    <hr>
+                    <p class="mb-0">${error.message}</p>
+                `;
+                document.body.insertBefore(alertDiv, document.body.firstChild);
+            }
+        });
+    </script>
+</body>
+</html>

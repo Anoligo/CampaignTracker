@@ -1,0 +1,19 @@
+/**
+ * Form Fixes
+ * Fixes for form elements and input states
+ */
+
+// Default state - dark theme (light text on dark background)
+input, textarea, select {
+    background-color: var(--bg-card);
+    color: var(--text) !important;
+    border: 1px solid var(--border-light);
+    
+    // Editing/focus state - light theme (dark text on light background)
+    &:focus, &:active {
+        background-color: white !important;
+        color: #333 !important;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.2rem rgba(255, 217, 102, 0.25);
+    }
+}

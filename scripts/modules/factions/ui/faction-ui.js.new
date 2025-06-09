@@ -1,0 +1,201 @@
+    /**
+     * Show a form to log influence changes for a faction
+     * @param {string} factionId - The ID of the faction to log influence for
+     */
+    showInfluenceLogForm(factionId) {
+        const faction = this.manager.getFaction(factionId);
+        if (!faction) return;
+        
+        // Create a modal for the influence log form
+        const modalId = 'influence-log-modal';
+        
+        // Remove any existing modals to prevent stacking
+        document.querySelectorAll(`#${modalId}`).forEach(el => el.remove());
+        
+        // Create the modal container
+        const modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal fade';
+        modal.tabIndex = -1;
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-labelledby', 'influenceLogModalLabel');
+        modal.setAttribute('data-bs-backdrop', 'static');
+        modal.setAttribute('data-bs-keyboard', 'false');
+        
+        // Create modal content
+        modal.innerHTML = `
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content bg-dark text-light border border-primary">
+                    <div class="modal-header border-primary">
+                        <h5 class="modal-title text-primary">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Log Influence Change
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="influence-log-form">
+                            <div class="mb-3">
+                                <label for="influence-change" class="form-label">Influence Change</label>
+                                <div class="input-group">
+                                    <button class="btn btn-outline-primary" type="button" id="decrease-influence">-</button>
+                                    <input type="number" class="form-control text-center" id="influence-change" 
+                                           name="influenceChange" value="0" min="-100" max="100" required>
+                                    <button class="btn btn-outline-primary" type="button" id="increase-influence">+</button>
+                                </div>
+                                <div class="form-text">Current: ${faction.influence}% → New: <span id="new-influence">${faction.influence}</span>%</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="log-reason" class="form-label">Reason for Change</label>
+                                <textarea class="form-control bg-dark text-light" id="log-reason" 
+                                          name="reason" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="log-date" class="form-label">Date</label>
+                                <input type="datetime-local" class="form-control bg-dark text-light" 
+                                       id="log-date" name="date" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer border-top-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="save-influence-log">Save Changes</button>
+                    </div>
+                </div>
+            </div>`;
+            
+        // Add modal to the DOM first
+        document.body.appendChild(modal);
+        
+        // Set current date/time as default
+        const now = new Date();
+        const timezoneOffset = now.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(now - timezoneOffset)).toISOString().slice(0, 16);
+        const dateInput = modal.querySelector('#log-date');
+        if (dateInput) {
+            dateInput.value = localISOTime;
+        }
+        
+        // Get references to UI elements
+        const influenceInput = modal.querySelector('#influence-change');
+        const newInfluenceSpan = modal.querySelector('#new-influence');
+        const increaseBtn = modal.querySelector('#increase-influence');
+        const decreaseBtn = modal.querySelector('#decrease-influence');
+        const form = modal.querySelector('#influence-log-form');
+        const saveButton = modal.querySelector('#save-influence-log');
+        
+        // Update the new influence value when input changes
+        const updateInfluenceDisplay = () => {
+            const change = parseInt(influenceInput.value) || 0;
+            let newInfluence = faction.influence + change;
+            
+            // Clamp between 0 and 100
+            newInfluence = Math.max(0, Math.min(100, newInfluence));
+            newInfluenceSpan.textContent = newInfluence;
+            
+            // Update input value if it was clamped
+            if (newInfluence !== faction.influence + change) {
+                influenceInput.value = newInfluence - faction.influence;
+            }
+        };
+        
+        // Handle + and - buttons
+        const updateInfluenceValue = (increment) => {
+            const currentValue = parseInt(influenceInput.value) || 0;
+            influenceInput.value = increment ? currentValue + 1 : currentValue - 1;
+            updateInfluenceDisplay();
+        };
+        
+        // Event listeners
+        increaseBtn.addEventListener('click', () => updateInfluenceValue(true));
+        decreaseBtn.addEventListener('click', () => updateInfluenceValue(false));
+        influenceInput.addEventListener('input', updateInfluenceDisplay);
+        
+        // Initialize Bootstrap modal
+        const modalInstance = new bootstrap.Modal(modal, {
+            backdrop: 'static',
+            keyboard: true,
+            focus: true
+        });
+        
+        // Show the modal
+        modalInstance.show();
+        
+        // Focus the reason textarea after a short delay
+        setTimeout(() => {
+            const reasonInput = modal.querySelector('#log-reason');
+            if (reasonInput) {
+                reasonInput.focus();
+            }
+        }, 100);
+        
+        // Handle form submission
+        const handleSave = async (e) => {
+            e && e.preventDefault();
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return false;
+            }
+            
+            const formData = new FormData(form);
+            const change = parseInt(formData.get('influenceChange')) || 0;
+            const reason = formData.get('reason');
+            const date = formData.get('date');
+            
+            if (!reason || !date) {
+                this.showNotification('Please fill in all required fields', 'error');
+                return false;
+            }
+            
+            try {
+                // Update faction influence
+                const newInfluence = Math.max(0, Math.min(100, faction.influence + change));
+                await this.manager.updateFaction(factionId, { 
+                    influence: newInfluence,
+                    updatedAt: new Date().toISOString()
+                });
+                
+                // Add to influence log
+                const logEntry = {
+                    id: Date.now().toString(),
+                    factionId,
+                    change,
+                    newInfluence,
+                    reason,
+                    date: new Date(date).toISOString(),
+                    createdAt: new Date().toISOString()
+                };
+                
+                if (this.manager.addInfluenceLogEntry) {
+                    await this.manager.addInfluenceLogEntry(logEntry);
+                }
+                
+                this.showNotification(`Influence updated to ${newInfluence}%`, 'success');
+                modalInstance.hide();
+                
+                // Refresh the UI
+                this.renderFactionsList();
+                
+                if (this.currentFaction?.id === factionId) {
+                    this.showFactionDetails(factionId);
+                }
+                
+            } catch (error) {
+                console.error('Error updating influence:', error);
+                this.showNotification(`Failed to update influence: ${error.message}`, 'error');
+            }
+        };
+        
+        // Set up form submission
+        form.addEventListener('submit', handleSave);
+        saveButton.addEventListener('click', handleSave);
+        
+        // Clean up when modal is closed
+        const handleHidden = () => {
+            modalInstance.dispose();
+            modal.remove();
+        };
+        
+        modal.addEventListener('hidden.bs.modal', handleHidden, { once: true });
+    }

@@ -1,0 +1,166 @@
+/**
+ * Forms - Base
+ * Base styles for form controls, labels, and validation
+ */
+
+// Form groups
+.form-group {
+  margin-bottom: 1.25rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Form labels
+.form-label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text);
+  
+  &.required::after {
+    content: '*';
+    margin-left: 0.25rem;
+    color: var(--danger);
+  }
+  
+  // Inline form label
+  &.form-label-inline {
+    margin-bottom: 0;
+    padding-top: calc(0.5rem + 1px);
+    padding-bottom: calc(0.5rem + 1px);
+    margin-right: 0.5rem;
+  }
+}
+
+// Form text helper
+.form-text {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  
+  &.text-danger {
+    color: var(--danger) !important;
+  }
+}
+
+// Form controls
+.form-control,
+.form-select,
+.form-file {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text);
+  background-color: var(--bg-card);
+  background-clip: padding-box;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  
+  // Focus state
+  &:focus {
+    color: var(--text);
+    background-color: var(--bg-card);
+    border-color: var(--accent);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.25);
+  }
+  
+  // Disabled and read-only controls
+  &:disabled,
+  &[readonly] {
+    background-color: var(--bg-card);
+    opacity: 0.7;
+  }
+  
+  // Readonly plain text
+  &[readonly] {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+  }
+  
+  // Placeholder text
+  &::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+  }
+  
+  // Disabled and read-only controls
+  &:disabled,
+  &[readonly] {
+    background-color: var(--bg-card);
+  }
+}
+
+// Textarea
+textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+  
+  &.form-control-auto {
+    min-height: auto;
+    height: calc(1.5em + 0.75rem + 2px);
+    overflow: hidden;
+  }
+}
+
+// Form selects
+select.form-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23adb5bd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 10l6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  padding-right: 2.25rem;
+  
+  &[multiple],
+  &[size]:not([size="1"]) {
+    padding-right: 0.75rem;
+    background-image: none;
+  }
+  
+  &:focus::-ms-value {
+    color: var(--text);
+    background-color: var(--bg-card);
+  }
+}
+
+// Form control sizing
+.form-control-sm {
+  min-height: calc(1.5em + 0.5rem + 2px);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  border-radius: var(--border-radius-sm);
+}
+
+.form-control-lg {
+  min-height: calc(1.5em + 1rem + 2px);
+  padding: 0.5rem 1rem;
+  font-size: 1.0625rem;
+  border-radius: var(--border-radius-lg);
+}
+
+// Form control plaintext
+.form-control-plaintext {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0;
+  margin-bottom: 0;
+  line-height: 1.5;
+  color: var(--text);
+  background-color: transparent;
+  border: solid transparent;
+  border-width: 1px 0;
+  
+  &.form-control-sm,
+  &.form-control-lg {
+    padding-right: 0;
+    padding-left: 0;
+  }
+}

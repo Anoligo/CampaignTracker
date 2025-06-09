@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factions - Pathfinder World Tracker</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../dist/css/main.min.css">
+    <style>
+        /* Ensure the app container takes full height */
+        html, body, .app-container {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        /* Make sure main content takes remaining height */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Mobile Toggle Button -->
+        <button class="sidebar-toggle d-md-none" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>World Tracker</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="../index.html#dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="../index.html#locations"><i class="fas fa-map"></i> World Map</a></li>
+                    <li><a href="../index.html#locations"><i class="fas fa-map-marker-alt"></i> Locations</a></li>
+                    <li class="active"><a href="factions.html"><i class="fas fa-flag"></i> Factions</a></li>
+                    <li><a href="../index.html#characters"><i class="fas fa-users"></i> Characters</a></li>
+                    <li><a href="../index.html#quests"><i class="fas fa-scroll"></i> Quests</a></li>
+                    <li><a href="../index.html#loot"><i class="fas fa-coins"></i> Loot & Curses</a></li>
+                    <li><a href="../index.html#notes"><i class="far fa-sticky-note"></i> Backstories & Notes</a></li>
+                    <li><a href="../index.html#guild"><i class="fas fa-shield-alt"></i> Guild Logs</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="settings-btn" class="btn btn-icon" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button id="export-btn" class="btn btn-icon" title="Export Data">
+                    <i class="fas fa-file-export"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="factions-container">
+                <!-- Header -->
+                <header class="factions-header">
+                    <h1><i class="fas fa-flag"></i> Factions</h1>
+                    <div class="actions">
+                        <button id="import-factions-btn" class="btn btn-outline" title="Import Factions">
+                            <i class="fas fa-file-import"></i> Import
+                        </button>
+                        <button id="export-factions-btn" class="btn btn-outline" title="Export Factions">
+                            <i class="fas fa-file-export"></i> Export
+                        </button>
+                        <button id="add-faction-btn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Faction
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Controls -->
+                <div class="factions-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="faction-search" class="faction-search" placeholder="Search factions...">
+                    </div>
+                    <div class="filters">
+                        <select id="faction-type-filter" class="form-control">
+                            <option value="">All Types</option>
+                            <option value="Political">Political</option>
+                            <option value="Criminal">Criminal</option>
+                            <option value="Merchant">Merchant</option>
+                            <option value="Religious">Religious</option>
+                            <option value="Military">Military</option>
+                            <option value="Secret Society">Secret Society</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <select id="alignment-filter" class="form-control">
+                            <option value="">All Alignments</option>
+                            <option value="LG">Lawful Good</option>
+                            <option value="NG">Neutral Good</option>
+                            <option value="CG">Chaotic Good</option>
+                            <option value="LN">Lawful Neutral</option>
+                            <option value="N">Neutral</option>
+                            <option value="CN">Chaotic Neutral</option>
+                            <option value="LE">Lawful Evil</option>
+                            <option value="NE">Neutral Evil</option>
+                            <option value="CE">Chaotic Evil</option>
+                        </select>
+                        <select id="influence-filter" class="form-control">
+                            <option value="">All Influence Levels</option>
+                            <option value="high">High Influence (75-100)</option>
+                            <option value="medium">Medium Influence (25-74)</option>
+                            <option value="low">Low Influence (0-24)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="factions-content">
+                    <!-- Factions List -->
+                    <div class="factions-list" id="factions-list">
+                        <!-- Faction cards will be dynamically inserted here -->
+                        <div class="empty-state">
+                            <i class="fas fa-flag fa-3x"></i>
+                            <h3>No Factions Found</h3>
+                            <p>Click "Add Faction" to create your first faction.</p>
+                        </div>
+                    </div>
+
+                    <!-- Faction Details -->
+                    <div class="faction-details-container">
+                        <div class="faction-details" id="faction-details">
+                            <div class="empty-state">
+                                <i class="fas fa-hand-point-left fa-3x"></i>
+                                <h3>Select a Faction</h3>
+                                <p>Choose a faction from the list to view or edit its details.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Faction Form (initially hidden) -->
+                    <form id="faction-form" class="faction-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="name">Faction Name *</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="type">Type</label>
+                                <select id="type" name="type" class="form-control">
+                                    <option value="">Select a type...</option>
+                                    <option value="Political">Political</option>
+                                    <option value="Criminal">Criminal</option>
+                                    <option value="Merchant">Merchant</option>
+                                    <option value="Religious">Religious</option>
+                                    <option value="Military">Military</option>
+                                    <option value="Secret Society">Secret Society</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="alignment">Alignment</label>
+                                <select id="alignment" name="alignment" class="form-control">
+                                    <option value="LG">Lawful Good</option>
+                                    <option value="NG">Neutral Good</option>
+                                    <option value="CG">Chaotic Good</option>
+                                    <option value="LN">Lawful Neutral</option>
+                                    <option value="N" selected>Neutral</option>
+                                    <option value="CN">Chaotic Neutral</option>
+                                    <option value="LE">Lawful Evil</option>
+                                    <option value="NE">Neutral Evil</option>
+                                    <option value="CE">Chaotic Evil</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="influence">Influence: <span id="influence-value">50</span>%</label>
+                            <div class="influence-slider-container">
+                                <input type="range" id="influence-slider" class="influence-slider" min="0" max="100" value="50">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="headquarters">Headquarters</label>
+                            <input type="text" id="headquarters" name="headquarters" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tags">Tags (comma-separated)</label>
+                            <input type="text" id="tags" name="tags" class="form-control" placeholder="e.g., trade, underworld, nobility">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" class="form-control" rows="4"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="goals">Goals (one per line)</label>
+                            <textarea id="goals" name="goals" class="form-control" rows="3" placeholder="Enter one goal per line"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="leaders">Notable Members (one per line)</label>
+                            <textarea id="leaders" name="leaders" class="form-control" rows="3" placeholder="Enter one name per line"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="assets">Assets</label>
+                            <textarea id="assets" name="assets" class="form-control" rows="3" placeholder="Enter one asset per line"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" class="form-control" rows="4"></textarea>
+                        </div>
+
+
+                        <div class="form-actions">
+                            <button type="button" id="cancel-faction-btn" class="btn btn-outline">Cancel</button>
+                            <button type="submit" id="save-faction-btn" class="btn btn-primary">Save Faction</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../scripts/modules/factions/ui/faction-ui.js"></script>
+    
+    <!-- Mobile Sidebar Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+            }
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const isClickInside = sidebar.contains(event.target) || 
+                                    (sidebarToggle && sidebarToggle.contains(event.target));
+                
+                if (!isClickInside && window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                }
+            });
+            
+            // Close sidebar when a nav link is clicked on mobile
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

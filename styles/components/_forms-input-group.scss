@@ -1,0 +1,160 @@
+/**
+ * Forms - Input Groups
+ * Extending form controls with buttons, icons, and text
+ */
+
+// Input group
+.input-group {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+  
+  > .form-control,
+  > .form-select,
+  > .form-floating,
+  > .form-file {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+    
+    &:not(:first-child) {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    
+    &:not(:last-child) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+  
+  // Ensure buttons are always above inputs for proper border styling
+  > :not(:first-child):not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
+    margin-left: -1px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  
+  > .form-control:not(:last-child),
+  > .form-select:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  
+  // Input group addons
+  .input-group-text {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text);
+    text-align: center;
+    white-space: nowrap;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    
+    // Sizing
+    &.input-group-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8125rem;
+      border-radius: var(--border-radius-sm);
+    }
+    
+    &.input-group-lg {
+      padding: 0.5rem 1rem;
+      font-size: 1.0625rem;
+      border-radius: var(--border-radius-lg);
+    }
+    
+    // Checkboxes and radios in input group text
+    input[type="radio"],
+    input[type="checkbox"] {
+      margin-top: 0;
+    }
+  }
+  
+  // Input group with icons
+  .input-group-icon {
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    color: var(--text-muted);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    
+    i {
+      font-size: 1rem;
+    }
+    
+    &.input-group-icon-left {
+      border-right: 0;
+      border-top-left-radius: var(--border-radius);
+      border-bottom-left-radius: var(--border-radius);
+    }
+    
+    &.input-group-icon-right {
+      border-left: 0;
+      border-top-right-radius: var(--border-radius);
+      border-bottom-right-radius: var(--border-radius);
+    }
+  }
+  
+  // Sizing
+  &.input-group-sm > .form-control,
+  &.input-group-sm > .form-select,
+  &.input-group-sm > .input-group-text,
+  &.input-group-sm > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8125rem;
+    border-radius: var(--border-radius-sm);
+  }
+  
+  &.input-group-lg > .form-control,
+  &.input-group-lg > .form-select,
+  &.input-group-lg > .input-group-text,
+  &.input-group-lg > .btn {
+    padding: 0.5rem 1rem;
+    font-size: 1.0625rem;
+    border-radius: var(--border-radius-lg);
+  }
+  
+  // Multiple addons and buttons
+  > .input-group-prepend > .btn,
+  > .input-group-prepend > .input-group-text,
+  > .input-group-append:not(:last-child) > .btn,
+  > .input-group-append:not(:last-child) > .input-group-text,
+  > .input-group-append:last-child > .btn:not(:last-child):not(.dropdown-toggle),
+  > .input-group-append:last-child > .input-group-text:not(:last-child),
+  > .input-group-append > .btn-group:not(:last-child) > .btn,
+  > .input-group-prepend:not(:first-child) > .btn,
+  > .input-group-prepend:not(:first-child) > .input-group-text,
+  > .input-group-prepend:first-child > .btn:not(:first-child),
+  > .input-group-prepend:first-child > .input-group-text:not(:first-child),
+  > .input-group-prepend > .btn-group:not(:first-child) > .btn {
+    border-radius: 0;
+  }
+  
+  > .input-group-prepend > .btn-group:not(:first-child) > .btn:first-child,
+  > .input-group-append > .btn-group:not(:last-child) > .btn:last-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  
+  > .input-group-append > .btn:not(:last-child):not(.dropdown-toggle),
+  > .input-group-append > .input-group-text:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  
+  > .input-group-prepend > .btn:not(:first-child),
+  > .input-group-prepend > .input-group-text:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}

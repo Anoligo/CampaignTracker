@@ -1,0 +1,148 @@
+// Animation utilities
+
+// Fade in
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+// Fade out
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-in-out;
+}
+
+// Slide in from top
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-down {
+  animation: slideInDown 0.3s ease-out;
+}
+
+// Slide out to top
+@keyframes slideOutUp {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+.slide-out-up {
+  animation: slideOutUp 0.3s ease-in;
+}
+
+// Slide in from right
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+// Slide out to right
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.slide-out-right {
+  animation: slideOutRight 0.3s ease-in;
+}
+
+// Rotate
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.rotate {
+  animation: rotate 2s linear infinite;
+}
+
+// Pulse
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pulse {
+  animation: pulse 1.5s infinite;
+}
+
+// Shake
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+// Animation delays
+@for $i from 1 through 10 {
+  .delay-#{$i} {
+    animation-delay: #{$i * 0.1}s !important;
+  }
+}
+
+// Animation durations
+@for $i from 1 through 10 {
+  .duration-#{$i} {
+    animation-duration: #{$i * 0.1}s !important;
+  }
+}
+
+// Animation fill modes
+.animate-fill-none { animation-fill-mode: none; }
+.animate-fill-forwards { animation-fill-mode: forwards; }
+.animate-fill-backwards { animation-fill-mode: backwards; }
+.animate-fill-both { animation-fill-mode: both; }
+
+// Animation iteration counts
+.animate-once { animation-iteration-count: 1; }
+.animate-infinite { animation-iteration-count: infinite; }
+
+// Animation timing functions
+.animate-linear { animation-timing-function: linear; }
+.animate-ease { animation-timing-function: ease; }
+.animate-ease-in { animation-timing-function: ease-in; }
+.animate-ease-out { animation-timing-function: ease-out; }
+.animate-ease-in-out { animation-timing-function: ease-in-out; }

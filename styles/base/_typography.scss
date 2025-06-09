@@ -1,0 +1,204 @@
+/**
+ * Typography
+ * Base typographic styles and utilities
+ */
+
+// Body text
+body {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--body-color);
+  background-color: var(--body-bg);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+// Headings
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+h1, .h1 {
+  font-size: 2.25rem;
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+h2, .h2 {
+  font-size: 1.8rem;
+  font-weight: 300;
+}
+
+h3, .h3 {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+h4, .h4 {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+h5, .h5 {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+h6, .h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+// Paragraphs
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+// Links
+a {
+  color: var(--primary);
+  text-decoration: none;
+  background-color: transparent;
+  transition: color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    color: var(--primary-light);
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: 3px solid var(--primary-light);
+    outline-offset: 2px;
+  }
+
+  // Remove outline for non-keyboard users
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+// Lists
+ul, ol {
+  padding-left: 1.5rem;
+}
+
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+  margin-bottom: 0;
+}
+
+dt {
+  font-weight: 600;
+}
+
+dd {
+  margin-bottom: 0.5rem;
+  margin-left: 0;
+}
+
+// Blockquote
+blockquote {
+  margin: 0 0 1rem;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid var(--border-color);
+  background-color: var(--bg-card);
+  
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Code and pre
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-family-mono);
+  font-size: 0.9em;
+}
+
+code {
+  padding: 0.2em 0.4em;
+  font-size: 0.9em;
+  color: var(--accent-light);
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius-sm);
+}
+
+pre {
+  display: block;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  overflow: auto;
+  color: var(--text);
+  background-color: var(--bg-card);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+
+  code {
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+    background-color: transparent;
+    border-radius: 0;
+  }
+}
+
+// Small text
+small,
+.small {
+  font-size: 0.875em;
+}
+
+// Muted text
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+// Text utilities
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+.text-justify { text-align: justify !important; }
+.text-nowrap { white-space: nowrap !important; }
+.text-truncate { 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Font weights
+.font-weight-light { font-weight: 300 !important; }
+.font-weight-normal { font-weight: 400 !important; }
+.font-weight-medium { font-weight: 500 !important; }
+.font-weight-semibold { font-weight: 600 !important; }
+.font-weight-bold { font-weight: 700 !important; }
+
+// Text transforms
+.text-lowercase { text-transform: lowercase !important; }
+.text-uppercase { text-transform: uppercase !important; }
+.text-capitalize { text-transform: capitalize !important; }
+
+// Text colors
+.text-primary { color: var(--primary) !important; }
+.text-secondary { color: var(--gray-600) !important; }
+.text-success { color: var(--success) !important; }
+.text-info { color: var(--info) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-danger { color: var(--danger) !important; }
+.text-light { color: var(--gray-100) !important; }
+.text-dark { color: var(--gray-900) !important; }
+.text-white { color: var(--white) !important; }
+.text-muted { color: var(--text-muted) !important; }

@@ -1,0 +1,120 @@
+/**
+ * Forms - Floating Labels
+ * Floating label styles for form controls
+ */
+
+// Form floating labels
+.form-floating {
+  position: relative;
+  
+  > .form-control,
+  > .form-select {
+    height: calc(3.5rem + 2px);
+    line-height: 1.25;
+    padding: 1rem 0.75rem;
+  }
+  
+  > label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    padding: 1rem 0.75rem;
+    pointer-events: none;
+    border: 1px solid transparent;
+    transform-origin: 0 0;
+    transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+  }
+  
+  > .form-control:focus,
+  > .form-control:not(:placeholder-shown),
+  > .form-select {
+    padding-top: 1.625rem;
+    padding-bottom: 0.625rem;
+  }
+  
+  > .form-control:focus ~ label,
+  > .form-control:not(:placeholder-shown) ~ label,
+  > .form-select ~ label {
+    opacity: 0.65;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+  }
+  
+  > .form-control:focus ~ label {
+    color: var(--accent);
+  }
+  
+  // With validation states
+  > .form-control:not(:placeholder-shown) ~ label::after,
+  > .form-select ~ label::after {
+    position: absolute;
+    content: "";
+    left: 0.75rem;
+    top: 0.5rem;
+    height: 0.5rem;
+    width: 1.5rem;
+    background-color: var(--bg-card);
+    z-index: -1;
+  }
+  
+  > .form-control:focus ~ label::after,
+  > .form-select:focus ~ label::after {
+    background-color: var(--bg-card);
+  }
+  
+  // With validation states
+  > .form-control.is-valid:focus ~ label,
+  > .form-control.is-valid:not(:placeholder-shown) ~ label,
+  > .form-select.is-valid ~ label {
+    color: var(--success);
+  }
+  
+  > .form-control.is-invalid:focus ~ label,
+  > .form-control.is-invalid:not(:placeholder-shown) ~ label,
+  > .form-select.is-invalid ~ label {
+    color: var(--danger);
+  }
+  
+  // Sizing
+  > .form-control-sm,
+  > .form-select-sm {
+    height: calc(2.5rem + 2px);
+    padding: 0.5rem 0.5rem;
+    
+    ~ label {
+      padding: 0.5rem 0.5rem;
+    }
+    
+    &:focus,
+    &:not(:placeholder-shown) {
+      padding-top: 1.25rem;
+      padding-bottom: 0.25rem;
+    }
+    
+    &:focus ~ label,
+    &:not(:placeholder-shown) ~ label {
+      transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+  }
+  
+  > .form-control-lg,
+  > .form-select-lg {
+    height: calc(4.5rem + 2px);
+    padding: 1.5rem 1rem;
+    
+    ~ label {
+      padding: 1.5rem 1rem;
+    }
+    
+    &:focus,
+    &:not(:placeholder-shown) {
+      padding-top: 2.5rem;
+      padding-bottom: 1rem;
+    }
+    
+    &:focus ~ label,
+    &:not(:placeholder-shown) ~ label {
+      transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+  }
+}

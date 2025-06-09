@@ -1,0 +1,117 @@
+/**
+ * Base Reset
+ * Resets and normalizes default browser styles
+ */
+
+// Box sizing rules
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// Remove default margin and padding
+body,
+h1, h2, h3, h4, h5, h6,
+p, ul, ol, dl,
+figure, blockquote, fieldset, legend,
+pre, hr {
+  margin: 0;
+  padding: 0;
+}
+
+// Set core body defaults
+body {
+  min-height: 100vh;
+  scroll-behavior: smooth;
+  text-rendering: optimizeSpeed;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Remove list styles on ul, ol elements with a class attribute
+ul[class],
+ol[class] {
+  list-style: none;
+}
+
+// A elements that don't have a class get default styles
+a:not([class]) {
+  text-decoration-skip-ink: auto;
+}
+
+// Make images easier to work with
+img,
+picture {
+  max-width: 100%;
+  display: block;
+  height: auto;
+}
+
+// Inherit fonts for inputs and buttons
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+// Remove all animations and transitions for people that prefer not to see them
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Remove default button styles
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+// Remove default fieldset styles
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+// Remove default table spacing
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+
+// Reset select element
+select {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: inherit;
+  line-height: inherit;
+  outline: none;
+}
+
+// Remove default details marker
+details > summary {
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}

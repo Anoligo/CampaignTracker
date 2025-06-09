@@ -1,0 +1,211 @@
+/**
+ * Loot Module
+ * Styling for the Loot management interface
+ */
+
+// Loot list container
+.loot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+// Item row styling
+.loot-item {
+  $self: &;
+  
+  background-color: var(--bg-card);
+  color: var(--text);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--accent);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-left-width: 5px;
+    transform: translateY(-1px);
+  }
+  
+  &--selected {
+    background-color: var(--bg-selected);
+    border-left-color: var(--primary);
+  }
+  
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  &__name {
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  &__meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+  
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+  }
+}
+
+// Item details panel
+.loot-details {
+  background-color: var(--bg-card);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--accent);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+  
+  &__title {
+    color: var(--accent);
+    margin: 0;
+  }
+  
+  &__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  &__section {
+    h4 {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+    }
+    
+    p {
+      margin: 0.5rem 0;
+    }
+  }
+}
+
+// Rarity badges
+.rarity-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &--common {
+    background-color: var(--rarity-common);
+    color: var(--text-dark);
+  }
+  
+  &--uncommon {
+    background-color: var(--rarity-uncommon);
+    color: white;
+  }
+  
+  &--rare {
+    background-color: var(--rarity-rare);
+    color: white;
+  }
+  
+  &--very-rare {
+    background-color: var(--rarity-very-rare);
+    color: white;
+  }
+  
+  &--legendary {
+    background-color: var(--rarity-legendary);
+    color: white;
+  }
+}
+
+// Loot filter controls
+.loot-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  &__search {
+    flex: 1;
+    min-width: 250px;
+    max-width: 400px;
+  }
+  
+  &__controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+}
+
+// Empty state
+.loot-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+  
+  &__icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+  
+  &__message {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .loot-item {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    &__actions {
+      margin: 0.75rem 0 0;
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+  
+  .loot-details {
+    &__content {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .loot-filters {
+    flex-direction: column;
+    
+    &__search {
+      max-width: 100%;
+    }
+  }
+}

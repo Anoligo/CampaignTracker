@@ -1,0 +1,70 @@
+// Border utilities
+
+// Border
+.border         { border: var(--border-width) var(--border-style) var(--border-color) !important; }
+.border-0        { border: 0 !important; }
+
+// Border sides
+.border-top      { border-top: var(--border-width) var(--border-style) var(--border-color) !important; }
+.border-end      { border-right: var(--border-width) var(--border-style) var(--border-color) !important; }
+.border-bottom   { border-bottom: var(--border-width) var(--border-style) var(--border-color) !important; }
+.border-start    { border-left: var(--border-width) var(--border-style) var(--border-color) !important; }
+
+.border-top-0    { border-top: 0 !important; }
+.border-end-0    { border-right: 0 !important; }
+.border-bottom-0 { border-bottom: 0 !important; }
+.border-start-0  { border-left: 0 !important; }
+
+// Border colors
+@each $color, $value in $theme-colors {
+  .border-#{$color} {
+    border-color: $value !important;
+  }
+}
+
+.border-white {
+  border-color: #fff !important;
+}
+
+// Border radius
+.rounded {
+  border-radius: var(--border-radius) !important;
+}
+.rounded-top {
+  border-top-left-radius: var(--border-radius) !important;
+  border-top-right-radius: var(--border-radius) !important;
+}
+.rounded-end {
+  border-top-right-radius: var(--border-radius) !important;
+  border-bottom-right-radius: var(--border-radius) !important;
+}
+.rounded-bottom {
+  border-bottom-right-radius: var(--border-radius) !important;
+  border-bottom-left-radius: var(--border-radius) !important;
+}
+.rounded-start {
+  border-top-left-radius: var(--border-radius) !important;
+  border-bottom-left-radius: var(--border-radius) !important;
+}
+.rounded-circle {
+  border-radius: 50% !important;
+}
+.rounded-pill {
+  border-radius: 50rem !important;
+}
+.rounded-0 {
+  border-radius: 0 !important;
+}
+
+// Border width
+.border-1 { border-width: 1px !important; }
+.border-2 { border-width: 2px !important; }
+.border-3 { border-width: 3px !important; }
+.border-4 { border-width: 4px !important; }
+.border-5 { border-width: 5px !important; }
+
+// Border style
+.border-dashed { border-style: dashed !important; }
+.border-dotted { border-style: dotted !important; }
+.border-double { border-style: double !important; }
+.border-none { border-style: none !important; }

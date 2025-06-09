@@ -1,0 +1,69 @@
+/**
+ * Toasts
+ * Notification toasts that appear temporarily to provide feedback
+ */
+
+.toast {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    margin-bottom: 0.75rem;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--border-radius);
+    max-width: 350px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+
+    &.show {
+        opacity: 1;
+    }
+
+    .toast-body {
+        padding: 0.75rem 1rem;
+    }
+
+    // Toast Colors
+    &.bg-primary {
+        background-color: var(--primary) !important;
+        color: var(--white);
+    }
+
+    &.bg-success {
+        background-color: var(--success) !important;
+        color: var(--white);
+    }
+
+    &.bg-danger {
+        background-color: var(--danger) !important;
+        color: var(--white);
+    }
+
+    &.bg-warning {
+        background-color: var(--warning) !important;
+        color: var(--dark);
+    }
+
+    &.bg-info {
+        background-color: var(--info) !important;
+        color: var(--white);
+    }
+}
+
+// Toast Container
+.toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1100;
+    max-width: 100%;
+    width: 350px;
+}
+
+// Close Button
+.btn-close {
+    opacity: 0.8;
+    transition: opacity 0.15s ease-in-out;
+
+    &:hover {
+        opacity: 1;
+    }
+}

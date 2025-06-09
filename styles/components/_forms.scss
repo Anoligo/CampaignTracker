@@ -1,0 +1,283 @@
+/**
+ * Forms
+ * All form-related styles organized into logical partials
+ */
+
+@import 'forms-base';
+@import 'forms-file';
+@import 'forms-input-group';
+@import 'forms-validation';
+@import 'forms-floating';
+@import 'forms-range';
+
+// Custom form controls
+.custom-control {
+  position: relative;
+  display: block;
+  min-height: 1.5rem;
+  padding-left: 1.5rem;
+  
+  .custom-control-input {
+    position: absolute;
+    left: 0;
+    z-index: -1;
+    width: 1rem;
+    height: 1.25rem;
+    opacity: 0;
+    
+    &:checked ~ .custom-control-label::before {
+      color: #fff;
+      border-color: var(--primary);
+      background-color: var(--primary);
+    }
+    
+    &:focus ~ .custom-control-label::before {
+      box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+    }
+    
+    &:focus:not(:checked) ~ .custom-control-label::before {
+      border-color: var(--primary-light);
+    }
+    
+    &:not(:disabled):active ~ .custom-control-label::before {
+      color: #fff;
+      background-color: var(--primary-light);
+      border-color: var(--primary-light);
+    }
+    
+    &:disabled ~ .custom-control-label {
+      color: var(--text-muted);
+      
+      &::before {
+        background-color: var(--bg-card);
+      }
+    }
+  }
+  
+  .custom-control-label {
+    position: relative;
+    margin-bottom: 0;
+    vertical-align: top;
+    
+    &::before {
+      position: absolute;
+      top: 0.25rem;
+      left: -1.5rem;
+      display: block;
+      width: 1rem;
+      height: 1rem;
+      pointer-events: none;
+      content: "";
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+    }
+    
+    &::after {
+      position: absolute;
+      top: 0.25rem;
+      left: -1.5rem;
+      display: block;
+      width: 1rem;
+      height: 1rem;
+      content: "";
+      background: no-repeat 50% / 50% 50%;
+    }
+  }
+}
+
+// Custom checkboxes
+.custom-checkbox {
+  .custom-control-label::before {
+    border-radius: 0.25rem;
+  }
+  
+  .custom-control-input:checked ~ .custom-control-label::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+  }
+  
+  .custom-control-input:indeterminate ~ .custom-control-label::before {
+    border-color: var(--primary);
+    background-color: var(--primary);
+  }
+  
+  .custom-control-input:indeterminate ~ .custom-control-label::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+  }
+  
+  .custom-control-input:disabled:checked ~ .custom-control-label::before {
+    background-color: rgba(var(--primary-rgb), 0.5);
+  }
+  
+  .custom-control-input:disabled:indeterminate ~ .custom-control-label::before {
+    background-color: rgba(var(--primary-rgb), 0.5);
+  }
+}
+
+// Custom radios
+.custom-radio {
+  .custom-control-label::before {
+    border-radius: 50%;
+  }
+  
+  .custom-control-input:checked ~ .custom-control-label::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  }
+  
+  .custom-control-input:disabled:checked ~ .custom-control-label::before {
+    background-color: rgba(var(--primary-rgb), 0.5);
+  }
+}
+
+// Custom switches
+.custom-switch {
+  padding-left: 2.25rem;
+  
+  .custom-control-label {
+    &::before {
+      left: -2.25rem;
+      width: 1.75rem;
+      pointer-events: all;
+      border-radius: 0.5rem;
+    }
+    
+    &::after {
+      top: calc(0.25rem + 2px);
+      left: calc(-2.25rem + 2px);
+      width: calc(1rem - 4px);
+      height: calc(1rem - 4px);
+      background-color: var(--border-color);
+      border-radius: 0.5rem;
+      transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+  }
+  
+  .custom-control-input:checked ~ .custom-control-label::after {
+    background-color: #fff;
+    transform: translateX(0.75rem);
+  }
+  
+  .custom-control-input:disabled:checked ~ .custom-control-label::before {
+    background-color: rgba(var(--primary-rgb), 0.5);
+  }
+}
+
+// Form grid
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -0.5rem;
+  margin-left: -0.5rem;
+  
+  > .col,
+  > [class*="col-"] {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+}
+
+// Form inline
+.form-inline {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  
+  .form-check {
+    width: 100%;
+    
+    @include media-breakpoint-up(sm) {
+      width: auto;
+    }
+  }
+}
+
+// Form groups with icons
+.has-icon {
+  position: relative;
+  
+  .form-control {
+    padding-left: 2.25rem;
+  }
+  
+  .form-control-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    display: block;
+    width: 2.25rem;
+    height: 100%;
+    line-height: 2.5rem;
+    text-align: center;
+    pointer-events: none;
+    color: var(--text-muted);
+  }
+  
+  &.has-icon-right {
+    .form-control {
+      padding-right: 2.25rem;
+      padding-left: 0.75rem;
+    }
+    
+    .form-control-icon {
+      right: 0;
+      left: auto;
+    }
+  }
+}
+
+// Form group with clear button
+.has-clear {
+  position: relative;
+  
+  .form-control-clear {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    z-index: 2;
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    line-height: 1rem;
+    text-align: center;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    background: none;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease-in-out;
+    
+    &:hover, &:focus {
+      color: var(--text);
+      text-decoration: none;
+      opacity: 0.75;
+    }
+    
+    &::before {
+      content: "✕";
+    }
+  }
+  
+  .form-control:not(:placeholder-shown) ~ .form-control-clear {
+    opacity: 0.5;
+    pointer-events: auto;
+  }
+}
+
+// Form group with counter
+.has-counter {
+  position: relative;
+  
+  .form-control-counter {
+    position: absolute;
+    bottom: 0.25rem;
+    right: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    pointer-events: none;
+    
+    &.text-danger {
+      color: var(--danger) !important;
+    }
+  }
+}

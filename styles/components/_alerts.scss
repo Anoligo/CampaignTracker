@@ -1,0 +1,369 @@
+@use 'sass:color';
+
+/**
+ * Alerts
+ * Styles for alert messages and notifications
+ */
+
+// Base alert styles
+.alert {
+  position: relative;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  
+  // Alert heading
+  .alert-heading {
+    color: inherit;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  
+  // Links in alerts
+  .alert-link {
+    font-weight: 600;
+    text-decoration: underline;
+    
+    &:hover {
+      text-decoration: none;
+    }
+  }
+  
+  // Dismissible alert
+  &.alert-dismissible {
+    padding-right: 3rem;
+    
+    .btn-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      padding: 0.5rem;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      opacity: 0.5;
+      cursor: pointer;
+      
+      &:hover {
+        opacity: 0.75;
+      }
+      
+      &::before {
+        content: '×';
+        font-size: 1.25rem;
+        line-height: 1;
+      }
+    }
+  }
+  
+  // Alert with icon
+  .alert-icon {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+    vertical-align: middle;
+    line-height: 1;
+  }
+  
+  // Alert content wrapper
+  .alert-content {
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  // Alert actions
+  .alert-actions {
+    margin-top: 0.75rem;
+    
+    .btn + .btn {
+      margin-left: 0.5rem;
+    }
+  }
+}
+
+// Alert variations
+@each $color, $value in $theme-colors {
+  .alert-#{$color} {
+    $lightness: color.channel($value, 'lightness', $space: hsl);
+    $text-color: if($lightness > 60%, #212529, #ffffff);
+    color: $text-color;
+    background-color: rgba($value, 0.1);
+    border: 1px solid rgba($value, 0.2);
+    
+    .alert-link {
+      color: color.adjust($text-color, $lightness: -10%);
+      text-decoration: underline;
+    }
+    
+    hr {
+      border-top-color: rgba($value, 0.3);
+    }
+  }
+  
+  .alert-outline-#{$color} {
+    color: $value;
+    background-color: transparent;
+    border: 1px solid $value;
+    
+    .alert-link {
+      color: darken($value, 10%);
+      text-decoration: underline;
+    }
+    
+    hr {
+      border-top-color: $value;
+    }
+    
+    &:hover {
+      background-color: rgba($value, 0.05);
+    }
+  }
+}
+
+// Alert with gradient background
+.alert-gradient {
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border: none;
+  
+  .alert-link {
+    color: #fff;
+    text-decoration: underline;
+    
+    &:hover {
+      text-decoration: none;
+    }
+  }
+  
+  .btn-close {
+    color: #fff;
+  }
+}
+
+// Alert with icon on left
+.alert-icon-left {
+  display: flex;
+  align-items: flex-start;
+  
+  .alert-icon {
+    margin-right: 1rem;
+    font-size: 1.5rem;
+  }
+  
+  .alert-content {
+    flex: 1;
+  }
+}
+
+// Alert with icon on top
+.alert-icon-top {
+  text-align: center;
+  
+  .alert-icon {
+    display: block;
+    margin: 0 auto 0.75rem;
+    font-size: 2rem;
+  }
+  
+  .alert-heading {
+    margin-bottom: 0.5rem;
+  }
+}
+
+// Alert with background pattern
+.alert-pattern {
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.3;
+    z-index: 0;
+  }
+  
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Alert with close button on right
+.alert-dismiss-right {
+  .btn-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
+
+// Alert with action buttons
+.alert-with-actions {
+  .alert-content {
+    margin-bottom: 1rem;
+  }
+  
+  .alert-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    
+    .btn {
+      margin-left: 0.5rem;
+    }
+  }
+}
+
+// Alert with countdown
+.alert-countdown {
+  position: relative;
+  overflow: hidden;
+  
+  .countdown-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: rgba(0, 0, 0, 0.1);
+    width: 100%;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background-color: currentColor;
+      transform: scaleX(1);
+      transform-origin: left center;
+      animation: countdown linear 5s forwards;
+    }
+  }
+  
+  @keyframes countdown {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+  }
+}
+
+// Alert with avatar
+.alert-avatar {
+  display: flex;
+  align-items: flex-start;
+  
+  .avatar {
+    flex-shrink: 0;
+    margin-right: 1rem;
+  }
+  
+  .alert-content {
+    flex: 1;
+  }
+}
+
+// Alert with progress bar
+.alert-progress {
+  .progress {
+    height: 0.25rem;
+    margin-top: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    overflow: hidden;
+    
+    .progress-bar {
+      height: 100%;
+      background-color: currentColor;
+      border-radius: 1rem;
+      transition: width 0.3s ease;
+    }
+  }
+}
+
+// Alert groups
+.alert-group {
+  position: fixed;
+  z-index: var(--zindex-alert);
+  width: 100%;
+  max-width: 400px;
+  pointer-events: none;
+  
+  // Positioning
+  &[data-position^='top-'] {
+    top: 1rem;
+  }
+  
+  &[data-position^='bottom-'] {
+    bottom: 1rem;
+  }
+  
+  &[data-position$='-right'] {
+    right: 1rem;
+  }
+  
+  &[data-position$='-left'] {
+    left: 1rem;
+  }
+  
+  &[data-position$='-center'] {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  // Alert items in group
+  .alert {
+    margin-bottom: 0.75rem;
+    pointer-events: auto;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    
+    &.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    // Remove margin from last alert
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .alert {
+    padding: 0.75rem 1rem;
+    
+    &.alert-dismissible {
+      padding-right: 2.5rem;
+      
+      .btn-close {
+        top: 0.5rem;
+        right: 0.5rem;
+      }
+    }
+  }
+  
+  .alert-group {
+    width: calc(100% - 2rem);
+    max-width: 100%;
+    
+    &[data-position$='-center'] {
+      left: 1rem;
+      right: 1rem;
+      transform: none;
+    }
+  }
+}

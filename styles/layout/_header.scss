@@ -1,0 +1,225 @@
+/**
+ * Header Layout
+ * Styles for the main header/navigation
+ */
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  z-index: var(--zindex-fixed);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--content-padding);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  margin-right: 2rem;
+  
+  &:hover {
+    color: var(--accent-light);
+    text-decoration: none;
+  }
+  
+  img {
+    height: 2rem;
+    width: auto;
+    margin-right: 0.75rem;
+  }
+}
+
+.header-nav {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  
+  .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    height: 100%;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    
+    &:hover, 
+    &.active {
+      color: var(--accent);
+      background-color: var(--bg-card);
+      border-bottom-color: var(--accent);
+    }
+    
+    .icon {
+      margin-right: 0.5rem;
+      font-size: 1.1em;
+    }
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  
+  .btn {
+    margin-left: 0.5rem;
+  }
+  
+  .dropdown-menu {
+    right: 0;
+    left: auto;
+  }
+}
+
+.header-search {
+  position: relative;
+  margin: 0 1rem;
+  max-width: 24rem;
+  width: 100%;
+  
+  .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  
+  .form-control {
+    padding-left: 2.5rem;
+    width: 100%;
+    
+    &:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.25);
+    }
+  }
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  
+  .user-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+  
+  .user-name {
+    margin-right: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .dropdown-toggle::after {
+    display: none;
+  }
+}
+
+// Mobile menu button (hidden on larger screens)
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  
+  &:focus {
+    outline: none;
+  }
+  
+  @include media-breakpoint-down(md) {
+    display: block;
+  }
+}
+
+// Responsive adjustments
+@include media-breakpoint-down(lg) {
+  .header-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-card);
+    flex-direction: column;
+    height: auto;
+    box-shadow: var(--shadow);
+    border-top: 1px solid var(--border-color);
+    
+    &.show {
+      display: flex;
+    }
+    
+    .nav-link {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      
+      &:hover, 
+      &.active {
+        border-bottom-color: var(--accent);
+      }
+    }
+  }
+  
+  .header-search {
+    margin: 0 0.5rem;
+    max-width: 16rem;
+  }
+}
+
+@include media-breakpoint-down(md) {
+  .header-search {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    
+    &.show {
+      display: block;
+    }
+  }
+  
+  .header-actions .btn:not(.user-menu) {
+    display: none;
+  }
+}
+
+@include media-breakpoint-down(sm) {
+  .user-name {
+    display: none;
+  }
+  
+  .header-brand span {
+    display: none;
+  }
+}

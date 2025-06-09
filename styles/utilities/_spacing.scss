@@ -1,0 +1,92 @@
+// Spacing utilities
+// Based on Bootstrap's spacing utilities
+
+$spacer: 1rem !default;
+$spacers: (
+  0: 0,
+  1: $spacer * 0.25,
+  2: $spacer * 0.5,
+  3: $spacer,
+  4: $spacer * 1.5,
+  5: $spacer * 3,
+) !default;
+
+// Margin and padding shorthands
+$spacing-types: (
+  "m": "margin",
+  "p": "padding"
+);
+
+// Sides
+$spacing-sides: (
+  "t": "top",
+  "r": "right",
+  "b": "bottom",
+  "l": "left",
+  "x": ("left", "right"),
+  "y": ("top", "bottom"),
+  "": ("top", "right", "bottom", "left")
+);
+
+// Generate margin and padding utility classes
+@each $type-short, $type in $spacing-types {
+  @each $size, $length in $spacers {
+    .#{$type-short}-#{$size} {
+      #{$type}: $length !important;
+    }
+    
+    @each $side-short, $sides in $spacing-sides {
+      $class: "#{$type-short}#{$side-short}-#{$size}";
+      
+      @if $side-short != "" {
+        $class: "#{$type-short}#{$side-short}-#{$size}";
+      } @else {
+        $class: "#{$type-short}-#{$size}";
+      }
+      
+      .#{$class} {
+        @each $side in $sides {
+          #{$type}-#{$side}: $length !important;
+        }
+      }
+    }
+  }
+}
+
+// Negative margins (only for margins, not padding)
+@each $size, $length in $spacers {
+  @if $size != 0 {
+    .m-n#{$size} {
+      margin: -$length !important;
+    }
+    
+    .mt-n#{$size},
+    .my-n#{$size} {
+      margin-top: -$length !important;
+    }
+    
+    .mr-n#{$size},
+    .mx-n#{$size} {
+      margin-right: -$length !important;
+    }
+    
+    .mb-n#{$size},
+    .my-n#{$size} {
+      margin-bottom: -$length !important;
+    }
+    
+    .ml-n#{$size},
+    .mx-n#{$size} {
+      margin-left: -$length !important;
+    }
+  }
+}
+
+// Auto margins
+.m-auto { margin: auto !important; }
+.mt-auto { margin-top: auto !important; }
+.mr-auto { margin-right: auto !important; }
+.mb-auto { margin-bottom: auto !important; }
+.ml-auto { margin-left: auto !important; }
+.mx-auto { @extend .ml-auto; @extend .mr-auto; }
+.my-auto { @extend .mt-auto; @extend .mb-auto; }

@@ -1,0 +1,453 @@
+// Import variables and color functions first
+@use 'sass:color';
+@use '../variables' as vars;
+
+/**
+ * Buttons
+ * Styles for button elements and button-like elements
+ */
+
+// Base button styles
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  
+  &:hover {
+    text-decoration: none;
+  }
+  
+  &:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.25);
+  }
+  
+  &:disabled,
+  &.disabled {
+    opacity: 0.65;
+    pointer-events: none;
+  }
+  
+  // Button sizes
+  &.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    border-radius: var(--border-radius-sm);
+  }
+  
+  &.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    border-radius: var(--border-radius-lg);
+  }
+  
+  // Block button
+  &.btn-block {
+    display: block;
+    width: 100%;
+  }
+  
+  // Icons in buttons
+  .icon {
+    margin-right: 0.5rem;
+    font-size: 1.1em;
+    line-height: 1;
+    vertical-align: -0.125em;
+    
+    &.icon-right {
+      margin-right: 0;
+      margin-left: 0.5rem;
+    }
+    
+    &:only-child {
+      margin: 0;
+    }
+  }
+}
+
+// Button variants
+@mixin button-variant($background, $border, $color, $hover-background: darken($background, 7.5%), $hover-border: darken($border, 10%), $hover-color: $color, $active-background: darken($background, 10%), $active-border: darken($border, 12.5%), $active-color: $color) {
+  color: $color;
+  background-color: $background;
+  border-color: $border;
+  
+  &:hover {
+    color: $hover-color;
+    background-color: $hover-background;
+    border-color: $hover-border;
+  }
+  
+  &:focus,
+  &.focus {
+    color: $hover-color;
+    background-color: $hover-background;
+    border-color: $hover-border;
+    box-shadow: 0 0 0 0.2rem rgba($border, 0.5);
+  }
+  
+  &.disabled,
+  &:disabled {
+    color: $color;
+    background-color: $background;
+    border-color: $border;
+  }
+  
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active {
+    color: $active-color;
+    background-color: $active-background;
+    border-color: $active-border;
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba($border, 0.5);
+    }
+  }
+}
+
+@mixin button-outline-variant($color, $color-hover: #fff, $active-background: $color, $active-border: $color) {
+  color: $color;
+  border-color: $color;
+  
+  &:hover {
+    color: $color-hover;
+    background-color: $active-background;
+    border-color: $active-border;
+  }
+  
+  &:focus,
+  &.focus {
+    box-shadow: 0 0 0 0.2rem rgba($color, 0.5);
+  }
+  
+  &.disabled,
+  &:disabled {
+    color: $color;
+    background-color: transparent;
+  }
+  
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active,
+  .show > &.dropdown-toggle {
+    color: $color-hover;
+    background-color: $active-background;
+    border-color: $active-border;
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba($color, 0.5);
+    }
+  }
+}
+
+// Button color variants
+.btn-primary {
+  @include button-variant(
+    vars.$primary, 
+    vars.$primary, 
+    #fff,
+    color.scale(vars.$primary, $lightness: -7.5%),
+    color.scale(vars.$primary, $lightness: -10%),
+    #fff,
+    color.scale(vars.$primary, $lightness: -10%),
+    color.scale(vars.$primary, $lightness: -12.5%),
+    #fff
+  );
+}
+
+.btn-outline-primary {
+  @include button-outline-variant(
+    vars.$primary,
+    #fff,
+    vars.$primary,
+    vars.$primary
+  );
+}
+
+.btn-secondary {
+  @include button-variant(
+    vars.$secondary, 
+    vars.$secondary, 
+    #fff,
+    color.scale(vars.$secondary, $lightness: -7.5%),
+    color.scale(vars.$secondary, $lightness: -10%),
+    #fff,
+    color.scale(vars.$secondary, $lightness: -10%),
+    color.scale(vars.$secondary, $lightness: -12.5%),
+    #fff
+  );
+}
+
+.btn-outline-secondary {
+  @include button-outline-variant(
+    vars.$secondary,
+    #fff,
+    vars.$secondary,
+    vars.$secondary
+  );
+}
+
+.btn-success {
+  @include button-variant(
+    vars.$success, 
+    vars.$success, 
+    #fff,
+    color.scale(vars.$success, $lightness: -7.5%),
+    color.scale(vars.$success, $lightness: -10%),
+    #fff,
+    color.scale(vars.$success, $lightness: -10%),
+    color.scale(vars.$success, $lightness: -12.5%),
+    #fff
+  );
+}
+
+.btn-outline-success {
+  @include button-outline-variant(
+    vars.$success,
+    #fff,
+    vars.$success,
+    vars.$success
+  );
+}
+
+.btn-danger {
+  @include button-variant(
+    vars.$danger, 
+    vars.$danger, 
+    #fff,
+    color.scale(vars.$danger, $lightness: -7.5%),
+    color.scale(vars.$danger, $lightness: -10%),
+    #fff,
+    color.scale(vars.$danger, $lightness: -10%),
+    color.scale(vars.$danger, $lightness: -12.5%),
+    #fff
+  );
+}
+
+.btn-outline-danger {
+  @include button-outline-variant(
+    vars.$danger,
+    #fff,
+    vars.$danger,
+    vars.$danger
+  );
+}
+
+.btn-warning {
+  @include button-variant(
+    vars.$warning, 
+    vars.$warning, 
+    #212529,
+    color.scale(vars.$warning, $lightness: -7.5%),
+    color.scale(vars.$warning, $lightness: -10%),
+    #212529,
+    color.scale(vars.$warning, $lightness: -10%),
+    color.scale(vars.$warning, $lightness: -12.5%),
+    #212529
+  );
+}
+
+.btn-outline-warning {
+  @include button-outline-variant(
+    vars.$warning,
+    #212529,
+    vars.$warning,
+    vars.$warning
+  );
+}
+
+.btn-info {
+  @include button-variant(
+    vars.$info, 
+    vars.$info, 
+    #fff,
+    color.scale(vars.$info, $lightness: -7.5%),
+    color.scale(vars.$info, $lightness: -10%),
+    #fff,
+    color.scale(vars.$info, $lightness: -10%),
+    color.scale(vars.$info, $lightness: -12.5%),
+    #fff
+  );
+}
+
+.btn-outline-info {
+  @include button-outline-variant(
+    vars.$info,
+    #fff,
+    vars.$info,
+    vars.$info
+  );
+}
+
+.btn-light {
+  @include button-variant(
+    vars.$light, 
+    vars.$light, 
+    #212529,
+    color.scale(vars.$light, $lightness: -7.5%),
+    color.scale(vars.$light, $lightness: -10%),
+    #212529,
+    color.scale(vars.$light, $lightness: -10%),
+    color.scale(vars.$light, $lightness: -12.5%),
+    #212529
+  );
+}
+
+.btn-outline-light {
+  @include button-outline-variant(
+    vars.$light,
+    #212529,
+    vars.$light,
+    vars.$light
+  );
+}
+
+.btn-dark {
+  @include button-variant(
+    vars.$dark, 
+    vars.$dark, 
+    #fff,
+    color.scale(vars.$dark, $lightness: -7.5%),
+    color.scale(vars.$dark, $lightness: -10%),
+    #fff,
+    color.scale(vars.$dark, $lightness: -10%),
+    color.scale(vars.$dark, $lightness: -12.5%),
+    #fff
+  );
+}
+
+.btn-outline-dark {
+  @include button-outline-variant(
+    vars.$dark,
+    #fff,
+    vars.$dark,
+    vars.$dark
+  );
+}
+
+.btn-link {
+  @include button-variant(
+    transparent, 
+    transparent, 
+    vars.$primary,
+    transparent,
+    transparent,
+    color.scale(vars.$primary, $lightness: -10%),
+    transparent,
+    transparent,
+    color.scale(vars.$primary, $lightness: -10%)
+  );
+  text-decoration: none;
+  box-shadow: none;
+
+  &:hover, &:focus {
+    text-decoration: underline;
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  &:disabled, &.disabled {
+    color: vars.$gray-500;
+    pointer-events: none;
+  }
+}
+
+// Button groups
+.btn-group {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+  
+  > .btn {
+    position: relative;
+    flex: 1 1 auto;
+    
+    &:not(:first-child) {
+      margin-left: -1px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    
+    &:not(:last-child) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+      z-index: 1;
+    }
+  }
+  
+  // Sizing
+  &.btn-group-sm > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    border-radius: var(--border-radius-sm);
+  }
+  
+  &.btn-group-lg > .btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    border-radius: var(--border-radius-lg);
+  }
+  
+  // Vertical button group
+  &.btn-group-vertical {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    
+    > .btn {
+      width: 100%;
+      
+      &:not(:first-child) {
+        margin-left: 0;
+        margin-top: -1px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
+      
+      &:not(:last-child) {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+    }
+  }
+}
+
+// Button toolbar
+.btn-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  
+  .input-group {
+    width: auto;
+  }
+  
+  > .btn,
+  > .btn-group,
+  > .input-group {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
