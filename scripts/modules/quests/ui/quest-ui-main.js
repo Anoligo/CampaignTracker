@@ -4,10 +4,22 @@ import { detailsView } from './quest-details-view.js';
 import { formHandler } from './quest-form-handler.js';
 
 export class QuestUI extends BaseUI {
-    constructor(questService, options = {}) {
-        super();
+    constructor(questService) {
+        super({
+            containerId: 'quests',
+            listId: 'questList',
+            detailsId: 'questDetails',
+            searchId: 'questSearch',
+            addButtonId: 'addQuestBtn',
+            entityName: 'quest',
+            getAll: () => questService.getAllQuests(),
+            getById: (id) => questService.getQuestById(id),
+            add: (quest) => questService.createQuest(quest),
+            update: (id, updates) => questService.updateQuest(id, updates),
+            delete: (id) => questService.deleteQuest(id)
+        });
+
         this.questService = questService;
-        this.options = options;
         this.currentQuest = null;
         this.isEditing = false;
         this.initialize();
