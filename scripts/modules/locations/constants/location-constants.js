@@ -62,6 +62,20 @@ export const locationFormFields = [
         }))
     },
     {
+        id: 'x',
+        label: 'Map X',
+        type: 'number',
+        placeholder: '0-100',
+        required: false
+    },
+    {
+        id: 'y',
+        label: 'Map Y',
+        type: 'number',
+        placeholder: '0-100',
+        required: false
+    },
+    {
         id: 'description',
         label: 'Description',
         type: 'textarea',
@@ -72,6 +86,12 @@ export const locationFormFields = [
         label: 'Notes',
         type: 'textarea',
         placeholder: 'Enter additional notes'
+    },
+    {
+        id: 'tags',
+        label: 'Tags',
+        type: 'text',
+        placeholder: 'Comma separated tags'
     }
 ];
 

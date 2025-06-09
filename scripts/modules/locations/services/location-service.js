@@ -28,7 +28,10 @@ export class LocationService {
      * @returns {Array<Location>} Array of locations
      */
     getAllLocations() {
-        return [...this.dataManager.appState.locations];
+        return this.dataManager.appState.locations.map(loc => ({
+            ...loc,
+            coordinates: { x: loc.x, y: loc.y }
+        }));
     }
 
     /**
@@ -37,7 +40,8 @@ export class LocationService {
      * @returns {Location|undefined} The found location or undefined
      */
     getLocationById(id) {
-        return this.dataManager.appState.locations.find(loc => loc.id === id);
+        const loc = this.dataManager.appState.locations.find(l => l.id === id);
+        return loc ? { ...loc, coordinates: { x: loc.x, y: loc.y } } : undefined;
     }
 
     /**
@@ -50,8 +54,8 @@ export class LocationService {
             data.name,
             data.description || '',
             data.type || LocationType.OTHER,
-            data.x || 0,
-            data.y || 0,
+            data.x || (data.coordinates?.x ?? 0),
+            data.y || (data.coordinates?.y ?? 0),
             data.discovered || false,
             data.relatedQuests || [],
             data.relatedItems || [],
@@ -93,6 +97,10 @@ export class LocationService {
             if (updates.x !== undefined || updates.y !== undefined) {
                 location.x = updates.x !== undefined ? updates.x : location.x;
                 location.y = updates.y !== undefined ? updates.y : location.y;
+            }
+            if (updates.coordinates) {
+                location.x = updates.coordinates.x ?? location.x;
+                location.y = updates.coordinates.y ?? location.y;
             }
             if (updates.discovered !== undefined) {
                 location.discovered = Boolean(updates.discovered);

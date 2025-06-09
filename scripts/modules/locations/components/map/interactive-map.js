@@ -38,6 +38,7 @@ export class InteractiveMap {
         this.onMapClick = typeof options.onMapClick === 'function' ? options.onMapClick : null;
         this.onAddLocation = typeof options.onAddLocation === 'function' ? options.onAddLocation : null;
         this.lastClickCoordinates = null;
+        this.markers = new Map();
         this._pendingCenter = null;
 
         // Initialize locations array
@@ -290,9 +291,13 @@ export class InteractiveMap {
      */
     __processPendingCenter() {
         if (this._pendingCenter && this._isInitialized) {
-            const { locationId, zoomLevel } = this._pendingCenter;
+            const { locationId, zoomLevel, coords } = this._pendingCenter;
             this._pendingCenter = null;
-            this.centerOnLocation(locationId, zoomLevel);
+            if (coords) {
+                this._centerOnCoordinates(coords, zoomLevel);
+            } else {
+                this.centerOnLocation(locationId, zoomLevel);
+            }
         }
     }
 
@@ -317,6 +322,7 @@ export class InteractiveMap {
 
         console.log('Centering on location:', location);
         this.selectedLocationId = locationId;
+        this.highlightMarker(locationId);
 
         // If the image isn't loaded yet, wait for it
         if (!this.mapImage || !this.mapImage.complete || this.mapImage.naturalWidth === 0) {
@@ -719,10 +725,110 @@ export class InteractiveMap {
 
         console.log('Updating map locations:', locations);
         this.locations = locations;
-        
+
         // Re-render the map to show the updated locations
         if (this._isInitialized) {
             this.render();
+            this.clearMarkers();
+            this.locations.forEach(loc => {
+                if (loc.x !== undefined && loc.y !== undefined) {
+                    this.addMarker({
+                        id: loc.id,
+                        title: loc.name,
+                        coordinates: { x: loc.x, y: loc.y },
+                        status: loc.discoveryStatus
+                    });
+                }
+            });
+        }
+    }
+
+    /**
+     * Add a marker to the map
+     * @param {Object} options - Marker options
+     */
+    addMarker({ id, title = '', coordinates, status, onClick }) {
+        if (!this.pinsContainer || !coordinates) return;
+
+        const pin = document.createElement('div');
+        pin.className = 'map-pin';
+        pin.style.left = `${coordinates.x}%`;
+        pin.style.top = `${coordinates.y}%`;
+
+        const icon = document.createElement('div');
+        icon.className = 'pin-icon';
+        if (status === 'UNDISCOVERED') {
+            icon.classList.add('undiscovered');
+        }
+        icon.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+
+        const label = document.createElement('div');
+        label.className = 'pin-label';
+        label.textContent = title;
+
+        pin.appendChild(icon);
+        pin.appendChild(label);
+
+        pin.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (typeof onClick === 'function') {
+                onClick(id);
+            }
+            this.highlightMarker(id);
+        });
+
+        this.pinsContainer.appendChild(pin);
+        this.markers.set(id, pin);
+    }
+
+    /**
+     * Remove all markers from the map
+     */
+    clearMarkers() {
+        this.markers.forEach(el => el.remove());
+        this.markers.clear();
+    }
+
+    /**
+     * Pan the map to specific coordinates
+     */
+    panTo(coordinates, zoomLevel) {
+        if (!coordinates) return;
+        this._centerOnCoordinates(coordinates, zoomLevel);
+        if (coordinates.id) {
+            this.highlightMarker(coordinates.id);
+        }
+    }
+
+    _centerOnCoordinates(coords, zoomLevel = 1.5) {
+        if (!this._isInitialized || !this.mapImage) {
+            this._pendingCenter = { coords, zoomLevel };
+            return;
+        }
+
+        const containerWidth = this.mapContainer.clientWidth;
+        const containerHeight = this.mapContainer.clientHeight;
+        const pinX = (coords.x / 100) * this.mapImage.naturalWidth;
+        const pinY = (coords.y / 100) * this.mapImage.naturalHeight;
+
+        if (zoomLevel) {
+            this.scale = Math.max(this.minScale, Math.min(this.maxScale, zoomLevel));
+        }
+
+        this.offsetX = (containerWidth / 2) - (pinX * this.scale);
+        this.offsetY = (containerHeight / 2) - (pinY * this.scale);
+        this.constrainMapBounds();
+        this.render();
+    }
+
+    /**
+     * Highlight a marker
+     */
+    highlightMarker(id) {
+        this.markers.forEach(pin => pin.classList.remove('selected'));
+        const pin = this.markers.get(id);
+        if (pin) {
+            pin.classList.add('selected');
         }
     }
 
