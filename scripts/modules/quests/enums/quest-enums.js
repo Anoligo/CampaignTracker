@@ -2,6 +2,7 @@
 export const QuestType = {
     MAIN: 'main',
     SIDE: 'side',
+    PERSONAL: 'personal',
     GUILD: 'guild',
     OTHER: 'other'
 };

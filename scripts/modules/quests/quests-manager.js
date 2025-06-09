@@ -44,7 +44,7 @@ export class QuestsManager {
         }
         
         // Create the UI with the quest service and expose it globally
-        this.questUI = new QuestUI(this.questService);
+        this.questUI = new QuestUI(this.questService, this.dataManager);
         if (typeof window !== 'undefined') {
             window.app = window.app || {};
             window.app.questsUI = this.questUI;

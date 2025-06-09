@@ -20,6 +20,10 @@ export const STATE_SCHEMA = {
                 relatedItems: { type: 'array' },
                 relatedLocations: { type: 'array' },
                 relatedCharacters: { type: 'array' },
+                relatedFactions: { type: 'array' },
+                relatedQuests: { type: 'array' },
+                notes: { type: 'string' },
+                resolution: { type: 'object' },
                 createdAt: { type: 'string', format: 'date-time' },
                 updatedAt: { type: 'string', format: 'date-time' }
             }

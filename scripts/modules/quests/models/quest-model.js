@@ -12,6 +12,14 @@ export class Quest extends Entity {
         this.relatedItems = [];
         this.relatedLocations = [];
         this.relatedCharacters = [];
+        this.relatedFactions = [];
+        this.relatedQuests = [];
+        this.notes = '';
+        this.resolution = {
+            session: '',
+            date: null,
+            xp: 0
+        };
         
         // Ensure dates are Date objects
         if (this.createdAt && !(this.createdAt instanceof Date)) {

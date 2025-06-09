@@ -1,6 +1,7 @@
 import { QuestType, QuestStatus } from '../enums/quest-enums.js';
 import { showToast } from '../../../components/ui-components.js';
 import { formatEnumValue } from './quest-utils.js';
+import { initEntityDropdown, getDropdownValue } from '../../../utils/relational-inputs.js';
 
 export const formHandler = {
     showQuestForm(quest = null) {
@@ -36,6 +37,44 @@ export const formHandler = {
                     <label for="questDescription">Description</label>
                     <textarea id="questDescription" name="description" rows="5">${quest ? quest.description : ''}</textarea>
                 </div>
+                <div class="form-group">
+                    <label for="questNotes">Notes</label>
+                    <textarea id="questNotes" name="notes" rows="3">${quest ? quest.notes || '' : ''}</textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="questLocations">Locations</label>
+                        <select id="questLocations" name="relatedLocations" multiple></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="questItems">Items</label>
+                        <select id="questItems" name="relatedItems" multiple></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="questFactions">Factions</label>
+                        <select id="questFactions" name="relatedFactions" multiple></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="relatedQuests">Related Quests</label>
+                        <select id="relatedQuests" name="relatedQuests" multiple></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="resolutionSession">Resolution Session</label>
+                        <input type="text" id="resolutionSession" name="resolutionSession" value="${quest && quest.resolution ? quest.resolution.session : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="resolutionDate">Resolution Date</label>
+                        <input type="date" id="resolutionDate" name="resolutionDate" value="${quest && quest.resolution && quest.resolution.date ? new Date(quest.resolution.date).toISOString().split('T')[0] : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="resolutionXp">XP Gain</label>
+                        <input type="number" id="resolutionXp" name="resolutionXp" value="${quest && quest.resolution ? quest.resolution.xp : 0}" min="0">
+                    </div>
+                </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancelQuestBtn">Cancel</button>
                     <button type="submit" class="btn btn-primary">${quest ? 'Update' : 'Create'} Quest</button>
@@ -46,6 +85,16 @@ export const formHandler = {
 
         const form = document.getElementById('questForm');
         form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+
+        // Initialize relational dropdowns
+        const locations = this.dataManager?.appState.locations || [];
+        initEntityDropdown('#questLocations', 'location', locations, { multiple: true, useElementDirectly: false, selectedId: null });
+        const items = this.dataManager?.appState.loot || [];
+        initEntityDropdown('#questItems', 'item', items, { multiple: true });
+        const factions = this.dataManager?.appState.factions || [];
+        initEntityDropdown('#questFactions', 'faction', factions, { multiple: true });
+        const quests = this.dataManager?.appState.quests?.filter(q => !quest || q.id !== quest.id) || [];
+        initEntityDropdown('#relatedQuests', 'quest', quests, { multiple: true });
 
         document.getElementById('cancelQuestBtn').addEventListener('click', () => {
             if (this.currentQuest) {
@@ -64,7 +113,17 @@ export const formHandler = {
             name: formData.get('name'),
             type: formData.get('type'),
             status: formData.get('status'),
-            description: formData.get('description')
+            description: formData.get('description'),
+            notes: formData.get('notes') || '',
+            relatedLocations: getDropdownValue('#questLocations') || [],
+            relatedItems: getDropdownValue('#questItems') || [],
+            relatedFactions: getDropdownValue('#questFactions') || [],
+            relatedQuests: getDropdownValue('#relatedQuests') || [],
+            resolution: {
+                session: formData.get('resolutionSession') || '',
+                date: formData.get('resolutionDate') || null,
+                xp: parseInt(formData.get('resolutionXp') || '0', 10)
+            }
         };
 
         try {
