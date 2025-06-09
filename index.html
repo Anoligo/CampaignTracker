@@ -15,62 +15,7 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar Navigation -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background-color: var(--bg-dark);">
-                <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active text-accent" href="#dashboard">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text" href="#quests">
-                                <i class="fas fa-scroll me-2"></i>Quests
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text" href="#players">
-                                <i class="fas fa-users me-2"></i>Players
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text" href="#characters">
-                                <i class="fas fa-user-shield me-2"></i>Characters
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text" href="#loot">
-                                <i class="fas fa-coins me-2"></i>Loot & Curses
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text" href="#locations">
-                                <i class="fas fa-map-marked-alt me-2"></i>Locations
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text" href="#notes">
-                                <i class="fas fa-book me-2"></i>Backstories & Notes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text" href="#guild">
-                                <i class="fas fa-shield-alt me-2"></i>Guild Logs
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text" href="#factions">
-                                <i class="fas fa-flag me-2"></i>Factions
-                            </a>
-                        </li>
-                        <li class="nav-item mt-4">
-                            <a class="nav-link text" href="data-management.html">
-                                <i class="fas fa-database me-2"></i>Data Management
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <div id="sidebar-placeholder"></div>
 
             <!-- Main Content Area -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
@@ -519,6 +464,9 @@
         window.bootstrap = bootstrap;
     </script>
     
+    <!-- Sidebar Loader -->
+    <script src="scripts/sidebar-loader.js" type="module"></script>
+
     <!-- Custom JavaScript -->
     <script src="scripts/main.js" type="module"></script>
 </body>
