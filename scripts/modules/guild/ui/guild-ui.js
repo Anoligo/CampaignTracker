@@ -22,8 +22,14 @@ export async function initializeGuildSection() {
             </div>
         `;
         
-        // Import the data manager and guild manager
-        const { dataManager } = await import('../../../core/state/app-state.js');
+        // Import application state and create a simple data manager. The
+        // previous code attempted to import a non-existent `dataManager`
+        // export which resulted in the guild manager receiving `undefined`.
+        const { appState } = await import('../../../core/state/app-state.js');
+        const dataManager = {
+            appState,
+            saveData: () => appState.update({}, true)
+        };
         const { GuildManager } = await import('../guild-manager.js');
         
         // Initialize the guild manager if it doesn't exist

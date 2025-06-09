@@ -86,8 +86,12 @@ export class GuildManager {
                 ];
             }
             
-            // Save the updated state
-            this.dataManager.saveState();
+            // Persist the updated state
+            if (this.dataManager.saveData) {
+                this.dataManager.saveData();
+            } else if (this.dataManager.appState?._saveState) {
+                this.dataManager.appState._saveState();
+            }
         }
     }
     
