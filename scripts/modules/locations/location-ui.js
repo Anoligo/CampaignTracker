@@ -167,7 +167,7 @@ export class LocationUI {
         this.interactiveMap = new InteractiveMap({
             container: mapContainer,
             onLocationClick: (locationId) => this.handleSelectLocation(locationId),
-            onLocationAdd: (coordinates) => this.handleAddLocationAt(coordinates)
+            onAddLocation: (coordinates) => this.handleAddLocationAt(coordinates)
         });
         
         // Add existing locations to the map
@@ -350,7 +350,11 @@ export class LocationUI {
      * @param {Object} coordinates - The map coordinates where to add the location
      */
     handleAddLocationAt(coordinates) {
-        this.selectedLocation = { coordinates };
+        this.selectedLocation = {
+            coordinates,
+            x: coordinates.x,
+            y: coordinates.y
+        };
         this.isEditing = true;
         this.renderLocationDetails();
     }
