@@ -105,107 +105,14 @@ export class AppInitializer {
             console.warn('Navigation manager not available');
             return;
         }
-        
+
         // Import section initializers dynamically to avoid circular dependencies
         // Note: Each module's index.js should export its initialization function
-        
-        // Initialize Guild section
-        import('../../modules/guild/index.js').then(module => {
-            if (module.initializeGuildSection) {
-                navManager.registerSectionInitializer('guild', module.initializeGuildSection);
-            }
-        }).catch(error => {
-            console.error('Failed to load guild module:', error);
-        });
-        
-        // Initialize quests section
-        import('../../modules/quests/index.js').then(module => {
-            // Check if we have a QuestUI class and QuestsManager
-            if (module.QuestUI && module.QuestsManager) {
-                // Create a function to initialize the quests section
-                const initializeQuestsSection = async () => {
-                    try {
-                        // Check if quests manager is already initialized
-                        if (!window.app.questsManager) {
-                            // Import the app state and create a data manager object
-                            const { appState } = await import('../state/app-state.js');
-                            const dataManager = { appState };
-                            window.app.questsManager = new module.QuestsManager(dataManager);
-                        }
-                        
-                        // Get container elements
-                        const questListElement = document.getElementById('questList');
-                        const questDetailsElement = document.getElementById('questDetails');
-                        const searchInput = document.getElementById('questSearch');
-                        const addButton = document.getElementById('addQuestBtn');
-                        const editButton = document.getElementById('editQuestBtn');
-                        const deleteButton = document.getElementById('deleteQuestBtn');
-                        
-                        if (!questListElement || !questDetailsElement || !searchInput || !addButton) {
-                            console.error('Required quest UI elements not found');
-                            return;
-                        }
-                        
-                        // Initialize quests UI with container elements
-                        if (!window.app.questsUI) {
-                            window.app.questsUI = new module.QuestUI(
-                                window.app.questsManager.questService,
-                                {
-                                    appState: window.app.questsManager.dataManager.appState,
-                                    container: {
-                                        list: questListElement,
-                                        details: questDetailsElement,
-                                        search: searchInput,
-                                        addButton: addButton,
-                                        editButton: editButton,
-                                        deleteButton: deleteButton
-                                    }
-                                }
-                            );
-                            
-                            console.log('QuestUI initialized successfully');
-                        }
-                        
-                        // Make sure the quests section is visible
-                        const questsSection = document.getElementById('quests');
-                        if (questsSection) {
-                            questsSection.style.display = 'block';
-                            questsSection.classList.add('active');
-                            
-                            // Trigger initial render
-                            if (window.app.questsUI.render) {
-                                window.app.questsUI.render();
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error initializing quests section:', error);
-                    }
-                };
-                
-                // Register the initializer
-                navManager.registerSectionInitializer('quests', initializeQuestsSection);
-            }
-        }).catch(error => {
-            console.error('Failed to load quests module:', error);
-        });
-        
-        // Initialize Characters section
-        import('../../modules/characters/index.js').then(module => {
-            if (module.initializeCharactersSection) {
-                navManager.registerSectionInitializer('characters', module.initializeCharactersSection);
-            }
-        }).catch(error => {
-            console.error('Failed to load characters module:', error);
-        });
 
-        // Initialize Factions section
-        import('../../modules/factions/index.js').then(module => {
-            if (module.initializeFactionsSection) {
-                navManager.registerSectionInitializer('factions', module.initializeFactionsSection);
-            }
-        }).catch(error => {
-            console.error('Failed to load factions module:', error);
-        });
+        this._registerGuildSection(navManager);
+        this._registerQuestsSection(navManager);
+        this._registerCharactersSection(navManager);
+        this._registerFactionsSection(navManager);
 
         // Initialize other sections (locations) if needed
         /*
@@ -219,6 +126,99 @@ export class AppInitializer {
         */
         
         // Add more section initializers as needed
+    }
+
+    static _registerGuildSection(navManager) {
+        import('../../modules/guild/index.js')
+            .then(module => {
+                if (module.initializeGuildSection) {
+                    navManager.registerSectionInitializer('guild', module.initializeGuildSection);
+                }
+            })
+            .catch(error => console.error('Failed to load guild module:', error));
+    }
+
+    static _registerQuestsSection(navManager) {
+        import('../../modules/quests/index.js')
+            .then(module => {
+                if (!module.QuestUI || !module.QuestsManager) return;
+                const init = async () => {
+                    try {
+                        await AppInitializer._ensureQuestManager(module);
+                        const els = AppInitializer._getQuestUIElements();
+                        if (!els) return;
+                        AppInitializer._initQuestUI(module, els);
+                        AppInitializer._showQuestsSection();
+                    } catch (error) {
+                        console.error('Error initializing quests section:', error);
+                    }
+                };
+                navManager.registerSectionInitializer('quests', init);
+            })
+            .catch(error => console.error('Failed to load quests module:', error));
+    }
+
+    static async _ensureQuestManager(module) {
+        if (!window.app.questsManager) {
+            const { appState } = await import('../state/app-state.js');
+            const dataManager = { appState };
+            window.app.questsManager = new module.QuestsManager(dataManager);
+        }
+    }
+
+    static _getQuestUIElements() {
+        const list = document.getElementById('questList');
+        const details = document.getElementById('questDetails');
+        const search = document.getElementById('questSearch');
+        const addButton = document.getElementById('addQuestBtn');
+        const editButton = document.getElementById('editQuestBtn');
+        const deleteButton = document.getElementById('deleteQuestBtn');
+
+        if (!list || !details || !search || !addButton) {
+            console.error('Required quest UI elements not found');
+            return null;
+        }
+
+        return { list, details, search, addButton, editButton, deleteButton };
+    }
+
+    static _initQuestUI(module, els) {
+        if (!window.app.questsUI) {
+            window.app.questsUI = new module.QuestUI(
+                window.app.questsManager.questService,
+                { appState: window.app.questsManager.dataManager.appState, container: els }
+            );
+            console.log('QuestUI initialized successfully');
+        }
+    }
+
+    static _showQuestsSection() {
+        const section = document.getElementById('quests');
+        if (section) {
+            section.style.display = 'block';
+            section.classList.add('active');
+            window.app.questsUI.render?.();
+        }
+    }
+
+    static _registerCharactersSection(navManager) {
+        import('../../modules/characters/index.js')
+            .then(module => {
+                if (module.initializeCharactersSection) {
+                    navManager.registerSectionInitializer('characters', module.initializeCharactersSection);
+                }
+            })
+            .catch(error => console.error('Failed to load characters module:', error));
+    }
+
+    static _registerFactionsSection(navManager) {
+        import('../../modules/factions/index.js')
+            .then(module => {
+                if (module.initializeFactionsSection) {
+                    navManager.registerSectionInitializer('factions', module.initializeFactionsSection);
+                }
+            })
+            .catch(error => console.error('Failed to load factions module:', error));
     }
 }
 

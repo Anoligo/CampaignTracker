@@ -288,25 +288,29 @@ export class BaseUI {
             title: `Delete ${this.entityName}`,
             message: `Are you sure you want to delete this ${this.entityName}? This action cannot be undone.`,
             confirmText: 'Delete',
-            onConfirm: () => {
-                if (this.delete) {
-                    this.delete(entityId);
-                    
-                    // Clear the current entity if it was deleted
-                    if (this.currentEntity && this.currentEntity.id === entityId) {
-                        this.currentEntity = null;
-                    }
-                    
-                    // Refresh the UI
-                    this.refresh();
-                    
-                    // Show success message
-                    showToast({
-                        message: `${this.entityName.charAt(0).toUpperCase() + this.entityName.slice(1)} deleted successfully.`,
-                        type: 'success'
-                    });
-                }
-            }
+            onConfirm: () => this.performDelete(entityId)
+        });
+    }
+
+    /**
+     * Perform the actual deletion after confirmation
+     * @param {string} entityId
+     * @private
+     */
+    performDelete(entityId) {
+        if (!this.delete) return;
+
+        this.delete(entityId);
+
+        if (this.currentEntity && this.currentEntity.id === entityId) {
+            this.currentEntity = null;
+        }
+
+        this.refresh();
+
+        showToast({
+            message: `${this.entityName.charAt(0).toUpperCase() + this.entityName.slice(1)} deleted successfully.`,
+            type: 'success'
         });
     }
 }
