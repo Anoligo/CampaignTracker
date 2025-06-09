@@ -17,3 +17,8 @@ input, textarea, select {
         box-shadow: 0 0 0 0.2rem rgba(255, 217, 102, 0.25);
     }
 }
+
+// Ensure Tom Select wrappers match form control width
+.ts-wrapper {
+    width: 100% !important;
+}

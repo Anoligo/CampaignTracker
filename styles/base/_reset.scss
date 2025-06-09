@@ -3,6 +3,11 @@
  * Resets and normalizes default browser styles
  */
 
+html,
+body {
+  height: 100%;
+}
+
 // Box sizing rules
 *,
 *::before,
