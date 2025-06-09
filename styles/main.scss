@@ -41,6 +41,7 @@
 @import 'modules/quests';
 @import 'modules/characters';
 @import 'modules/loot'; // Loot module styles
+@import 'modules/data-management';
 
 // Components
 @import 'components/toasts';
@@ -50,4 +51,5 @@
 @import 'utilities/spacing';
 @import 'utilities/text';
 @import 'utilities/borders';
+@import 'utilities/scroll-area';
 @import 'utilities/animations';

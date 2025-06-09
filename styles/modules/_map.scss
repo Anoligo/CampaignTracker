@@ -227,3 +227,29 @@
         opacity: 1;
     }
 }
+
+// Container for the world map on the locations page
+.world-map-container {
+  width: 100%;
+  height: 600px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius);
+  background-color: var(--gray-100);
+}
+
+// Loading overlay displayed while the map initializes
+.map-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  z-index: 10;
+}

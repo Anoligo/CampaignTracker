@@ -10,146 +10,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="dist/css/main.min.css">
-    <style>
-        :root {
-            --bg-dark: #1a1a2e;
-            --bg-darker: #16213e;
-            --bg-darkest: #0f172a;
-            --primary: #3a7bd5;
-            --primary-hover: #2c5fb3;
-            --text-light: #e6e6e6;
-            --text-muted: #a0aec0;
-            --border-color: #2a3a5f;
-            --card-bg: #1e293b;
-            --card-header-bg: #1e40af;
-        }
-        
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            min-height: 100vh;
-        }
-        
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        .sidebar {
-            background-color: var(--bg-darkest);
-            min-height: 100vh;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            color: var(--text-light);
-        }
-        
-        .card-header {
-            background-color: var(--card-header-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px 20px;
-            color: white;
-        }
-        
-        .card-body {
-            padding: 20px;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            border-color: var(--primary);
-        }
-        
-        .btn-primary:hover, .btn-primary:focus {
-            background-color: var(--primary-hover);
-            border-color: var(--primary-hover);
-        }
-        
-        .btn-secondary {
-            background-color: #4a5568;
-            border-color: #4a5568;
-        }
-        
-        .btn-secondary:hover, .btn-secondary:focus {
-            background-color: #2d3748;
-            border-color: #2d3748;
-        }
-        
-        .form-control, .form-select {
-            background-color: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            color: var(--text-light);
-        }
-        
-        .form-control:focus, .form-select:focus {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            border-color: var(--primary);
-            box-shadow: 0 0 0 0.25rem rgba(58, 123, 213, 0.25);
-        }
-        
-        .form-control::placeholder {
-            color: var(--text-muted);
-        }
-        
-        .form-label, .form-text {
-            color: var(--text-light);
-        }
-        
-        .form-text {
-            opacity: 0.8;
-        }
-        
-        .border-bottom {
-            border-bottom: 1px solid var(--border-color) !important;
-        }
-        
-        .form-control:focus {
-            background-color: var(--bg-darker);
-            border-color: var(--primary);
-            color: var(--text-light);
-            box-shadow: 0 0 0 0.2rem rgba(58, 123, 213, 0.25);
-        }
-        .alert {
-            padding: 10px 15px;
-            margin-bottom: 15px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            color: var(--text-light);
-        }
-        
-        .alert-success {
-            background-color: var(--primary);
-            border-color: var(--primary);
-        }
-        
-        .alert-error, .alert-danger {
-            background-color: #ef4444;
-            border-color: #dc2626;
-        }
-        
-        .alert-info {
-            background-color: #3b82f6;
-            border-color: #2563eb;
-        }
-        
-        .alert-warning {
-            background-color: #f59e0b;
-            border-color: #d97706;
-        }
-    </style>
 </head>
-<body class="app-container">
+<body class="app-container data-management-page">
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background-color: #0f172a;">
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
                 <div class="position-sticky pt-3">
                     <div class="text-center mb-4">
                         <h4 class="text-light">Pathfinder</h4>
@@ -202,7 +68,7 @@
                             </a>
                         </li>
                         <li class="nav-item mt-4">
-                            <a class="nav-link active" href="#" style="background-color: rgba(255, 255, 255, 0.1);">
+                            <a class="nav-link active" href="#">
                                 <i class="fas fa-database me-2"></i>Data Management
                             </a>
                         </li>

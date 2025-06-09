@@ -206,6 +206,9 @@ $container-max-widths: (
   --body-bg: #{$body-bg};
   --body-color: #{$body-color};
   --text-muted: #{$text-muted};
+  --bg-dark: #{$body-bg};
+  --bg-card: #{$card-bg};
+  --text: #{$body-color};
   
   // Cards
   --card-bg: #{$card-bg};

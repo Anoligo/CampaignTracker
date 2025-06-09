@@ -1,0 +1,13 @@
+.scroll-area {
+  overflow-y: auto;
+}
+
+.scroll-area-400 {
+  @extend .scroll-area;
+  max-height: 400px;
+}
+
+.scroll-area-600 {
+  @extend .scroll-area;
+  max-height: 600px;
+}
