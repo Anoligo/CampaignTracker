@@ -62,6 +62,9 @@ $theme-colors: (
 $body-bg: #1a1e24;
 $body-color: #e4e6eb;
 $text-muted: #adb5bd;
+$bg-dark: #1c1c1c;
+$bg-card: #2a2a2a;
+$text: #f5f5f5;
 
 // Card styles
 $card-bg: #2a2f36;
@@ -206,6 +209,9 @@ $container-max-widths: (
   --body-bg: #{$body-bg};
   --body-color: #{$body-color};
   --text-muted: #{$text-muted};
+  --bg-dark: #{$bg-dark};
+  --bg-card: #{$bg-card};
+  --text: #{$text};
   
   // Cards
   --card-bg: #{$card-bg};

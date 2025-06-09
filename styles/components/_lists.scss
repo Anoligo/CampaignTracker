@@ -1,0 +1,13 @@
+// Scrollable list containers
+#questList,
+#playerList,
+#noteList,
+#characterList {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+#locationList {
+  max-height: 400px;
+  overflow-y: auto;
+}
