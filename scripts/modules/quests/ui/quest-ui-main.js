@@ -34,7 +34,10 @@ export class QuestUI extends BaseUI {
 
     cacheElements() {
         this.elements = {
-            container: document.getElementById('quests-container') || document.createElement('div'),
+            // Use the existing quests section as the container. The previous
+            // selector referenced a non-existent "quests-container" element
+            // which caused the cached buttons to point to detached elements.
+            container: document.getElementById('quests') || document.createElement('div'),
             list: document.getElementById('questList') || document.createElement('div'),
             details: document.getElementById('questDetails') || document.createElement('div'),
             search: document.getElementById('questSearch') || document.createElement('input'),
