@@ -16,7 +16,14 @@ export async function initializePlayersSection() {
             const { appState } = await import('../../core/state/app-state.js');
             const dataManager = {
                 appState,
-                saveData: () => appState.update({}, true)
+                // Ensure state is persisted even if no updates are provided
+                saveData: () => {
+                    if (typeof appState._saveState === 'function') {
+                        appState._saveState();
+                    } else {
+                        appState.update({}, true);
+                    }
+                }
             };
             window.app = window.app || {};
             window.app.playersManager = new PlayersManager(dataManager);
