@@ -112,6 +112,7 @@ export class AppInitializer {
         this._registerGuildSection(navManager);
         this._registerQuestsSection(navManager);
         this._registerCharactersSection(navManager);
+        this._registerPlayersSection(navManager);
         this._registerFactionsSection(navManager);
 
         // Initialize other sections (locations) if needed
@@ -210,6 +211,16 @@ export class AppInitializer {
             })
             .catch(error => console.error('Failed to load characters module:', error));
     }
+    static _registerPlayersSection(navManager) {
+        import("../../modules/players/index.js")
+            .then(module => {
+                if (module.initializePlayersSection) {
+                    navManager.registerSectionInitializer("players", module.initializePlayersSection);
+                }
+            })
+            .catch(error => console.error("Failed to load players module:", error));
+    }
+
 
     static _registerFactionsSection(navManager) {
         import('../../modules/factions/index.js')

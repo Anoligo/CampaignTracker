@@ -5,3 +5,4 @@ export { PlayerService } from './services/player-service.js';
 export { PlayerUI } from './ui/player-ui-new.js';
 export { PlayerForms } from './ui/player-forms.js';
 export { PlayersManager } from './players-manager.js';
+export { initializePlayersSection } from './players-section.js';
