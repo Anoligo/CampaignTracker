@@ -8,10 +8,9 @@
 // Re-export all the necessary components from the new module structure
 export { Player, PlayerClass, PlayerStatus } from './players/index.js';
 import { PlayersManager } from './players/players-manager.js';
+export { initializePlayersSection } from './players/players-section.js';
 
 // Export PlayersManager as PlayerManager for backward compatibility
-export { PlayersManager as PlayerManager };
-
 // Default export for backward compatibility
 export default {
     Player,
