@@ -31,7 +31,14 @@ export async function initializeCharactersSection() {
                 const { appState } = await import('../../core/state/app-state.js');
                 const dataManager = {
                     appState,
-                    saveData: () => appState.update({}, true)
+                    // Ensure changes are persisted immediately
+                    saveData: () => {
+                        if (typeof appState._saveState === 'function') {
+                            appState._saveState();
+                        } else {
+                            appState.update({}, true);
+                        }
+                    }
                 };
 
                 // Initialize the characters manager
