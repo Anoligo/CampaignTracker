@@ -318,8 +318,16 @@ export class PlayerUI extends BaseUI {
      * @param {Object} player - Player to edit
      */
     handleEdit(player) {
-        // Implementation will be added later
-        alert('Edit player functionality will be implemented soon');
+        if (!player || !player.id) {
+            console.warn('No player provided for editing');
+            return;
+        }
+
+        if (this.playerManager && this.playerManager.forms) {
+            this.playerManager.forms.showEditPlayerForm(player.id);
+        } else {
+            console.error('Player manager or forms not available');
+        }
     }
     
     /**
@@ -454,5 +462,16 @@ export class PlayerUI extends BaseUI {
         });
         
         console.log('Player list rendering complete');
+    }
+
+    /**
+     * Convenience method used by forms to redisplay a player's details
+     * after an edit operation or when cancelling.
+     * @param {string} playerId - ID of the player to show
+     */
+    showPlayerDetails(playerId) {
+        if (playerId) {
+            this.handleSelect(playerId);
+        }
     }
 }
