@@ -5,17 +5,52 @@ export class PlayerService {
         this.dataManager = dataManager;
     }
 
+    /**
+     * Safely retrieve the players array from the underlying app state.
+     * This ensures compatibility with both the legacy plain object state
+     * and the newer AppState class which stores data in the `state` field.
+     * @returns {Array} Array of players
+     */
+    _getPlayersArray() {
+        // Prefer the new AppState structure if available
+        const statePlayers = this.dataManager?.appState?.state?.players;
+        if (Array.isArray(statePlayers)) {
+            // Keep legacy reference in sync
+            this.dataManager.appState.players = statePlayers;
+            return statePlayers;
+        }
+
+        // Fallback to legacy property
+        if (Array.isArray(this.dataManager?.appState?.players)) {
+            return this.dataManager.appState.players;
+        }
+
+        // Initialize players array if it doesn't exist
+        if (this.dataManager?.appState?.update) {
+            this.dataManager.appState.update({ players: [] });
+            return this.dataManager.appState.state.players;
+        }
+
+        return [];
+    }
+
     getAllPlayers() {
-        return this.dataManager.appState.players || [];
+        return this._getPlayersArray();
     }
 
     getPlayerById(playerId) {
-        return this.dataManager.appState.players.find(p => p.id === playerId);
+        return this._getPlayersArray().find(p => p.id === playerId);
     }
 
     createPlayer(name, playerClass, level = 1) {
         const player = new Player(name, playerClass, level);
-        this.dataManager.appState.players.push(player);
+        const players = this._getPlayersArray();
+        players.push(player);
+
+        if (typeof this.dataManager.appState.update === 'function') {
+            this.dataManager.appState.update({ players });
+        }
+
         this.dataManager.saveData();
         return player;
     }
@@ -30,9 +65,15 @@ export class PlayerService {
     }
 
     deletePlayer(playerId) {
-        const index = this.dataManager.appState.players.findIndex(p => p.id === playerId);
+        const players = this._getPlayersArray();
+        const index = players.findIndex(p => p.id === playerId);
         if (index !== -1) {
-            this.dataManager.appState.players.splice(index, 1);
+            players.splice(index, 1);
+
+            if (typeof this.dataManager.appState.update === 'function') {
+                this.dataManager.appState.update({ players });
+            }
+
             this.dataManager.saveData();
             return true;
         }
