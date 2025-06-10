@@ -12,25 +12,35 @@ export class PlayerService {
      * @returns {Array} Array of players
      */
     _getPlayersArray() {
-        // Prefer the new AppState structure if available
-        const statePlayers = this.dataManager?.appState?.state?.players;
-        if (Array.isArray(statePlayers)) {
-            // Keep legacy reference in sync
-            this.dataManager.appState.players = statePlayers;
-            return statePlayers;
+        // Always prefer the players array on the AppState instance if available
+        const state = this.dataManager?.appState?.state;
+
+        if (state) {
+            if (!Array.isArray(state.players)) {
+                // Ensure the players array exists
+                state.players = [];
+            }
+
+            // Keep a legacy reference in sync
+            this.dataManager.appState.players = state.players;
+            return state.players;
         }
 
-        // Fallback to legacy property
-        if (Array.isArray(this.dataManager?.appState?.players)) {
-            return this.dataManager.appState.players;
+        // Fallback to any legacy property
+        const legacyPlayers = this.dataManager?.appState?.players;
+        if (Array.isArray(legacyPlayers)) {
+            return legacyPlayers;
         }
 
-        // Initialize players array if it doesn't exist
-        if (this.dataManager?.appState?.update) {
+        // As a last resort, attempt to create the players array using the
+        // update method if it exists
+        if (typeof this.dataManager?.appState?.update === 'function') {
             this.dataManager.appState.update({ players: [] });
-            return this.dataManager.appState.state.players;
+            return this.dataManager.appState.state.players || [];
         }
 
+        // If all else fails, return a new array. The caller should handle
+        // persisting this if necessary.
         return [];
     }
 
