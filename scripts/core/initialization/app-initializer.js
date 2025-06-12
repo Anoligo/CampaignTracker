@@ -162,7 +162,6 @@ export class AppInitializer {
 
     static async _ensureQuestManager(module) {
         if (!window.app.questsManager) {
-            const { appState } = await import('../state/app-state.js');
             const dataManager = { appState };
             window.app.questsManager = new module.QuestsManager(dataManager);
         }

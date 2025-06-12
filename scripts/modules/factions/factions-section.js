@@ -1,4 +1,5 @@
 import { FactionUI } from './ui/faction-ui.js';
+import { appState } from '../../core/state/app-state.js';
 
 /**
  * Initialize the factions section when navigated to.
@@ -13,17 +14,7 @@ export async function initializeFactionsSection() {
 
         if (!window.app) window.app = {};
         if (!window.app.factionUI) {
-            const { appState } = await import('../../core/state/app-state.js');
-            const dataManager = {
-                appState,
-                saveData: () => {
-                    if (typeof appState._saveState === 'function') {
-                        appState._saveState();
-                    } else {
-                        appState.update({}, true);
-                    }
-                }
-            };
+            const dataManager = { appState };
             window.app.factionUI = new FactionUI(container, dataManager);
         } else {
             window.app.factionUI.refresh?.();

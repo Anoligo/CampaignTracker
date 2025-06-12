@@ -5,6 +5,7 @@
 
 import { CharactersManager } from './characters-manager.js';
 import { CharacterUI } from './ui/character-ui.js';
+import { appState } from '../../core/state/app-state.js';
 
 /**
  * Initialize the characters section
@@ -28,18 +29,7 @@ export async function initializeCharactersSection() {
                 // exposes a saveData function. The previous code attempted to
                 // import a non-existent `dataManager` export and resulted in the
                 // manager receiving `undefined`.
-                const { appState } = await import('../../core/state/app-state.js');
-                const dataManager = {
-                    appState,
-                    // Ensure changes are persisted immediately
-                    saveData: () => {
-                        if (typeof appState._saveState === 'function') {
-                            appState._saveState();
-                        } else {
-                            appState.update({}, true);
-                        }
-                    }
-                };
+                const dataManager = { appState };
 
                 // Initialize the characters manager
                 window.app = window.app || {};
