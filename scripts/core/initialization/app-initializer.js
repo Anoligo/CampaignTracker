@@ -113,6 +113,7 @@ export class AppInitializer {
         this._registerQuestsSection(navManager);
         this._registerCharactersSection(navManager);
         this._registerPlayersSection(navManager);
+        this._registerConditionsSection(navManager);
         this._registerFactionsSection(navManager);
 
         // Initialize other sections (locations) if needed
@@ -219,6 +220,16 @@ export class AppInitializer {
                 }
             })
             .catch(error => console.error("Failed to load players module:", error));
+    }
+
+    static _registerConditionsSection(navManager) {
+        import('../../modules/conditions/index.js')
+            .then(module => {
+                if (module.initializeConditionsSection) {
+                    navManager.registerSectionInitializer('conditions', module.initializeConditionsSection);
+                }
+            })
+            .catch(error => console.error('Failed to load conditions module:', error));
     }
 
 
