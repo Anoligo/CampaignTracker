@@ -109,9 +109,9 @@ export class DataServiceAdapter {
             }
 
             // Force save if requested
-            if (saveToStorage && this.dataService._saveData) {
+            if (saveToStorage && this.dataService.saveData) {
                 console.log('Saving data to storage');
-                this.dataService._saveData();
+                this.dataService.saveData();
             }
         } catch (error) {
             console.error('Error in update:', error);

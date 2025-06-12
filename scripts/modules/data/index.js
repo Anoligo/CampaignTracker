@@ -4,4 +4,4 @@ export * from './validators/state-validator.js';
 export * from './services/data-service.js';
 
 // For backward compatibility
-export { DataService as DataManager } from './services/data-service.js';
+export { DataService as DataManager, saveData } from './services/data-service.js';
