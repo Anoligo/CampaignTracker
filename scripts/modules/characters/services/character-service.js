@@ -9,16 +9,83 @@ export class CharacterService {
     }
 
     /**
+     * Safely retrieve the NPC array from the underlying data manager.
+     * Supports both the newer DataService interface ("npcs" collection)
+     * and the legacy plain object structure using "characters".
+     * @returns {Array} Array of characters
+     */
+    _getCharactersArray() {
+        try {
+            let characters = [];
+
+            // Preferred: use data service's getAll method
+            if (this.dataManager && typeof this.dataManager.getAll === 'function') {
+                try {
+                    const result = this.dataManager.getAll('npcs');
+                    if (Array.isArray(result)) {
+                        characters = result;
+                        return [...characters];
+                    }
+                } catch (error) {
+                    console.warn('Error getting NPCs from dataManager.getAll:', error);
+                }
+            }
+
+            // Fallback: check appState.state.npcs or .characters
+            if (this.dataManager && this.dataManager.appState) {
+                const state = this.dataManager.appState.state || this.dataManager.appState;
+                if (state && Array.isArray(state.npcs)) {
+                    characters = state.npcs;
+                    return [...characters];
+                }
+                if (state && Array.isArray(state.characters)) {
+                    characters = state.characters;
+                    return [...characters];
+                }
+            }
+
+            // Legacy fallback
+            if (this.dataManager && Array.isArray(this.dataManager.appState?.characters)) {
+                characters = this.dataManager.appState.characters;
+                return [...characters];
+            }
+
+            // Initialize empty array if none found
+            if (this.dataManager && this.dataManager.appState && typeof this.dataManager.appState.update === 'function') {
+                this.dataManager.appState.update({ npcs: [] }, true);
+            }
+
+            return [...characters];
+        } catch (error) {
+            console.error('Error in _getCharactersArray:', error);
+            return [];
+        }
+    }
+
+    _saveData() {
+        try {
+            if (this.dataManager && this.dataManager._saveData) {
+                this.dataManager._saveData();
+                return true;
+            }
+            if (this.dataManager && typeof this.dataManager.saveData === 'function') {
+                this.dataManager.saveData();
+                return true;
+            }
+            console.warn('No save method available on dataManager');
+            return false;
+        } catch (error) {
+            console.error('Error saving data:', error);
+            return false;
+        }
+    }
+
+    /**
      * Get all characters
      * @returns {Array} Array of characters
      */
     getAllCharacters() {
-        // Ensure characters array exists in state
-        if (!this.dataManager.appState.characters) {
-            this.dataManager.appState.characters = [];
-            this.dataManager.saveData();
-        }
-        return this.dataManager.appState.characters || [];
+        return this._getCharactersArray();
     }
 
     /**
@@ -27,7 +94,7 @@ export class CharacterService {
      * @returns {Object|null} Character object or null if not found
      */
     getCharacterById(id) {
-        const characters = this.getAllCharacters();
+        const characters = this._getCharactersArray();
         return characters.find(char => char.id === id) || null;
     }
 
@@ -38,7 +105,7 @@ export class CharacterService {
      */
     async createCharacter(characterData) {
         try {
-            const characters = this.getAllCharacters();
+            const characters = this._getCharactersArray();
             const newCharacter = {
                 id: Date.now().toString(),
                 name: characterData.name || 'Unnamed Character',
@@ -62,15 +129,23 @@ export class CharacterService {
                 updatedAt: new Date().toISOString()
             };
 
-            // Add to the characters array
+            // Add to the collection using data service if available
+            if (this.dataManager && typeof this.dataManager.add === 'function') {
+                const added = this.dataManager.add('npcs', newCharacter, { generateId: false });
+                this._saveData();
+                console.log('Character created:', added);
+                return added;
+            }
+
+            // Fallback to manual array update
             characters.push(newCharacter);
-            
-            // Update the state
-            this.dataManager.appState.characters = characters;
-            
-            // Save the updated state
-            this.dataManager.saveData();
-            
+            if (this.dataManager && this.dataManager.appState && typeof this.dataManager.appState.update === 'function') {
+                this.dataManager.appState.update({ npcs: characters }, true);
+            } else if (this.dataManager && this.dataManager.appState) {
+                this.dataManager.appState.npcs = characters;
+                this._saveData();
+            }
+
             console.log('Character created:', newCharacter);
             return newCharacter;
         } catch (error) {
@@ -87,7 +162,7 @@ export class CharacterService {
      */
     async updateCharacter(id, updates) {
         try {
-            const characters = this.getAllCharacters();
+            const characters = this._getCharactersArray();
             const index = characters.findIndex(char => char.id === id);
             
             if (index === -1) return null;
@@ -98,15 +173,22 @@ export class CharacterService {
                 updatedAt: new Date().toISOString()
             };
             
-            // Update the character in the array
+            if (this.dataManager && typeof this.dataManager.update === 'function') {
+                const updated = this.dataManager.update('npcs', id, updatedCharacter);
+                this._saveData();
+                console.log('Character updated:', updated);
+                return updated;
+            }
+
+            // Fallback to manual update
             characters[index] = updatedCharacter;
-            
-            // Update the state
-            this.dataManager.appState.characters = characters;
-            
-            // Save the updated state
-            this.dataManager.saveData();
-            
+            if (this.dataManager && this.dataManager.appState && typeof this.dataManager.appState.update === 'function') {
+                this.dataManager.appState.update({ npcs: characters }, true);
+            } else if (this.dataManager && this.dataManager.appState) {
+                this.dataManager.appState.npcs = characters;
+                this._saveData();
+            }
+
             console.log('Character updated:', updatedCharacter);
             return updatedCharacter;
         } catch (error) {
@@ -121,14 +203,20 @@ export class CharacterService {
      * @returns {boolean} True if deleted, false if not found
      */
     deleteCharacter(id) {
-        const characters = this.getAllCharacters();
+        const characters = this._getCharactersArray();
         const initialLength = characters.length;
         const filteredCharacters = characters.filter(char => char.id !== id);
-        
+
         if (filteredCharacters.length === initialLength) return false;
-        
-        this.dataManager.appState = { ...this.dataManager.appState, characters: filteredCharacters };
-        this.dataManager.saveData();
+
+        if (this.dataManager && typeof this.dataManager.remove === 'function') {
+            const removed = this.dataManager.remove('npcs', id);
+            this._saveData();
+            return removed;
+        }
+
+        this.dataManager.appState = { ...this.dataManager.appState, npcs: filteredCharacters };
+        this._saveData();
         return true;
     }
 
