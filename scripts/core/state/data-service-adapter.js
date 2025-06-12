@@ -109,9 +109,9 @@ export class DataServiceAdapter {
             }
 
             // Force save if requested
-            if (saveToStorage && this.dataService.saveData) {
+            if (saveToStorage) {
                 console.log('Saving data to storage');
-                this.dataService.saveData();
+                this.saveData();
             }
         } catch (error) {
             console.error('Error in update:', error);
@@ -403,6 +403,35 @@ export class DataServiceAdapter {
      */
     updateSettings(updates) {
         return this.dataService.updateSettings(updates);
+    }
+
+    /**
+     * Persist the current state using the underlying DataService.
+     * @returns {boolean} True if the save succeeded, false otherwise
+     */
+    saveData() {
+        if (this.dataService && typeof this.dataService.saveData === 'function') {
+            return this.dataService.saveData();
+        }
+        console.warn('No dataService.saveData method available');
+        return false;
+    }
+
+    /**
+     * Alias for saveData to maintain backward compatibility.
+     * @returns {boolean} The result of saveData()
+     */
+    save() {
+        return this.saveData();
+    }
+
+    /**
+     * Backwards compatibility wrapper for modules invoking _saveData.
+     * Delegates to saveData().
+     * @returns {boolean} The result of saveData()
+     */
+    _saveData() {
+        return this.saveData();
     }
 }
 
