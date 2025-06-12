@@ -1,4 +1,5 @@
-import { DataService } from '/scripts/modules/data/services/data-service.js';
+// Use a relative path so this module works regardless of the site's base URL.
+import { DataService } from '../services/data-service.js';
 
 /**
  * Data Management UI
