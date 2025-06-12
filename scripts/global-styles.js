@@ -170,10 +170,19 @@ function initializeRelationalInputs() {
         const placeholder = select.dataset.placeholder || `Search or select ${entityType}...`;
         const multiple = select.hasAttribute('multiple');
         
+        // Build options array from any existing <option> elements so we don't
+        // lose them when initializing TomSelect. initRelationalDropdown clears
+        // the element's innerHTML before adding the provided options, so we
+        // must supply the current options for it to re-add.
+        const options = Array.from(select.options).map(opt => ({
+            value: opt.value,
+            text: opt.textContent,
+            selected: opt.selected
+        }));
+
         // Initialize TomSelect
         try {
             // Pass the element directly instead of using it as a selector
-            const options = [];
             RelationalInputs.initRelationalDropdown(select, options, {
                 placeholder,
                 multiple,
