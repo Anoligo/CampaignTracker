@@ -12,7 +12,8 @@
     "build:css": "sass --style=compressed --no-source-map styles/main.scss dist/css/main.min.css",
     "watch:css": "sass --watch --style=compressed --no-source-map styles/main.scss:dist/css/main.min.css",
     "build": "npm run build:css",
-    "dev": "npm run watch:css"
+    "dev": "npm run watch:css",
+    "start": "node server.js"
   },
   "dependencies": {
     "bootstrap": "^5.3.0",
