@@ -1,4 +1,7 @@
-import { DataService } from '/scripts/modules/data/services/data-service.js';
+// Use relative path so the module works on GitHub Pages when hosted in a
+// subdirectory. Absolute paths break because the site root is not the domain
+// root when served from a project page.
+import { DataService } from '../../modules/data/services/data-service.js';
 
 /**
  * DataServiceAdapter

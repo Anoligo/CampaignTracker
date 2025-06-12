@@ -1,4 +1,6 @@
-import { DataService } from '/scripts/modules/data/services/data-service.js';
+// Use a relative path so the import works correctly when the site is hosted in
+// a subdirectory (e.g. GitHub Pages project sites).
+import { DataService } from '../modules/data/services/data-service.js';
 
 export class DataManagementPage {
     constructor() {

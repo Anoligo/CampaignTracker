@@ -1,5 +1,7 @@
 import { Faction } from './models/faction.js';
-import { DataService } from '/scripts/modules/data/services/data-service.js';
+// Relative import to support GitHub Pages where the site may be served from a
+// subdirectory.
+import { DataService } from '../data/services/data-service.js';
 
 /**
  * Manages all faction-related operations and data
