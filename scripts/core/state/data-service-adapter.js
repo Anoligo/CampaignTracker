@@ -111,7 +111,11 @@ export class DataServiceAdapter {
             // Force save if requested
             if (saveToStorage) {
                 console.log('Saving data to storage');
-                this.saveData();
+                if (this.dataService && typeof this.dataService.saveData === 'function') {
+                    this.dataService.saveData();
+                } else {
+                    console.warn('dataService.saveData is not available');
+                }
             }
         } catch (error) {
             console.error('Error in update:', error);
@@ -422,7 +426,11 @@ export class DataServiceAdapter {
      * @returns {boolean} The result of saveData()
      */
     save() {
-        return this.saveData();
+        if (this.dataService && typeof this.dataService.saveData === 'function') {
+            return this.dataService.saveData();
+        }
+        console.warn('No dataService.saveData method available');
+        return false;
     }
 
     /**
@@ -431,7 +439,11 @@ export class DataServiceAdapter {
      * @returns {boolean} The result of saveData()
      */
     _saveData() {
-        return this.saveData();
+        if (this.dataService && typeof this.dataService.saveData === 'function') {
+            return this.dataService.saveData();
+        }
+        console.warn('No dataService.saveData method available');
+        return false;
     }
 }
 
