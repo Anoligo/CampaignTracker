@@ -72,6 +72,19 @@ export class CharacterService {
                 this.dataManager.saveData();
                 return true;
             }
+
+            // Fall back to the underlying appState instance if present
+            if (this.dataManager && this.dataManager.appState) {
+                if (typeof this.dataManager.appState._saveData === 'function') {
+                    this.dataManager.appState._saveData();
+                    return true;
+                }
+                if (typeof this.dataManager.appState.saveData === 'function') {
+                    this.dataManager.appState.saveData();
+                    return true;
+                }
+            }
+
             console.warn('No save method available on dataManager');
             return false;
         } catch (error) {
