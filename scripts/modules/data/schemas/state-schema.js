@@ -8,9 +8,13 @@ import { GuildActivityType, GuildResourceType } from '../../guild/index.js';
 export const UI_STATE_SCHEMA = {
     type: 'object',
     properties: {
-        activeSection: { 
+        activeSection: {
             type: 'string',
-            enum: ['dashboard', 'quests', 'players', 'locations', 'loot', 'npcs', 'factions', 'session-notes', 'guild-logs', 'settings']
+            enum: [
+                'dashboard', 'quests', 'players', 'characters', 'locations',
+                'loot', 'npcs', 'factions', 'session-notes', 'guild-logs',
+                'settings'
+            ]
         },
         selectedItem: {
             type: ['object', 'null'],
