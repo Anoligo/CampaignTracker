@@ -558,7 +558,16 @@ export class DataService {
             }
         }
     }
-    
+
+    /**
+     * Public wrapper for _saveData to allow external callers
+     * to persist the current state.
+     * @returns {boolean} True if save was successful, false otherwise
+     */
+    saveData() {
+        return this._saveData();
+    }
+
     /**
      * Notify all observers of state changes
      */
@@ -1112,7 +1121,17 @@ export class DataService {
         if (!this._state[collection]) {
             throw new Error(`Invalid collection: ${collection}`);
         }
-        
+
         return this._state[collection].filter(predicate);
     }
 }
+
+// Backwards compatibility helper for modules that imported saveData directly
+// Accepts a DataService instance and delegates to its saveData method
+export function saveData(dataService) {
+    if (dataService && typeof dataService.saveData === 'function') {
+        return dataService.saveData();
+    }
+    throw new Error('DataService instance with saveData method required');
+}
+
