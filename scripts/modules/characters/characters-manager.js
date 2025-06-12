@@ -25,7 +25,18 @@ export class CharactersManager {
                 ...this.dataManager.appState,
                 characters: []
             };
-            this.dataManager.saveData();
+
+            // Persist the updated state if a save method is available
+            if (typeof this.dataManager.saveData === 'function') {
+                this.dataManager.saveData();
+            } else if (
+                this.dataManager.appState &&
+                typeof this.dataManager.appState.saveData === 'function'
+            ) {
+                this.dataManager.appState.saveData();
+            } else {
+                console.warn('No save method available on dataManager');
+            }
         }
 
         // Initialize the UI if we're in a browser environment
