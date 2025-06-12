@@ -216,8 +216,16 @@ export class CharacterService {
             return removed;
         }
 
-        this.dataManager.appState = { ...this.dataManager.appState, npcs: filteredCharacters };
-        this._saveData();
+        // Fallback for environments without a full data service
+        if (this.dataManager?.appState?.update) {
+            // Use the appState's update method so persistence hooks trigger
+            this.dataManager.appState.update({ npcs: filteredCharacters }, true);
+        } else if (this.dataManager?.appState) {
+            // Directly mutate and save as a last resort
+            this.dataManager.appState.npcs = filteredCharacters;
+            this._saveData();
+        }
+
         return true;
     }
 
