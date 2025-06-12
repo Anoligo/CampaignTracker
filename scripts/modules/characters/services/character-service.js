@@ -142,6 +142,8 @@ export class CharacterService {
             characters.push(newCharacter);
             if (this.dataManager && this.dataManager.appState && typeof this.dataManager.appState.update === 'function') {
                 this.dataManager.appState.update({ npcs: characters }, true);
+                // Explicitly persist changes to ensure new NPCs are saved
+                this._saveData();
             } else if (this.dataManager && this.dataManager.appState) {
                 this.dataManager.appState.npcs = characters;
                 this._saveData();
