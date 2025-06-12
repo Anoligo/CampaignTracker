@@ -8,9 +8,7 @@ export class NotesService {
 
     createNote(title, content, category = NoteCategory.LORE) {
         const note = new Note(title, content, category);
-        this.dataManager.appState.notes.push(note);
-        this.dataManager.saveData();
-        return note;
+        return this.dataManager.add('notes', note);
     }
 
     getNoteById(id) {
@@ -47,62 +45,11 @@ export class NotesService {
     }
 
     updateNote(noteId, updates) {
-        console.log('NotesService.updateNote called with noteId:', noteId, 'updates:', updates);
-        
-        // Get the note from the data manager's state
-        const noteIndex = this.dataManager.appState.notes.findIndex(n => n.id === noteId);
-        if (noteIndex === -1) {
-            console.error('Note not found:', noteId);
-            return null;
-        }
-        
-        // Get the note using our getNoteById to ensure it's a proper Note instance
-        const note = this.getNoteById(noteId);
-        if (!note) {
-            console.error('Failed to get note instance:', noteId);
-            return null;
-        }
-        
-        console.log('Current note before updates:', JSON.parse(JSON.stringify(note)));
-        
-        // Apply updates
-        if (updates.title !== undefined) {
-            console.log('Updating title to:', updates.title);
-            note.updateTitle(updates.title);
-        }
-        
-        if (updates.content !== undefined) {
-            console.log('Updating content');
-            note.updateContent(updates.content);
-        }
-        
-        if (updates.category !== undefined) {
-            console.log('Updating category to:', updates.category);
-            const success = note.updateCategory(updates.category);
-            if (!success) {
-                console.error('Failed to update category. Invalid category:', updates.category);
-                return null;
-            }
-        }
-        
-        // Update the note in the data manager's state
-        this.dataManager.appState.notes[noteIndex] = note;
-        
-        // Save the changes
-        this.dataManager.saveData();
-        
-        console.log('Note after updates:', JSON.parse(JSON.stringify(note)));
-        return note;
+        return this.dataManager.update('notes', noteId, updates);
     }
 
     deleteNote(noteId) {
-        const index = this.dataManager.appState.notes.findIndex(n => n.id === noteId);
-        if (index !== -1) {
-            this.dataManager.appState.notes.splice(index, 1);
-            this.dataManager.saveData();
-            return true;
-        }
-        return false;
+        return this.dataManager.remove('notes', noteId);
     }
 
     searchNotes(query) {
@@ -129,7 +76,7 @@ export class NotesService {
         const note = this.getNoteById(noteId);
         if (note) {
             note.addTag(tag);
-            this.dataManager.saveData();
+            this.dataManager.update('notes', noteId, note);
             return true;
         }
         return false;
@@ -139,7 +86,7 @@ export class NotesService {
         const note = this.getNoteById(noteId);
         if (note) {
             note.removeTag(tag);
-            this.dataManager.saveData();
+            this.dataManager.update('notes', noteId, note);
             return true;
         }
         return false;
@@ -160,7 +107,7 @@ export class NotesService {
         if (methodMap[entityType] && typeof note[methodMap[entityType]] === 'function') {
             const result = note[methodMap[entityType]](entityId);
             if (result) {
-                this.dataManager.saveData();
+                this.dataManager.update('notes', noteId, note);
             }
             return result;
         }
@@ -170,14 +117,6 @@ export class NotesService {
     removeRelatedEntity(noteId, entityType, entityId) {
         console.log(`NotesService.removeRelatedEntity called with noteId: ${noteId}, entityType: ${entityType}, entityId: ${entityId}`);
         
-        // Get the note from the data manager's state
-        const noteIndex = this.dataManager.appState.notes.findIndex(n => n.id === noteId);
-        if (noteIndex === -1) {
-            console.error('Note not found:', noteId);
-            return false;
-        }
-        
-        // Get the note using our getNoteById to ensure it's a proper Note instance
         const note = this.getNoteById(noteId);
         if (!note) {
             console.error('Failed to get note instance:', noteId);
@@ -199,16 +138,7 @@ export class NotesService {
             
             if (result) {
                 console.log('Entity removed from note model:', note);
-                
-                // IMPORTANT: Update the note in the data manager's state
-                this.dataManager.appState.notes[noteIndex] = note;
-                
-                // Save the changes to persistent storage
-                this.dataManager.saveData();
-                
-                console.log('Note after removal:', JSON.parse(JSON.stringify(note)));
-                console.log('Updated appState.notes[noteIndex]:', JSON.parse(JSON.stringify(this.dataManager.appState.notes[noteIndex])));
-                
+                this.dataManager.update('notes', noteId, note);
                 return true;
             }
             return false;

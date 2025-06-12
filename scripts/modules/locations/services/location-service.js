@@ -63,9 +63,7 @@ export class LocationService {
             data.connections || []
         );
 
-        this.dataManager.appState.locations.push(location);
-        this.dataManager.saveData();
-        return location;
+        return this.dataManager.add('locations', location);
     }
 
     /**
@@ -75,48 +73,16 @@ export class LocationService {
      * @returns {Location|undefined} The updated location or undefined if not found
      */
     updateLocation(id, updates) {
-        console.log('Updating location with ID:', id, 'Updates:', updates);
-        const location = this.getLocationById(id);
-        if (!location) {
-            console.error('Location not found with ID:', id);
-            return undefined;
+        if (updates.coordinates) {
+            updates = {
+                ...updates,
+                x: updates.coordinates.x ?? updates.x,
+                y: updates.coordinates.y ?? updates.y
+            };
+            delete updates.coordinates;
         }
 
-        // Apply updates directly to the location object
-        try {
-            // Update basic properties directly
-            if (updates.name !== undefined) {
-                location.name = updates.name;
-            }
-            if (updates.description !== undefined) {
-                location.description = updates.description;
-            }
-            if (updates.type !== undefined) {
-                location.type = updates.type;
-            }
-            if (updates.x !== undefined || updates.y !== undefined) {
-                location.x = updates.x !== undefined ? updates.x : location.x;
-                location.y = updates.y !== undefined ? updates.y : location.y;
-            }
-            if (updates.coordinates) {
-                location.x = updates.coordinates.x ?? location.x;
-                location.y = updates.coordinates.y ?? location.y;
-            }
-            if (updates.discovered !== undefined) {
-                location.discovered = Boolean(updates.discovered);
-            }
-            
-            // Update timestamp
-            location.updatedAt = new Date();
-            
-            // Save changes
-            this.dataManager.saveData();
-            console.log('Location updated successfully:', location);
-            return location;
-        } catch (error) {
-            console.error('Error updating location:', error);
-            return undefined;
-        }
+        return this.dataManager.update('locations', id, updates);
     }
 
     /**
@@ -125,12 +91,7 @@ export class LocationService {
      * @returns {boolean} True if the location was deleted, false otherwise
      */
     deleteLocation(id) {
-        const index = this.dataManager.appState.locations.findIndex(loc => loc.id === id);
-        if (index === -1) return false;
-
-        this.dataManager.appState.locations.splice(index, 1);
-        this.dataManager.saveData();
-        return true;
+        return this.dataManager.remove('locations', id);
     }
 
     /**
@@ -144,7 +105,7 @@ export class LocationService {
         if (!location) return false;
 
         location.addRelatedQuest(questId);
-        this.dataManager.saveData();
+        this.dataManager.update('locations', locationId, location);
         return true;
     }
 
@@ -159,7 +120,7 @@ export class LocationService {
         if (!location) return false;
 
         location.removeRelatedQuest(questId);
-        this.dataManager.saveData();
+        this.dataManager.update('locations', locationId, location);
         return true;
     }
 
@@ -174,7 +135,7 @@ export class LocationService {
         if (!location) return false;
 
         location.addRelatedItem(itemId);
-        this.dataManager.saveData();
+        this.dataManager.update('locations', locationId, location);
         return true;
     }
 
@@ -189,7 +150,7 @@ export class LocationService {
         if (!location) return false;
 
         location.removeRelatedItem(itemId);
-        this.dataManager.saveData();
+        this.dataManager.update('locations', locationId, location);
         return true;
     }
 
@@ -204,7 +165,7 @@ export class LocationService {
         if (!location) return false;
 
         location.addNPC(npcId);
-        this.dataManager.saveData();
+        this.dataManager.update('locations', locationId, location);
         return true;
     }
 
@@ -219,7 +180,7 @@ export class LocationService {
         if (!location) return false;
 
         location.removeNPC(npcId);
-        this.dataManager.saveData();
+        this.dataManager.update('locations', locationId, location);
         return true;
     }
 
@@ -240,7 +201,7 @@ export class LocationService {
         // Optionally add a reverse connection
         // toLocation.addConnection(fromLocationId, connectionType);
 
-        this.dataManager.saveData();
+        this.dataManager.update('locations', fromLocationId, fromLocation);
         return true;
     }
 
@@ -256,7 +217,7 @@ export class LocationService {
         if (!fromLocation) return false;
 
         fromLocation.removeConnection(toLocationId, connectionType);
-        this.dataManager.saveData();
+        this.dataManager.update('locations', fromLocationId, fromLocation);
         return true;
     }
 

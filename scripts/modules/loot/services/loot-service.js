@@ -57,9 +57,7 @@ export class LootService {
             data.properties
         );
 
-        this.dataManager.appState.loot.push(item);
-        this.dataManager.saveData();
-        return item;
+        return this.dataManager.add('loot', item);
     }
 
     /**
@@ -69,21 +67,7 @@ export class LootService {
      * @returns {Item|undefined} The updated item or undefined if not found
      */
     updateItem(id, updates) {
-        const itemIndex = this.dataManager.appState.loot.findIndex(item => item.id === id);
-        
-        if (itemIndex === -1) {
-            return undefined;
-        }
-
-        const updatedItem = {
-            ...this.dataManager.appState.loot[itemIndex],
-            ...updates,
-            id // Ensure ID doesn't get changed
-        };
-
-        this.dataManager.appState.loot[itemIndex] = updatedItem;
-        this.dataManager.saveData();
-        return updatedItem;
+        return this.dataManager.update('loot', id, updates);
     }
 
     /**
@@ -92,15 +76,7 @@ export class LootService {
      * @returns {boolean} True if the item was deleted, false otherwise
      */
     deleteItem(id) {
-        const initialLength = this.dataManager.appState.loot.length;
-        this.dataManager.appState.loot = this.dataManager.appState.loot.filter(item => item.id !== id);
-        
-        if (this.dataManager.appState.loot.length !== initialLength) {
-            this.dataManager.saveData();
-            return true;
-        }
-        
-        return false;
+        return this.dataManager.remove('loot', id);
     }
 
     /**
