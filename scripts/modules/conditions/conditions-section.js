@@ -1,4 +1,5 @@
 import { ConditionsManager } from './conditions-manager.js';
+import { appState } from '../../core/state/app-state.js';
 
 export async function initializeConditionsSection() {
     const container = document.getElementById('conditions');
@@ -6,8 +7,7 @@ export async function initializeConditionsSection() {
     if (!window.app) window.app = {};
 
     if (!window.app.conditionsManager) {
-        const { appState } = await import('../../core/state/app-state.js');
-        const dataManager = { appState, saveData: () => appState._saveState?.() };
+        const dataManager = { appState };
         window.app.conditionsManager = new ConditionsManager(dataManager);
     } else {
         window.app.conditionsManager.ui.refresh();

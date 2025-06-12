@@ -1,4 +1,5 @@
 import { GuildActivityType, GuildResourceType } from '../enums/guild-enums.js';
+import { appState } from '../../../core/state/app-state.js';
 
 // Initialize the guild section
 export async function initializeGuildSection() {
@@ -22,20 +23,8 @@ export async function initializeGuildSection() {
             </div>
         `;
         
-        // Import application state and create a simple data manager. The
-        // previous code attempted to import a non-existent `dataManager`
-        // export which resulted in the guild manager receiving `undefined`.
-        const { appState } = await import('../../../core/state/app-state.js');
-        const dataManager = {
-            appState,
-            saveData: () => {
-                if (typeof appState._saveState === 'function') {
-                    appState._saveState();
-                } else {
-                    appState.update({}, true);
-                }
-            }
-        };
+        // Create a simple data manager using the shared appState instance
+        const dataManager = { appState };
         const { GuildManager } = await import('../guild-manager.js');
         
         // Initialize the guild manager if it doesn't exist

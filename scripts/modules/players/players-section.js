@@ -1,4 +1,5 @@
 import { PlayersManager } from './players-manager.js';
+import { appState } from '../../core/state/app-state.js';
 
 /**
  * Initialize the players section when navigated to.
@@ -13,19 +14,7 @@ export async function initializePlayersSection() {
         }
 
         if (!window.app?.playersManager) {
-            const { appState } = await import('../../core/state/app-state.js');
-            const dataManager = {
-                appState,
-                // Directly persist state using the internal save method
-                saveData: () => {
-                    if (typeof appState._saveState === 'function') {
-                        appState._saveState();
-                    } else {
-                        // Fallback for older implementations
-                        appState.update({}, true);
-                    }
-                }
-            };
+            const dataManager = { appState };
             window.app = window.app || {};
             window.app.playersManager = new PlayersManager(dataManager);
         } else {
