@@ -1,0 +1,48 @@
+<!-- Loot Section -->
+<div id="loot" class="section">
+    <div class="loot-container">
+        <!-- Loot Filters -->
+        <div class="loot-filters">
+            <div class="loot-filters__search">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" id="lootItemSearch" class="form-control" placeholder="Search items..." data-search-type="loot">
+                </div>
+            </div>
+            <div class="loot-filters__controls">
+                <button id="addItemBtn" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add Item
+                </button>
+            </div>
+        </div>
+
+        <div class="loot-content">
+            <!-- Item List -->
+            <div class="loot-list-container">
+                <h2 class="section-title">Loot & Curses</h2>
+                <div id="itemList" class="loot-list">
+                    <!-- Items will be loaded here -->
+                    <div class="loot-empty">
+                        <div class="loot-empty__icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <p class="loot-empty__message">No items found</p>
+                        <button id="addFirstItemBtn" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add Your First Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item Details -->
+            <div class="loot-details-container">
+                <div id="itemDetails" class="loot-details">
+                    <div class="loot-empty">
+                        <i class="fas fa-coins fa-3x mb-3"></i>
+                        <p class="loot-empty__message">Select an item to view details</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

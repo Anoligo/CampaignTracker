@@ -1,0 +1,40 @@
+<!-- Quests Section -->
+<div id="quests" class="section">
+    <div class="row">
+        <!-- Quest List -->
+        <div class="col-md-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="text-accent">Quests</h2>
+                <button id="addQuestBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Quest
+                </button>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" id="questSearch" class="form-control" placeholder="Search quests...">
+            </div>
+            <div id="questList" class="list-group">
+                <!-- Quests will be loaded here -->
+            </div>
+        </div>
+        <!-- Quest Details -->
+        <div class="col-md-8">
+            <div id="questDetails" class="card h-100">
+                <div id="questDetailsContent">
+                    <div class="empty-state">
+                        <i class="fas fa-scroll fa-3x mb-3"></i>
+                        <p class="empty-state-message">Select a quest to view details</p>
+                    </div>
+                </div>
+                <div class="quest-actions">
+                    <button id="editQuestBtn" class="btn btn-secondary me-2" disabled>
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button id="deleteQuestBtn" class="btn btn-danger" disabled>
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

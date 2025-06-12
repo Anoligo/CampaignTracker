@@ -12,6 +12,19 @@ if (!global.fetch) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Recursively process include directives in HTML files
+function processIncludes(content) {
+    const includeRegex = /<!--\s*include:(.*?)\s*-->/g;
+    return content.replace(includeRegex, (_, includePath) => {
+        const file = path.join(__dirname, 'templates', includePath.trim());
+        if (!fs.existsSync(file)) {
+            return `<!-- Missing include: ${includePath.trim()} -->`;
+        }
+        const included = fs.readFileSync(file, 'utf8');
+        return processIncludes(included);
+    });
+}
+
 // Set up CORS headers
 const setCorsHeaders = (res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -106,8 +119,14 @@ const server = http.createServer(async (req, res) => {
             }
         } else {
             // Success - serve the file
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content, 'utf-8');
+            if (ext === '.html') {
+                const processed = processIncludes(content.toString());
+                res.writeHead(200, { 'Content-Type': contentType });
+                res.end(processed, 'utf-8');
+            } else {
+                res.writeHead(200, { 'Content-Type': contentType });
+                res.end(content, 'utf-8');
+            }
         }
     });
 });
