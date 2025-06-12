@@ -9,7 +9,6 @@ describe('GuildService', () => {
     localStorage.clear();
     ds = new DataService();
     ds.clearData();
-    ds.saveData = () => {};
     service = new GuildService(ds);
   });
 
