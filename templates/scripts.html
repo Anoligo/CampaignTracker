@@ -1,0 +1,35 @@
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Tom Select for enhanced dropdowns -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
+    
+    <!-- UUID library -->
+    <script>
+        // Load uuid library and make it available globally
+        (function() {
+            window.uuid = {
+                v4: function() {
+                    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                        return v.toString(16);
+                    });
+                }
+            };
+        })();
+    </script>
+    
+    <!-- Make bootstrap available globally -->
+    <script type="module">
+        // Make bootstrap available globally for dynamic modal initialization
+        window.bootstrap = bootstrap;
+    </script>
+    
+    <!-- Sidebar Loader -->
+    <script src="scripts/sidebar-loader.js" type="module"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="scripts/main.js" type="module"></script>
+</body>
+</html>

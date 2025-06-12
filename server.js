@@ -12,6 +12,21 @@ if (!global.fetch) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Simple server-side include processor
+function processIncludes(content, baseDir) {
+    const includeRegex = /<!--#include\s+file="([^"]+)"\s*-->/g;
+    return content.replace(includeRegex, (_, includePath) => {
+        const full = path.join(baseDir, includePath);
+        try {
+            const inc = fs.readFileSync(full, 'utf8');
+            return processIncludes(inc, path.dirname(full));
+        } catch (err) {
+            console.error(`Error including ${includePath}:`, err);
+            return '';
+        }
+    });
+}
+
 // Set up CORS headers
 const setCorsHeaders = (res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -91,7 +106,7 @@ const server = http.createServer(async (req, res) => {
     contentType = mimeTypes[ext] || 'application/octet-stream';
     
     // Read the file
-    fs.readFile(fullPath, (err, content) => {
+    fs.readFile(fullPath, 'utf8', (err, content) => {
         if (err) {
             if (err.code === 'ENOENT') {
                 // File not found
@@ -106,8 +121,12 @@ const server = http.createServer(async (req, res) => {
             }
         } else {
             // Success - serve the file
+            let output = content;
+            if (ext === '.html') {
+                output = processIncludes(content.toString(), path.dirname(fullPath));
+            }
             res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content, 'utf-8');
+            res.end(output, 'utf-8');
         }
     });
 });
