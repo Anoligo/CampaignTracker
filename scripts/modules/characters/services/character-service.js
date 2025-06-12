@@ -133,7 +133,6 @@ export class CharacterService {
             // Add to the collection using data service if available
             if (this.dataManager && typeof this.dataManager.add === 'function') {
                 const added = this.dataManager.add('npcs', newCharacter, { generateId: false });
-                this._saveData();
                 console.log('Character created:', added);
                 return added;
             }
@@ -178,7 +177,6 @@ export class CharacterService {
             
             if (this.dataManager && typeof this.dataManager.update === 'function') {
                 const updated = this.dataManager.update('npcs', id, updatedCharacter);
-                this._saveData();
                 console.log('Character updated:', updated);
                 return updated;
             }
@@ -214,7 +212,6 @@ export class CharacterService {
 
         if (this.dataManager && typeof this.dataManager.remove === 'function') {
             const removed = this.dataManager.remove('npcs', id);
-            this._saveData();
             return removed;
         }
 

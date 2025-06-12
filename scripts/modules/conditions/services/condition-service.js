@@ -18,32 +18,15 @@ export class ConditionService {
     }
 
     createCondition(data) {
-        const conditions = this.getAllConditions();
-        const condition = { ...data, id: `cond-${Date.now()}-${Math.floor(Math.random()*1000)}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-        conditions.push(condition);
-        this.dataManager.appState.conditions = conditions;
-        this.dataManager.saveData?.();
-        return condition;
+        return this.dataManager.add('conditions', data);
     }
 
     updateCondition(id, updates) {
-        const conditions = this.getAllConditions();
-        const index = conditions.findIndex(c => c.id === id);
-        if (index === -1) return null;
-        const updated = { ...conditions[index], ...updates, updatedAt: new Date().toISOString() };
-        conditions[index] = updated;
-        this.dataManager.appState.conditions = conditions;
-        this.dataManager.saveData?.();
-        return updated;
+        return this.dataManager.update('conditions', id, updates);
     }
 
     deleteCondition(id) {
-        const conditions = this.getAllConditions();
-        const newList = conditions.filter(c => c.id !== id);
-        if (newList.length === conditions.length) return false;
-        this.dataManager.appState.conditions = newList;
-        this.dataManager.saveData?.();
-        return true;
+        return this.dataManager.remove('conditions', id);
     }
 
     searchConditions(term) {

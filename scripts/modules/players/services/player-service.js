@@ -227,16 +227,12 @@ export class PlayerService {
                 if (this.dataManager.add && !playerExists) {
                     console.log('Adding new player via data service');
                     const addedPlayer = this.dataManager.add('players', playerData);
-                    
-                    // Force a save to ensure persistence
-                    this._saveData();
                     console.log('Player added successfully via data service:', addedPlayer);
                     return addedPlayer;
-                } 
+                }
                 else if (this.dataManager.update && playerExists) {
                     console.log('Updating existing player via data service');
                     const updatedPlayer = this.dataManager.update('players', playerData.id, playerData);
-                    this._saveData();
                     console.log('Player updated successfully via data service:', updatedPlayer);
                     return updatedPlayer;
                 }
@@ -309,14 +305,6 @@ export class PlayerService {
                 return null;
             }
             
-            // Force a save to ensure persistence
-            if (this.dataManager && typeof this.dataManager.saveData === 'function') {
-                this.dataManager.saveData();
-                console.log('Player updated and data saved');
-            } else {
-                console.error('saveData method not available on dataManager');
-            }
-            
             return plainPlayer;
         } catch (error) {
             console.error('Error updating player:', error);
@@ -354,14 +342,6 @@ export class PlayerService {
                 return false;
             }
             
-            // Force a save to ensure persistence
-            if (this.dataManager && typeof this.dataManager.saveData === 'function') {
-                this.dataManager.saveData();
-                console.log('Player deleted and data saved');
-            } else {
-                console.error('saveData method not available on dataManager');
-            }
-            
             return true;
         } catch (error) {
             console.error('Error deleting player:', error);
@@ -382,7 +362,7 @@ export class PlayerService {
         if (item && item.id && !player.inventory.includes(item.id)) {
             player.inventory.push(item.id);
             player.updatedAt = new Date();
-            this.dataManager.saveData();
+            this.dataManager.update('players', playerId, player);
             return true;
         }
         return false;
@@ -399,7 +379,7 @@ export class PlayerService {
         
         if (player.inventory.length !== initialLength) {
             player.updatedAt = new Date();
-            this.dataManager.saveData();
+            this.dataManager.update('players', playerId, player);
             return true;
         }
         return false;
@@ -413,7 +393,7 @@ export class PlayerService {
             } else {
                 player.addActiveQuest(questId);
             }
-            this.dataManager.saveData();
+            this.dataManager.update('players', playerId, player);
             return true;
         }
         return false;
