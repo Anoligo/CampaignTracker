@@ -1,5 +1,14 @@
 # Iron Meridian Campaign Tracker
 
+## Running Locally
+
+1. Install dependencies with `npm install`.
+2. Build the CSS using `npm run build`.
+3. Open `index.html` directly in your browser. The page is fully
+   self‑contained so it can also be hosted from services like GitHub Pages.
+4. *(Optional)* Run `npm start` to launch a small dev server if you
+   prefer live includes while editing templates.
+
 ## Functional Specification (Non-Technical)
 
 This document outlines the full user-facing functional structure of the Iron Meridian Campaign Tracker for Pathfinder 2e.
