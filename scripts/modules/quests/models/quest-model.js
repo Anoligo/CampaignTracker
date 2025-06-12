@@ -5,6 +5,7 @@ export class Quest extends Entity {
     constructor(name, description, type = QuestType.MAIN, createdAt = new Date(), updatedAt = new Date(), status = QuestStatus.ONGOING, id = null) {
         super(id, new Date(createdAt), new Date(updatedAt));
         this.name = name || 'Untitled Quest';
+        this.title = this.name; // Ensure title is always set and matches name if not provided
         this.description = description || '';
         this.type = type || QuestType.MAIN;
         this.status = status || QuestStatus.ONGOING;

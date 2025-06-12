@@ -1,4 +1,5 @@
-import { v4 as uuidv4 } from 'https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/esm-browser/index.js';
+// Use uuid from global window object
+const { v4: uuidv4 } = window.uuid;
 import { ItemType, ItemRarity, ItemCondition } from '../enums/loot-enums.js';
 
 /**

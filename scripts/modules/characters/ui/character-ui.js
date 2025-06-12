@@ -7,33 +7,8 @@ import { PlayerClass } from '../../players/enums/player-enums.js';
 import { RelationalInputs } from '../../../global-styles.js';
 import { formatEnumValue } from '../../../utils/style-utils.js';
 
-// Define common races for the dropdown
-const PlayerRace = {
-    HUMAN: 'Human',
-    ELF: 'Elf',
-    DWARF: 'Dwarf',
-    HALFLING: 'Halfling',
-    GNOME: 'Gnome',
-    HALF_ELF: 'Half-Elf',
-    HALF_ORC: 'Half-Orc',
-    TIEFLING: 'Tiefling',
-    AASIMAR: 'Aasimar',
-    GNOME: 'Gnome',
-    GOBLIN: 'Goblin',
-    KOBOLD: 'Kobold',
-    LIZARDFOLK: 'Lizardfolk',
-    ORC: 'Orc',
-    RATFOLK: 'Ratfolk',
-    CATFOLK: 'Catfolk',
-    TENGU: 'Tengu',
-    KITSUNE: 'Kitsune',
-    STRIX: 'Strix',
-    SYLPH: 'Sylph',
-    UNDINE: 'Undine',
-    IFRIT: 'Ifrit',
-    OREAD: 'Oread',
-    SULI: 'Suli'
-};
+// Import game data service
+import { gameDataService } from '../../game-data/services/game-data-service.js';
 
 export class CharacterUI {
     /**
@@ -42,12 +17,14 @@ export class CharacterUI {
      * @param {DataManager} dataManager - Instance of the application's DataManager
      */
     constructor(characterService, dataManager) {
+        console.log('CharacterUI constructor called');
+        
         this.characterService = characterService;
         this.dataManager = dataManager;
         this.characterList = document.getElementById('character-list');
         this.characterDetails = document.getElementById('character-details');
         this.searchInput = document.getElementById('character-search');
-        this.addCharacterBtn = document.getElementById('add-character-btn');
+        this.addCharacterBtn = document.getElementById('addCharacterBtn');
         
         // Initialize current character
         this.currentCharacter = null;
@@ -62,10 +39,17 @@ export class CharacterUI {
         this.showToast = this.showToast.bind(this);
         
         // Initialize the UI when the DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', this.init);
-        } else {
+        const initialize = () => {
+            console.log('Initializing CharacterUI');
             this.init();
+        };
+        
+        if (document.readyState === 'loading') {
+            console.log('DOM not ready, adding DOMContentLoaded listener');
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            console.log('DOM already ready, initializing immediately');
+            initialize();
         }
     }
     
@@ -73,15 +57,27 @@ export class CharacterUI {
      * Initialize the UI components
      */
     init() {
+        console.log('CharacterUI.init() called');
+        
         // Get DOM elements
         this.characterList = document.getElementById('characterList');
         this.characterDetails = document.getElementById('characterDetails');
         this.addCharacterBtn = document.getElementById('addCharacterBtn');
         this.characterSearch = document.getElementById('characterSearch');
         
+        console.log('CharacterUI elements:', {
+            characterList: !!this.characterList,
+            characterDetails: !!this.characterDetails,
+            addCharacterBtn: !!this.addCharacterBtn,
+            characterSearch: !!this.characterSearch
+        });
+        
         // Set up event listeners
         if (this.addCharacterBtn) {
-            this.addCharacterBtn.addEventListener('click', this.handleAddCharacter);
+            console.log('Adding click event listener to addCharacterBtn');
+            // Store the bound function so we can remove it later if needed
+            this.boundHandleAddCharacter = this.handleAddCharacter.bind(this);
+            this.addCharacterBtn.addEventListener('click', this.boundHandleAddCharacter);
         }
         
         if (this.characterSearch) {
@@ -89,6 +85,7 @@ export class CharacterUI {
         }
         
         // Initial render
+        console.log('Calling renderCharacterList()');
         this.renderCharacterList();
     }
     
@@ -324,10 +321,57 @@ export class CharacterUI {
         // Hide the add button while the form is open
         this.addCharacterBtn.style.display = 'none';
         
+        try {
+            // Ensure gameDataService is available
+            if (typeof gameDataService === 'undefined') {
+                console.error('GameDataService is not available');
+                this.showToast('Error: Game data service not available', 'error');
+                // Show the add button again since we're bailing out
+                this.addCharacterBtn.style.display = 'block';
+                return;
+            }
+            
+            // Log game data service status
+            console.log('GameDataService available:', !!gameDataService);
+            
+            // Get races and classes
+            const races = gameDataService.getRaces();
+            const classes = gameDataService.getClasses();
+            
+            console.log('Races:', races);
+            console.log('Classes:', classes);
+            
+            if (!races || !races.length || !classes || !classes.length) {
+                console.error('Failed to load game data');
+                this.showToast('Error: Failed to load game data', 'error');
+                // Show the add button again since we're bailing out
+                this.addCharacterBtn.style.display = 'block';
+                return;
+            }
+            
+            // If we get here, we have valid data, so proceed with creating the form
+            this.createCharacterForm(races, classes);
+            
+        } catch (error) {
+            console.error('Error in handleAddCharacter:', error);
+            this.showToast(`Error: ${error.message}`, 'error');
+            // Make sure to show the add button again on error
+            this.addCharacterBtn.style.display = 'block';
+        }
+    }
+    
+    /**
+     * Create the character form with the provided race and class options
+     * @param {Array} races - Array of race objects with id and name properties
+     * @param {Array} classes - Array of class objects with id and name properties
+     */
+    createCharacterForm(races, classes) {
         // Create the form container
         const formContainer = document.createElement('div');
         formContainer.id = 'character-form-container';
         formContainer.className = 'card mb-4';
+        
+        // Generate the form HTML with the provided races and classes
         formContainer.innerHTML = `
             <div class="card-header d-flex justify-content-between align-items-center bg-card">
                 <h5 class="mb-0 text-accent">New Character</h5>
@@ -350,8 +394,8 @@ export class CharacterUI {
                             <label for="character-race" class="form-label text">Race *</label>
                             <select class="form-select bg-card text" id="character-race" required data-relational="true" data-entity-type="race" data-placeholder="Search or select race...">
                                 <option value="">Select a race</option>
-                                ${Object.values(PlayerRace).map(race => 
-                                    `<option value="${race}">${race}</option>`
+                                ${races.map(race => 
+                                    `<option value="${race.id}">${race.name}</option>`
                                 ).join('')}
                             </select>
                         </div>
@@ -362,18 +406,9 @@ export class CharacterUI {
                             <label for="character-class" class="form-label text">Class *</label>
                             <select class="form-select bg-card text" id="character-class" required data-relational="true" data-entity-type="class" data-placeholder="Search or select class...">
                                 <option value="">Select a class</option>
-                                <option value="Barbarian">Barbarian</option>
-                                <option value="Bard">Bard</option>
-                                <option value="Cleric">Cleric</option>
-                                <option value="Druid">Druid</option>
-                                <option value="Fighter">Fighter</option>
-                                <option value="Monk">Monk</option>
-                                <option value="Paladin">Paladin</option>
-                                <option value="Ranger">Ranger</option>
-                                <option value="Rogue">Rogue</option>
-                                <option value="Sorcerer">Sorcerer</option>
-                                <option value="Warlock">Warlock</option>
-                                <option value="Wizard">Wizard</option>
+                                ${classes.map(cls => 
+                                    `<option value="${cls.id}">${cls.name}</option>`
+                                ).join('')}
                             </select>
                         </div>
                     </div>
@@ -508,10 +543,10 @@ export class CharacterUI {
                         </div>
                         <div class="col-md-3">
                             <label for="character-race" class="form-label text">Race *</label>
-                            <select class="form-select bg-card text" id="character-race" required>
+                            <select class="form-select bg-card text" id="character-race" required data-relational="true" data-entity-type="race" data-placeholder="Search or select race...">
                                 <option value="">Select a race</option>
-                                ${Object.values(PlayerRace).map(race => 
-                                    `<option value="${race}" ${character.race === race ? 'selected' : ''}>${race}</option>`
+                                ${gameDataService.getRaces().map(race => 
+                                    `<option value="${race.id}" ${character.race === race.id ? 'selected' : ''}>${race.name}</option>`
                                 ).join('')}
                             </select>
                         </div>
@@ -520,17 +555,15 @@ export class CharacterUI {
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="character-class" class="form-label">Class *</label>
-                            <select class="form-select bg-card text" id="character-class" required>
+                            <select class="form-select bg-card text" id="character-class" required data-relational="true" data-entity-type="class" data-placeholder="Search or select class...">
                                 <option value="">Select a class</option>
-                                ${Object.entries(PlayerClass).map(([key, value]) => {
-                                    const displayName = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+                                ${gameDataService.getClasses().map(cls => {
                                     // Check multiple possible property names for class
-                                    const isSelected = character.classType === value || 
-                                                     character.class === value || 
-                                                     character.className === value || 
-                                                     character.playerClass === value;
-                                    console.log(`Class option: ${value}, character class: ${character.classType || character.class || character.className || character.playerClass}, selected: ${isSelected}`);
-                                    return `<option value="${value}" ${isSelected ? 'selected' : ''}>${displayName}</option>`;
+                                    const isSelected = character.classType === cls.id || 
+                                                     character.class === cls.id || 
+                                                     character.className === cls.id || 
+                                                     character.playerClass === cls.id;
+                                    return `<option value="${cls.id}" ${isSelected ? 'selected' : ''}>${cls.name}</option>`;
                                 }).join('')}
                             </select>
                         </div>

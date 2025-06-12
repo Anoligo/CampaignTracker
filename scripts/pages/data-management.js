@@ -1,4 +1,4 @@
-import { DataService } from '../modules/data/services/data-service.js';
+import { DataService } from '/scripts/modules/data/services/data-service.js';
 
 export class DataManagementPage {
     constructor() {

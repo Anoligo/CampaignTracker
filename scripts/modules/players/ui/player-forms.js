@@ -1,4 +1,4 @@
-import { PlayerClass } from '../enums/player-enums.js';
+import { gameDataService } from '../../game-data/services/game-data-service.js';
 
 export class PlayerForms {
     constructor(playerManager) {
@@ -16,22 +16,35 @@ export class PlayerForms {
         details.innerHTML = `
             <h3>New Player</h3>
             <form id="newPlayerForm">
-                <div class="mb-3">
-                    <label for="playerName" class="form-label">Name</label>
-                    <input type="text" class="form-control" id="playerName" name="playerName" required>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="playerName" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="playerName" name="playerName" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="playerRace" class="form-label">Race *</label>
+                        <select class="form-select" id="playerRace" name="playerRace" required>
+                            <option value="">Select a race</option>
+                            ${gameDataService.getRaces().map(race => 
+                                `<option value="${race.id}">${race.name}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="playerClass" class="form-label">Class</label>
-                    <select class="form-select" id="playerClass" name="playerClass" required>
-                        <option value="">Select a class</option>
-                        ${Object.entries(PlayerClass).map(([key, value]) => 
-                            `<option value="${value}">${this.formatClassName(value)}</option>`
-                        ).join('')}
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="playerLevel" class="form-label">Level</label>
-                    <input type="number" class="form-control" id="playerLevel" name="playerLevel" value="1" min="1">
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <label for="playerClass" class="form-label">Class *</label>
+                        <select class="form-select" id="playerClass" name="playerClass" required>
+                            <option value="">Select a class</option>
+                            ${gameDataService.getClasses().map(cls => 
+                                `<option value="${cls.id}">${cls.name}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="playerLevel" class="form-label">Level</label>
+                        <input type="number" class="form-control" id="playerLevel" name="playerLevel" value="1" min="1" max="20">
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Create Player</button>
                 <button type="button" class="btn btn-secondary ms-2" id="cancelBtn">Cancel</button>
@@ -63,23 +76,40 @@ export class PlayerForms {
         details.innerHTML = `
             <h3>Edit Player</h3>
             <form id="editPlayerForm">
-                <div class="mb-3">
-                    <label for="playerName" class="form-label">Name</label>
-                    <input type="text" class="form-control" id="playerName" name="playerName" value="${player.name}" required>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="playerName" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="playerName" name="playerName" value="${player.name || ''}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="playerRace" class="form-label">Race *</label>
+                        <select class="form-select" id="playerRace" name="playerRace" required>
+                            <option value="">Select a race</option>
+                            ${gameDataService.getRaces().map(race => 
+                                `<option value="${race.id}" ${player.race === race.id ? 'selected' : ''}>
+                                    ${race.name}
+                                </option>`
+                            ).join('')}
+                        </select>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="playerClass" class="form-label">Class</label>
-                    <select class="form-select" id="playerClass" name="playerClass" required>
-                        ${Object.entries(PlayerClass).map(([key, value]) => 
-                            `<option value="${value}" ${player.class === value ? 'selected' : ''}>
-                                ${this.formatClassName(value)}
-                            </option>`
-                        ).join('')}
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="playerLevel" class="form-label">Level</label>
-                    <input type="number" class="form-control" id="playerLevel" name="playerLevel" value="${player.level}" min="1">
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <label for="playerClass" class="form-label">Class *</label>
+                        <select class="form-select" id="playerClass" name="playerClass" required>
+                            <option value="">Select a class</option>
+                            ${gameDataService.getClasses().map(cls => 
+                                `<option value="${cls.id}" ${player.class === cls.id ? 'selected' : ''}>
+                                    ${cls.name}
+                                </option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="playerLevel" class="form-label">Level</label>
+                        <input type="number" class="form-control" id="playerLevel" name="playerLevel" 
+                               value="${player.level || 1}" min="1" max="20">
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Update Player</button>
                 <button type="button" class="btn btn-secondary ms-2" id="cancelEditBtn">Cancel</button>
@@ -104,10 +134,7 @@ export class PlayerForms {
     }
 
     formatClassName(className) {
-        if (!className) return '';
-        return className
-            .split('_')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(' ');
+        // Use the game data service to get the formatted class name
+        return gameDataService.getClassName(className) || className;
     }
 }

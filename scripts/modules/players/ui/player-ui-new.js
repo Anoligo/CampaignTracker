@@ -7,7 +7,7 @@
 import { BaseUI } from '../../../components/base-ui.js';
 import { createListItem, createDetailsPanel, showToast } from '../../../components/ui-components.js';
 import { formatEnumValue } from '../../../utils/style-utils.js';
-import { PlayerClass } from '../enums/player-enums.js';
+import { gameDataService } from '../../game-data/services/game-data-service.js';
 
 export class PlayerUI extends BaseUI {
     /**
@@ -412,56 +412,82 @@ export class PlayerUI extends BaseUI {
      * @returns {string} Formatted class name
      */
     formatClassName(className) {
-        if (!className) return '';
-        return className
-            .split('_')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(' ');
+        if (!className) return 'Unknown';
+        return gameDataService.getClassName(className) || formatEnumValue(className);
     }
     
     /**
      * Override the renderList method from BaseUI to add debugging
-     * @param {Array} entities - Entities to render
+     * @param {Array} entities - Entities to render (optional)
      */
     renderList(entities) {
-        console.log('PlayerUI.renderList called with entities:', entities);
-        console.log('List element:', this.listElement);
-        
-        if (!this.listElement) {
-            console.error('List element not found!');
-            return;
+        try {
+            console.log('PlayerUI.renderList called with entities:', entities);
+            
+            // Ensure we have the list element
+            if (!this.listElement) {
+                console.error('List element not found!');
+                this.listElement = document.getElementById('playerList');
+                if (!this.listElement) {
+                    console.error('Could not find player list element!');
+                    return;
+                }
+            }
+            
+            // Always get fresh data from the service
+            const allPlayers = this.service.getAllPlayers();
+            console.log('All players from service:', allPlayers);
+            
+            // Use provided entities if available, otherwise use all players
+            const playersToRender = Array.isArray(entities) && entities.length > 0 ? entities : allPlayers;
+            
+            console.log('Rendering players:', playersToRender);
+            
+            // Clear the list
+            this.listElement.innerHTML = '';
+            
+            if (!playersToRender || playersToRender.length === 0) {
+                console.log('No players to render, showing empty state');
+                this.listElement.innerHTML = `
+                    <div class="text-center p-3 text-muted">
+                        No players found. Click "Add player" to create one.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Create document fragment for better performance
+            const fragment = document.createDocumentFragment();
+            
+            // Render each player as a list item
+            playersToRender.forEach(player => {
+                if (!player || typeof player !== 'object') {
+                    console.warn('Invalid player data:', player);
+                    return;
+                }
+                
+                console.log('Creating list item for player:', player);
+                const listItem = this.createListItem(player);
+                if (listItem) {
+                    fragment.appendChild(listItem);
+                }
+            });
+            
+            // Append all at once
+            this.listElement.appendChild(fragment);
+            
+            console.log(`Rendered ${playersToRender.length} players`);
+            
+            // If we have a current player, ensure it's selected in the list
+            if (this.currentEntity) {
+                const selectedItem = this.listElement.querySelector(`[data-entity-id="${this.currentEntity.id}"]`);
+                if (selectedItem) {
+                    selectedItem.classList.add('entity-card-selected');
+                }
+            }
+        } catch (error) {
+            console.error('Error rendering player list:', error);
         }
-        
-        // Get players directly from the service to verify
-        const allPlayers = this.service.getAllPlayers();
-        console.log('All players from service:', allPlayers);
-        
-        // Clear the list
-        this.listElement.innerHTML = '';
-        
-        // Use entities if provided, otherwise use all players
-        const playersToRender = entities || allPlayers;
-        
-        if (!playersToRender || playersToRender.length === 0) {
-            console.log('No players to render, showing empty state');
-            this.listElement.innerHTML = `
-                <div class="text-center p-3 text-muted">
-                    No players found. Click "Add player" to create one.
-                </div>
-            `;
-            return;
-        }
-        
-        console.log('Rendering players:', playersToRender);
-        
-        // Render each player as a list item
-        playersToRender.forEach(player => {
-            console.log('Creating list item for player:', player);
-            const listItem = this.createListItem(player);
-            this.listElement.appendChild(listItem);
-        });
-        
-        console.log('Player list rendering complete');
     }
 
     /**

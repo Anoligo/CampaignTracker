@@ -292,7 +292,7 @@ export class CharacterUI extends BaseUI {
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="character-race" class="form-label">Race</label>
-                            <select class="form-select" id="character-race">
+                            <select class="form-select" id="character-race" required>
                                 <option value="">Select Race</option>
                                 ${Object.entries(PlayerRace).map(([key, value]) => 
                                     `<option value="${value}">${value}</option>`
@@ -301,10 +301,10 @@ export class CharacterUI extends BaseUI {
                         </div>
                         <div class="col-md-6">
                             <label for="character-class" class="form-label">Class</label>
-                            <select class="form-select" id="character-class">
+                            <select class="form-select" id="character-class" required>
                                 <option value="">Select Class</option>
                                 ${Object.entries(PlayerClass).map(([key, value]) => 
-                                    `<option value="${value}">${value.charAt(0).toUpperCase() + value.slice(1)}</option>`
+                                    `<option value="${value}">${formatEnumValue(value)}</option>`
                                 ).join('')}
                             </select>
                         </div>
@@ -567,19 +567,27 @@ export class CharacterUI extends BaseUI {
             
             // Get form values
             const characterData = {
-                name: document.getElementById('character-name').value,
+                name: document.getElementById('character-name').value || 'Unnamed Character',
                 level: parseInt(document.getElementById('character-level').value) || 1,
-                race: document.getElementById('character-race').value,
-                classType: document.getElementById('character-class').value,
-                alignment: document.getElementById('character-alignment').value,
-                deity: document.getElementById('character-deity').value,
-                strength: parseInt(document.getElementById('character-str').value) || 10,
-                dexterity: parseInt(document.getElementById('character-dex').value) || 10,
-                constitution: parseInt(document.getElementById('character-con').value) || 10,
-                intelligence: parseInt(document.getElementById('character-int').value) || 10,
-                wisdom: parseInt(document.getElementById('character-wis').value) || 10,
-                charisma: parseInt(document.getElementById('character-cha').value) || 10,
-                background: document.getElementById('character-background').value
+                race: document.getElementById('character-race').value || 'Unknown',
+                classType: document.getElementById('character-class').value || 'Adventurer',
+                alignment: document.getElementById('character-alignment').value || '',
+                deity: document.getElementById('character-deity').value || '',
+                attributes: {
+                    strength: parseInt(document.getElementById('character-str').value) || 10,
+                    dexterity: parseInt(document.getElementById('character-dex').value) || 10,
+                    constitution: parseInt(document.getElementById('character-con').value) || 10,
+                    intelligence: parseInt(document.getElementById('character-int').value) || 10,
+                    wisdom: parseInt(document.getElementById('character-wis').value) || 10,
+                    charisma: parseInt(document.getElementById('character-cha').value) || 10
+                },
+                bio: document.getElementById('character-background').value || '',
+                notes: '',
+                skills: [],
+                inventory: [],
+                quests: [],
+                createdAt: isEdit ? this.getById(characterId)?.createdAt || new Date().toISOString() : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             };
             
             let result;

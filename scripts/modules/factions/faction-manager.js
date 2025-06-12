@@ -1,4 +1,5 @@
 import { Faction } from './models/faction.js';
+import { DataService } from '/scripts/modules/data/services/data-service.js';
 
 /**
  * Manages all faction-related operations and data
@@ -6,38 +7,25 @@ import { Faction } from './models/faction.js';
 export class FactionManager {
     /**
      * Create a new FactionManager
-     * @param {Object} dataManager - The application's data manager
+     * @param {DataService} dataService - The application's data service
      */
-    constructor(dataManager = null) {
-        this.dataManager = dataManager;
+    constructor(dataService = null) {
+        this.dataService = dataService || new DataService();
         this.factions = new Map();
         this.initialized = false;
         this.loadFactions();
     }
 
     /**
-     * Load factions from the data manager or localStorage
+     * Load factions from the data service
      */
-    loadFactions() {
+    async loadFactions() {
         try {
-            if (this.dataManager && this.dataManager.appState) {
-                // Use the data manager if available
-                const appState = this.dataManager.appState;
-                if (appState.factions && Array.isArray(appState.factions)) {
-                    this.factions = new Map(appState.factions.map(f => [f.id, new Faction(f)]));
-                    this.initialized = true;
-                    return;
-                }
-            }
+            // Get all factions from the data service
+            const factionsData = this.dataService.getAll('factions');
             
-            // Fall back to localStorage
-            const savedFactions = JSON.parse(localStorage.getItem('factions') || '[]');
-            this.factions = new Map(savedFactions.map(f => [f.id, new Faction(f)]));
-            
-            // If we have a data manager but no factions in it, sync the loaded factions
-            if (this.dataManager && this.dataManager.appState) {
-                this.syncWithDataManager();
-            }
+            // Convert to Faction objects and store in Map
+            this.factions = new Map(factionsData.map(f => [f.id, new Faction(f)]));
             
             this.initialized = true;
         } catch (error) {
@@ -48,40 +36,33 @@ export class FactionManager {
     }
     
     /**
-     * Sync factions with the data manager
+     * Save factions to the data service
      */
-    syncWithDataManager() {
-        if (!this.dataManager || !this.dataManager.appState) return;
-        
-        try {
-            // Create a deep copy of the current state
-            const currentState = { ...this.dataManager.appState };
-            
-            // Update the factions array
-            currentState.factions = Array.from(this.factions.values()).map(f => f.toJSON());
-            
-            // Update the data manager's state
-            this.dataManager.appState = currentState;
-            this.dataManager.saveData();
-        } catch (error) {
-            console.error('Error syncing factions with data manager:', error);
-        }
-    }
-
-    /**
-     * Save factions to the data manager and localStorage
-     */
-    saveFactions() {
+    async saveFactions() {
         try {
             const factionsArray = Array.from(this.factions.values()).map(f => f.toJSON());
             
-            // Save to localStorage as a fallback
-            localStorage.setItem('factions', JSON.stringify(factionsArray));
+            // Update factions in the data service
+            const currentFactions = this.dataService.getAll('factions');
+            const currentFactionIds = new Set(currentFactions.map(f => f.id));
             
-            // Sync with the data manager if available
-            if (this.dataManager) {
-                this.syncWithDataManager();
+            // Add or update factions
+            for (const faction of factionsArray) {
+                if (currentFactionIds.has(faction.id)) {
+                    this.dataService.update('factions', faction.id, faction);
+                } else {
+                    this.dataService.add('factions', faction);
+                }
             }
+            
+            // Remove factions that no longer exist
+            const newFactionIds = new Set(factionsArray.map(f => f.id));
+            for (const faction of currentFactions) {
+                if (!newFactionIds.has(faction.id)) {
+                    this.dataService.remove('factions', faction.id);
+                }
+            }
+            
         } catch (error) {
             console.error('Error saving factions:', error);
             throw error; // Re-throw to allow error handling in the UI

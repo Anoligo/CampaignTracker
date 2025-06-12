@@ -10,20 +10,51 @@ export class StateValidator {
      * @returns {Array} Array of validation errors, empty if valid
      */
     static validateState(state) {
+        if (!state) {
+            return ['State is required'];
+        }
+
         const errors = [];
         const schema = STATE_SCHEMA;
         
+        // Check for required top-level sections
         for (const [key, sectionSchema] of Object.entries(schema)) {
-            if (sectionSchema.required && !state[key]) {
-                errors.push(`Missing required section: ${key}`);
-                continue;
+            // Handle nested objects like guildLogs
+            if (sectionSchema.type === 'object') {
+                if (!state[key]) {
+                    if (sectionSchema.required) {
+                        errors.push(`Missing required section: ${key}`);
+                    }
+                    continue;
+                }
+                
+                // Validate object properties
+                for (const [prop, propSchema] of Object.entries(sectionSchema.properties || {})) {
+                    if (propSchema.required && !state[key][prop]) {
+                        errors.push(`${key}.${prop} is required`);
+                        continue;
+                    }
+                    
+                    const propErrors = this.validateSection(state[key][prop], propSchema);
+                    errors.push(...propErrors.map(err => `${key}.${prop}.${err}`));
+                }
+            } 
+            // Handle arrays
+            else if (sectionSchema.type === 'array') {
+                if (!Array.isArray(state[key])) {
+                    errors.push(`${key} must be an array`);
+                    continue;
+                }
+                
+                // Validate each item in the array
+                state[key].forEach((item, index) => {
+                    const itemErrors = this.validateObject(item, sectionSchema.items);
+                    errors.push(...itemErrors.map(err => `${key}[${index}].${err}`));
+                });
             }
-            
-            const sectionErrors = this.validateSection(state[key], sectionSchema);
-            errors.push(...sectionErrors.map(err => `${key}.${err}`));
         }
         
-        return errors;
+        return errors.filter(Boolean);
     }
     
     /**
@@ -33,7 +64,7 @@ export class StateValidator {
      * @returns {Array} Array of validation errors
      */
     static validateSection(data, schema) {
-        if (!data) return ['Data is required'];
+        if (!schema) return [];
         
         const errors = [];
         
@@ -51,9 +82,14 @@ export class StateValidator {
             }
         } 
         // Handle object types
-        else if (schema.type === 'object') {
+        else if (schema.type === 'object' && schema.properties) {
             const objErrors = this.validateObject(data, schema);
             errors.push(...objErrors);
+        }
+        // Handle primitive types
+        else {
+            const valueErrors = this.validateValue(data, schema);
+            errors.push(...valueErrors);
         }
         
         return errors;
@@ -112,8 +148,39 @@ export class StateValidator {
         }
         
         // Check type
-        if (schema.type && typeof value !== schema.type) {
-            errors.push(`must be of type ${schema.type}`);
+        if (schema.type) {
+            const type = schema.type;
+            let isValid = false;
+            
+            switch (type) {
+                case 'string':
+                    isValid = typeof value === 'string';
+                    break;
+                case 'number':
+                    isValid = typeof value === 'number' && !isNaN(value);
+                    if (isValid && 'minimum' in schema && value < schema.minimum) {
+                        errors.push(`must be at least ${schema.minimum}`);
+                    }
+                    if (isValid && 'maximum' in schema && value > schema.maximum) {
+                        errors.push(`must be at most ${schema.maximum}`);
+                    }
+                    break;
+                case 'boolean':
+                    isValid = typeof value === 'boolean';
+                    break;
+                case 'array':
+                    isValid = Array.isArray(value);
+                    break;
+                case 'object':
+                    isValid = typeof value === 'object' && value !== null && !Array.isArray(value);
+                    break;
+                default:
+                    isValid = typeof value === type;
+            }
+            
+            if (!isValid) {
+                errors.push(`must be of type ${type}`);
+            }
         }
         
         // Check enum values
@@ -121,9 +188,18 @@ export class StateValidator {
             errors.push(`must be one of: ${schema.enum.join(', ')}`);
         }
         
-        // Check format (e.g., date-time)
-        if (schema.format === 'date-time' && isNaN(Date.parse(value))) {
-            errors.push('must be a valid date-time string');
+        // Check format (e.g., date-time, date)
+        if (schema.format) {
+            if (schema.format === 'date-time' && isNaN(Date.parse(value))) {
+                errors.push('must be a valid ISO date-time string');
+            } else if (schema.format === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                errors.push('must be a valid date string in YYYY-MM-DD format');
+            }
+        }
+        
+        // Check default value
+        if (schema.default !== undefined && value === undefined) {
+            // No need to add an error, just note that we'd use the default
         }
         
         return errors;

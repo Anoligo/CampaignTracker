@@ -1,30 +1,25 @@
-import { StateManager } from './state-manager.js';
+import { DataServiceAdapter } from './data-service-adapter.js';
 
 /**
  * Application State Manager
- * Manages the global application state with persistence
+ * Manages the global application state with persistence using DataService
  */
-export class AppState extends StateManager {
+export class AppState extends DataServiceAdapter {
     /**
      * Create a new AppState instance
-     * @param {Object} initialState - Initial state (optional)
-     * @param {string} storageKey - Storage key for persistence
+     * @param {Object} [initialState] - Initial state (optional)
+     * @param {string} [storageKey] - Storage key for persistence (kept for backward compatibility)
      */
-    constructor(initialState, storageKey = 'appState') {
-        // Call parent constructor with null to trigger _loadState
-        super(null, storageKey);
+    constructor(initialState) {
+        super();
+        this._isInitialized = true;
         
-        // If we don't have a state yet (no saved state), initialize with defaults
-        if (!this._state) {
-            const defaultState = this.constructor.getInitialState();
-            const mergedState = initialState ? { ...defaultState, ...initialState } : defaultState;
-            
-            // Manually set the initial state
-            this._state = this._deepClone(mergedState);
-            this._isInitialized = true;
-            
-            // Save the initial state to storage
-            this._saveState();
+        // If we have initial state, merge it with the default state
+        if (initialState) {
+            // Use the enhanced import functionality to properly merge the initial state
+            this.importData(JSON.stringify(initialState), {
+                merge: true
+            });
         }
     }
 
@@ -74,14 +69,48 @@ export class AppState extends StateManager {
     
     /**
      * Get the initial state (instance method)
-     * @returns {Object} - The initial application state
+     * @returns {Object} The initial application state
      * @private
      */
     _getInitialState() {
         return this.constructor.getInitialState();
     }
     
+    /**
+     * Ensure the data service is properly initialized
+     * @private
+     */
+    _ensureInitialized() {
+        super._ensureInitialized();
+        
+        // Ensure UI and settings are properly initialized
+        const currentUi = this.getUiState();
+        const currentSettings = this.getSettings();
+        
+        // If UI state is empty, initialize it with defaults
+        if (!currentUi || Object.keys(currentUi).length === 0) {
+            this.updateUiState({
+                ...this.constructor.getInitialState().ui.state
+            });
+        }
+        
+        // If settings are empty, initialize them with defaults
+        if (!currentSettings || Object.keys(currentSettings).length === 0) {
+            this.setSettings({
+                ...this.constructor.getInitialState().settings.app
+            });
+        }
+    }
+    
     // Player-related methods
+    
+    /**
+     * Get all players
+     * @returns {Array} Array of players
+     */
+    getPlayers() {
+        return this.getEntities('players');
+    }
     
     /**
      * Add or update a player
@@ -90,16 +119,11 @@ export class AppState extends StateManager {
     setPlayer(player) {
         if (!player || !player.id) return;
         
-        const existingIndex = this._state.players.findIndex(p => p.id === player.id);
-        const players = [...this._state.players];
-        
-        if (existingIndex >= 0) {
-            players[existingIndex] = { ...players[existingIndex], ...player };
+        if (this.getEntity('players', player.id)) {
+            this.updateEntity('players', player.id, player);
         } else {
-            players.push(player);
+            this.addEntity('players', player);
         }
-        
-        this.update({ players });
     }
     
     /**
@@ -107,11 +131,29 @@ export class AppState extends StateManager {
      * @param {string} playerId - The ID of the player to remove
      */
     removePlayer(playerId) {
-        const players = this._state.players.filter(p => p.id !== playerId);
-        this.update({ players });
+        if (!playerId) return;
+        this.removeEntity('players', playerId);
     }
     
     // Quest-related methods
+    
+    /**
+     * Get all quests
+     * @returns {Array} Array of quests
+     */
+    getQuests() {
+        return this.getEntities('quests');
+    }
+    
+    /**
+     * Get a quest by ID
+     * @param {string} questId - The ID of the quest to get
+     * @returns {Object|null} The quest or null if not found
+     */
+    getQuest(questId) {
+        if (!questId) return null;
+        return this.getEntity('quests', questId);
+    }
     
     /**
      * Add or update a quest
@@ -120,16 +162,11 @@ export class AppState extends StateManager {
     setQuest(quest) {
         if (!quest || !quest.id) return;
         
-        const existingIndex = this._state.quests.findIndex(q => q.id === quest.id);
-        const quests = [...this._state.quests];
-        
-        if (existingIndex >= 0) {
-            quests[existingIndex] = { ...quests[existingIndex], ...quest };
+        if (this.getEntity('quests', quest.id)) {
+            this.updateEntity('quests', quest.id, quest);
         } else {
-            quests.push(quest);
+            this.addEntity('quests', quest);
         }
-        
-        this.update({ quests });
     }
     
     /**
@@ -137,11 +174,29 @@ export class AppState extends StateManager {
      * @param {string} questId - The ID of the quest to remove
      */
     removeQuest(questId) {
-        const quests = this._state.quests.filter(q => q.id !== questId);
-        this.update({ quests });
+        if (!questId) return;
+        this.removeEntity('quests', questId);
     }
     
     // Location-related methods
+    
+    /**
+     * Get all locations
+     * @returns {Array} Array of locations
+     */
+    getLocations() {
+        return this.getEntities('locations');
+    }
+    
+    /**
+     * Get a location by ID
+     * @param {string} locationId - The ID of the location to get
+     * @returns {Object|null} The location or null if not found
+     */
+    getLocation(locationId) {
+        if (!locationId) return null;
+        return this.getEntity('locations', locationId);
+    }
     
     /**
      * Add or update a location
@@ -150,16 +205,11 @@ export class AppState extends StateManager {
     setLocation(location) {
         if (!location || !location.id) return;
         
-        const existingIndex = this._state.locations.findIndex(l => l.id === location.id);
-        const locations = [...this._state.locations];
-        
-        if (existingIndex >= 0) {
-            locations[existingIndex] = { ...locations[existingIndex], ...location };
+        if (this.getEntity('locations', location.id)) {
+            this.updateEntity('locations', location.id, location);
         } else {
-            locations.push(location);
+            this.addEntity('locations', location);
         }
-        
-        this.update({ locations });
     }
     
     /**
@@ -167,53 +217,135 @@ export class AppState extends StateManager {
      * @param {string} locationId - The ID of the location to remove
      */
     removeLocation(locationId) {
-        const locations = this._state.locations.filter(l => l.id !== locationId);
-        this.update({ locations });
+        if (!locationId) return;
+        this.removeEntity('locations', locationId);
     }
     
     // UI state methods
     
     /**
-     * Set the active section
+     * Get the current UI state
+     * @returns {Object} The current UI state
+     */
+    getUiState() {
+        return super.getUiState();
+    }
+    
+    /**
+     * Set the active section in the UI
      * @param {string} section - The section to activate
+     * @returns {Object} The updated UI state
      */
     setActiveSection(section) {
-        if (this._state.ui.activeSection !== section) {
-            this.update({
-                ui: {
-                    ...this._state.ui,
-                    activeSection: section,
-                    selectedItem: null
-                }
-            });
-        }
+        return super.setActiveSection(section);
     }
     
     /**
-     * Set the selected item
-     * @param {string} itemId - The ID of the selected item
-     * @param {string} itemType - The type of the selected item
+     * Set the selected item in the UI
+     * @param {string} id - The ID of the selected item
+     * @param {string} type - The type of the selected item
+     * @returns {Object} The updated UI state
      */
-    setSelectedItem(itemId, itemType) {
-        this.update({
-            ui: {
-                ...this._state.ui,
-                selectedItem: { id: itemId, type: itemType }
-            }
-        });
+    setSelectedItem(id, type) {
+        return super.setSelectedItem(id, type);
     }
     
     /**
-     * Set the search query
+     * Set the search query in the UI
      * @param {string} query - The search query
+     * @returns {Object} The updated UI state
      */
     setSearchQuery(query) {
-        this.update({
-            ui: {
-                ...this._state.ui,
-                searchQuery: query || ''
-            }
-        });
+        return super.setSearchQuery(query);
+    }
+    
+    /**
+     * Set application settings
+     * @param {Object} settings - The settings to update
+     * @returns {Object} The updated settings
+     */
+    setSettings(settings) {
+        if (!settings) return this.getSettings();
+        return super.updateSettings(settings);
+    }
+    
+    /**
+     * Get application settings
+     * @returns {Object} The current application settings
+     */
+    getSettings() {
+        return super.getSettings();
+    }
+    
+    /**
+     * Update UI state with the provided updates
+     * @param {Object} updates - The updates to apply to the UI state
+     * @returns {Object} The updated UI state
+     */
+    updateUiState(updates) {
+        if (!updates || typeof updates !== 'object') {
+            return this.getUiState();
+        }
+        return super.updateUiState(updates);
+    }
+    
+    /**
+     * Set filters for a specific section
+     * @param {string} section - The section to set filters for
+     * @param {Object} filters - The filters to apply
+     * @returns {Object} The updated UI state
+     */
+    setFilters(section, filters) {
+        if (!section) return this.getUiState();
+        return super.setFilters(section, filters);
+    }
+    
+    /**
+     * Get filters for a specific section
+     * @param {string} section - The section to get filters for
+     * @returns {Object} The current filters for the section
+     */
+    getFilters(section) {
+        if (!section) return {};
+        const uiState = this.getUiState();
+        return (uiState.filters && uiState.filters[section]) || {};
+    }
+    
+    /**
+     * Get an entity by ID
+     * @param {string} entityType - The type of entity (e.g., 'players', 'quests', 'ui', 'settings')
+     * @param {string} id - The ID of the entity to get
+     * @returns {Object|null} The entity or null if not found
+     */
+    getEntity(entityType, id) {
+        // Special handling for UI and settings
+        if (entityType === 'ui' && id === 'state') {
+            return this.getUiState();
+        } else if (entityType === 'settings' && id === 'app') {
+            return this.getSettings();
+        }
+        
+        // For other entity types, use the parent method
+        return super.getEntity(entityType, id);
+    }
+    
+    /**
+     * Update an entity
+     * @param {string} entityType - The type of entity (e.g., 'players', 'quests', 'ui', 'settings')
+     * @param {string} id - The ID of the entity to update
+     * @param {Object} updates - The updates to apply to the entity
+     * @returns {Object} The updated entity
+     */
+    updateEntity(entityType, id, updates) {
+        // Special handling for UI and settings
+        if (entityType === 'ui' && id === 'state') {
+            return this.updateUiState(updates);
+        } else if (entityType === 'settings' && id === 'app') {
+            return this.updateSettings(updates);
+        }
+        
+        // For other entity types, use the parent method
+        return super.updateEntity(entityType, id, updates);
     }
 }
 

@@ -6,15 +6,48 @@ export class Player extends Entity {
         const playerId = id || `player-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
         super(playerId, new Date(createdAt), new Date(updatedAt));
         
+        // Import PlayerClass enum
+        const PlayerClass = {
+            ALCHEMIST: 'alchemist',
+            BARBARIAN: 'barbarian',
+            BARD: 'bard',
+            CHAMPION: 'champion',
+            CLERIC: 'cleric',
+            DRUID: 'druid',
+            FIGHTER: 'fighter',
+            INVENTOR: 'inventor',
+            INVESTIGATOR: 'investigator',
+            KINETICIST: 'kineticist',
+            MAGUS: 'magus',
+            MONK: 'monk',
+            ORACLE: 'oracle',
+            PSYCHIC: 'psychic',
+            RANGER: 'ranger',
+            ROGUE: 'rogue',
+            SORCERER: 'sorcerer',
+            SUMMONER: 'summoner',
+            SWASHBUCKLER: 'swashbuckler',
+            THAUMATURGE: 'thaumaturge',
+            WITCH: 'witch',
+            WIZARD: 'wizard',
+            GUNSLINGER: 'gunslinger'
+        };
+        
+        // Get all valid class values
+        const validPlayerClasses = Object.values(PlayerClass);
+        
+        // Ensure playerClass is valid, default to 'fighter' if not
+        const validatedClass = validPlayerClasses.includes(playerClass) ? playerClass : 'fighter';
+        
         this.name = name;
-        this.class = playerClass;
+        this.playerClass = validatedClass; 
         this.level = level;
         this.experience = 0;
         this.inventory = [];
         this.activeQuests = [];
         this.completedQuests = [];
         
-        console.log(`Created new Player:`, this);
+        console.log(`Created new Player with class '${this.playerClass}':`, this);
     }
 
     addToInventory(item) {
@@ -69,7 +102,64 @@ export class Player extends Entity {
     }
 
     updateClass(playerClass) {
-        this.class = playerClass;
+        // Import PlayerClass enum
+        const PlayerClass = {
+            ALCHEMIST: 'alchemist',
+            BARBARIAN: 'barbarian',
+            BARD: 'bard',
+            CHAMPION: 'champion',
+            CLERIC: 'cleric',
+            DRUID: 'druid',
+            FIGHTER: 'fighter',
+            INVENTOR: 'inventor',
+            INVESTIGATOR: 'investigator',
+            KINETICIST: 'kineticist',
+            MAGUS: 'magus',
+            MONK: 'monk',
+            ORACLE: 'oracle',
+            PSYCHIC: 'psychic',
+            RANGER: 'ranger',
+            ROGUE: 'rogue',
+            SORCERER: 'sorcerer',
+            SUMMONER: 'summoner',
+            SWASHBUCKLER: 'swashbuckler',
+            THAUMATURGE: 'thaumaturge',
+            WITCH: 'witch',
+            WIZARD: 'wizard',
+            GUNSLINGER: 'gunslinger'
+        };
+        
+        // Get all valid class values
+        const validPlayerClasses = Object.values(PlayerClass);
+        
+        // Ensure playerClass is valid, default to 'fighter' if not
+        this.playerClass = validPlayerClasses.includes(playerClass) ? playerClass : 'fighter';
         this.updatedAt = new Date();
+        console.log(`Updated player class to '${this.playerClass}'`);
+    }
+
+    toJSON() {
+        // Ensure we're using the correct property name that matches the schema
+        const result = {
+            id: this.id,
+            name: this.name,
+            // Always use playerClass in the output, fall back to class if needed
+            playerClass: this.playerClass || this.class || 'fighter',
+            level: this.level,
+            experience: this.experience || 0,
+            inventory: [...(this.inventory || [])],
+            activeQuests: [...(this.activeQuests || [])],
+            completedQuests: [...(this.completedQuests || [])],
+            createdAt: this.createdAt ? new Date(this.createdAt).toISOString() : new Date().toISOString(),
+            updatedAt: this.updatedAt ? new Date(this.updatedAt).toISOString() : new Date().toISOString()
+        };
+        
+        // Clean up any class property to avoid confusion
+        if ('class' in result) {
+            delete result.class;
+        }
+        
+        console.log('Player toJSON result:', result);
+        return result;
     }
 }

@@ -1104,7 +1104,7 @@ export class LootUI {
             
             // Prepare item data
             const itemData = {
-                id: itemId || crypto.randomUUID(),
+                id: itemId || window.uuid.v4(),
                 name: form.querySelector('#itemName').value.trim(),
                 type: form.querySelector('#itemType').value,
                 rarity: form.querySelector('#itemRarity').value,

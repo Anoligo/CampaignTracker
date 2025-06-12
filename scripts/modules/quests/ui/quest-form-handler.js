@@ -111,8 +111,10 @@ export const formHandler = {
         e.preventDefault();
 
         const formData = new FormData(e.target);
+        const questName = formData.get('name');
         const questData = {
-            name: formData.get('name'),
+            name: questName,
+            title: questName, // Ensure title is set to match name
             type: formData.get('type'),
             status: formData.get('status'),
             description: formData.get('description'),

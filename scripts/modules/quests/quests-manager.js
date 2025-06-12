@@ -93,10 +93,11 @@ export class QuestsManager {
     async createSampleQuest() {
         try {
             const sampleQuest = {
-                name: 'The Iron Meridian',
+                title: 'The Iron Meridian',
+                name: 'The Iron Meridian', // Keep for backward compatibility
                 description: 'Investigate the mysterious artifact known as the Iron Meridian and discover its connection to the ancient civilization.',
-                type: 'MAIN',
-                status: 'ONGOING',
+                type: 'main', // Use lowercase for type
+                status: 'ongoing', // Use lowercase for status
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 journalEntries: [
@@ -105,9 +106,17 @@ export class QuestsManager {
                         content: 'Found a reference to the Iron Meridian in an old tome at the library. It seems to be an ancient artifact with powerful magical properties.'
                     }
                 ],
-                items: [],
-                locations: [],
-                characters: []
+                relatedItems: [],
+                relatedLocations: [],
+                relatedCharacters: [],
+                relatedFactions: [],
+                relatedQuests: [],
+                notes: '',
+                resolution: {
+                    session: '',
+                    date: null,
+                    xp: 0
+                }
             };
             
             await this.questService.createQuest(sampleQuest);

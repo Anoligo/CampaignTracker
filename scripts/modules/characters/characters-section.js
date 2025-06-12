@@ -62,16 +62,112 @@ export async function initializeCharactersSection() {
                         dataManager
                     );
                     
-                    // Initialize event listeners
-                    if (addCharacterBtn) {
-                        addCharacterBtn.addEventListener('click', () => {
-                            // CharacterUI exposes handleAddCharacter to display
-                            // the inline creation form. The previous call
-                            // referenced a non-existent method which caused the
-                            // button to fail silently.
-                            window.app.characterUI.handleAddCharacter();
+                    // Function to set up event listeners
+                    const setupEventListeners = () => {
+                        const btn = document.getElementById('addCharacterBtn');
+                        const container = document.getElementById('characters') || document.documentElement;
+                        
+                        // Log button state for debugging
+                        const logButtonState = () => {
+                            const button = document.getElementById('addCharacterBtn');
+                            console.log('Button state:', {
+                                button: {
+                                    exists: !!button,
+                                    id: button?.id,
+                                    className: button?.className,
+                                    text: button?.textContent?.trim(),
+                                    inDocument: document.body.contains(button),
+                                    disabled: button?.disabled,
+                                    visible: button?.offsetParent !== null
+                                },
+                                container: {
+                                    exists: !!container,
+                                    inDocument: document.body.contains(container),
+                                    visible: container?.offsetParent !== null
+                                }
+                            });
+                        };
+
+                        // Handle button click with better delegation
+                        const handleAddClick = (e) => {
+                            // Check if the click is on the button or its children
+                            const button = e.target.closest('#addCharacterBtn');
+                            if (!button) return;
+
+                            console.log('Add character button clicked', {
+                                target: e.target,
+                                button: button,
+                                eventPhase: e.eventPhase,
+                                time: new Date().toISOString()
+                            });
+
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+
+                            console.log('Calling handleAddCharacter...');
+                            try {
+                                if (window.app?.characterUI?.handleAddCharacter) {
+                                    window.app.characterUI.handleAddCharacter();
+                                } else {
+                                    console.error('Character UI or handleAddCharacter method not available');
+                                }
+                            } catch (err) {
+                                console.error('Error in handleAddCharacter:', err);
+                            }
+                        };
+
+                        // Remove any existing listeners to prevent duplicates
+                        container.removeEventListener('click', handleAddClick, false);
+                        container.removeEventListener('mousedown', handleAddClick, false);
+                        
+                        // Add new listeners with useCapture: false for better compatibility
+                        container.addEventListener('click', handleAddClick, false);
+                        container.addEventListener('mousedown', handleAddClick, false);
+
+                        // Log the setup
+                        console.log('Event listeners set up on container:', {
+                            container: container,
+                            hasButton: !!document.getElementById('addCharacterBtn'),
+                            buttonInDOM: !!document.getElementById('addCharacterBtn')
                         });
-                    }
+
+                        // Store for debugging
+                        window._debugAddHandlers = {
+                            click: handleAddClick,
+                            container: container,
+                            logState: logButtonState
+                        };
+                        
+                        // Initial state log
+                        logButtonState();
+                    };
+
+                    // Set up a MutationObserver to watch for when the button is added to the DOM
+                    const observer = new MutationObserver((mutations, obs) => {
+                        const btn = document.getElementById('addCharacterBtn');
+                        if (btn) {
+                            console.log('Button detected in DOM via MutationObserver');
+                            setupEventListeners();
+                            // We could disconnect here if we only need to set up once
+                            // obs.disconnect();
+                        }
+                    });
+
+                    // Start observing the document with the configured parameters
+                    observer.observe(document.body, { 
+                        childList: true, 
+                        subtree: true,
+                        attributes: false,
+                        characterData: false
+                    });
+
+                    // Also try to set up immediately in case the button is already there
+                    console.log('Setting up event listeners immediately');
+                    setupEventListeners();
+
+                    // Store the observer for debugging
+                    window._debugObserver = observer;
                     
                     if (characterSearch) {
                         characterSearch.addEventListener('input', (e) => {

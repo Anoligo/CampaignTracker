@@ -1,10 +1,23 @@
+import { DataService } from '/scripts/modules/data/services/data-service.js';
+
 /**
  * Data Management UI
  * Handles the data import/export functionality
  */
-
 export class DataManagementUI {
-    constructor() {
+    /**
+     * Create a new DataManagementUI
+     * @param {DataService} dataService - The data service instance
+     */
+    constructor(dataService = null) {
+        this.dataService = dataService || new DataService();
+        this.initialize();
+    }
+    
+    /**
+     * Initialize the UI components
+     */
+    initialize() {
         console.log('Initializing DataManagementUI...');
         
         this.exportDataBtn = document.getElementById('exportDataBtn');
@@ -29,6 +42,7 @@ export class DataManagementUI {
         
         console.log('DataManagementUI initialized');
     }
+    // Constructor is now moved to the top with DataService injection
     
     /**
      * Initialize the modal
@@ -257,21 +271,17 @@ export class DataManagementUI {
      */
     _exportData() {
         try {
-            // Get all data from localStorage
-            const data = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                data[key] = localStorage.getItem(key);
-            }
+            // Get the current state from the data service
+            const data = this.dataService.exportData();
             
             // Create a blob with the data
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const blob = new Blob([data], { type: 'application/json' });
             
             // Create a download link
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `iron-meridian-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `campaign-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
             
             // Trigger the download
             document.body.appendChild(a);
@@ -329,29 +339,21 @@ export class DataManagementUI {
         
         reader.onload = (e) => {
             try {
-                const data = JSON.parse(e.target.result);
-                
-                // Verify the data structure (basic validation)
-                if (typeof data !== 'object' || data === null) {
-                    throw new Error('Invalid data format');
-                }
+                const data = e.target.result;
                 
                 // Ask for confirmation before importing
                 if (confirm('WARNING: This will overwrite all current data. Are you sure you want to continue?')) {
-                    // Clear existing data
-                    localStorage.clear();
+                    // Import the data using the data service
+                    const success = this.dataService.importData(data);
                     
-                    // Import the data
-                    for (const key in data) {
-                        if (data.hasOwnProperty(key)) {
-                            localStorage.setItem(key, data[key]);
-                        }
+                    if (success) {
+                        this._showStatus('Data imported successfully! The page will now reload.', 'success');
+                        
+                        // Reload the page to apply changes
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        this._showStatus('Error importing data. The file may be corrupted or in an invalid format.', 'error');
                     }
-                    
-                    this._showStatus('Data imported successfully! The page will now reload.', 'success');
-                    
-                    // Reload the page to apply changes
-                    setTimeout(() => window.location.reload(), 1500);
                 } else {
                     this._showStatus('Import cancelled.', 'info');
                 }

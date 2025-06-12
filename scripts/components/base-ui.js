@@ -88,22 +88,34 @@ export class BaseUI {
      * @param {string} entityId - Optional ID of entity to select after refresh
      */
     refresh(entityId = null) {
-        // Get all entities
-        this.entities = this.getAll ? this.getAll() : [];
-        
-        // Render the list
-        this.renderList(this.entities);
-        
-        // If an entity ID is provided, select it
-        if (entityId) {
-            this.selectEntity(entityId);
-        } else if (this.currentEntity) {
-            // Otherwise, refresh the current entity if available
-            const entity = this.getById ? this.getById(this.currentEntity.id) : null;
-            if (entity) {
-                this.currentEntity = entity;
-                this.renderDetails(entity);
+        try {
+            // Force a fresh copy of all entities
+            this.entities = this.getAll ? [...(this.getAll() || [])] : [];
+            
+            // Debug log
+            console.log(`Refreshing UI with ${this.entities.length} ${this.entityName}(s)`, this.entities);
+            
+            // Render the list with the fresh data
+            this.renderList(this.entities);
+            
+            // If an entity ID is provided, select it
+            if (entityId) {
+                // Force a fresh copy of the entity
+                const freshEntity = this.getById ? this.getById(entityId) : null;
+                if (freshEntity) {
+                    this.currentEntity = freshEntity;
+                    this.selectEntity(entityId);
+                }
+            } else if (this.currentEntity) {
+                // Otherwise, refresh the current entity if available
+                const freshEntity = this.getById ? this.getById(this.currentEntity.id) : null;
+                if (freshEntity) {
+                    this.currentEntity = freshEntity;
+                    this.renderDetails(freshEntity);
+                }
             }
+        } catch (error) {
+            console.error('Error refreshing UI:', error);
         }
     }
     
