@@ -125,6 +125,7 @@ export class CharacterService {
                 quests: characterData.quests || [],
                 bio: characterData.bio || '',
                 notes: characterData.notes || '',
+                status: characterData.status || 'alive',
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
