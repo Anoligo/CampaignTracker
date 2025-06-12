@@ -10,7 +10,8 @@ describe('NotesService', () => {
     localStorage.clear();
     ds = new DataService();
     ds.clearData();
-    ds.saveData = () => {};
+    ds._state.notes = [];
+    ds.saveData();
     service = new NotesService(ds);
   });
 
