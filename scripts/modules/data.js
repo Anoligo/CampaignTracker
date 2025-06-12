@@ -11,6 +11,7 @@ export { Note } from './notes.js';
 export { Item, ItemType, ItemRarity } from './loot.js';
 export { Location, LocationType, DiscoveryStatus } from './locations/index.js';
 export { Player, PlayerClass } from './players/index.js';
+export { Condition } from './conditions/index.js';
 export { GuildActivity, GuildActivityType, GuildResource, GuildResourceType } from './guild/index.js';
 
 // Import the new DataService as DataManager for backward compatibility
