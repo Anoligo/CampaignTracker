@@ -29,7 +29,11 @@ export async function initializeCharactersSection() {
                 // exposes a saveData function. The previous code attempted to
                 // import a non-existent `dataManager` export and resulted in the
                 // manager receiving `undefined`.
-                const dataManager = { appState };
+                // Use the underlying DataService instance but keep a reference
+                // to appState for backwards compatibility with modules that
+                // expect `dataManager.appState`.
+                const dataManager = appState.dataService;
+                dataManager.appState = appState;
 
                 // Initialize the characters manager
                 window.app = window.app || {};
