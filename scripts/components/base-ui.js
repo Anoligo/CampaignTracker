@@ -69,28 +69,36 @@ export class BaseUI {
     /**
      * Initialize the UI
      */
-    init() {
-        // Set up event listeners
-        if (this.searchInput) {
-            this.searchInput.addEventListener('input', this.handleSearch);
+    async init() {
+        try {
+            // Set up event listeners
+            if (this.searchInput) {
+                this.searchInput.addEventListener('input', this.handleSearch);
+            }
+            
+            if (this.addButton) {
+                this.addButton.addEventListener('click', this.handleAdd);
+            } else {
+                console.warn(`Add button not found with ID: ${this.addButtonId}`);
+            }
+            
+            // Initial render
+            await this.refresh();
+        } catch (error) {
+            console.error('Error initializing UI:', error);
+            showToast(`Error initializing ${this.entityName} UI`, 'error');
         }
-        
-        if (this.addButton) {
-            this.addButton.addEventListener('click', this.handleAdd);
-        }
-        
-        // Initial render
-        this.refresh();
     }
     
     /**
      * Refresh the UI
      * @param {string} entityId - Optional ID of entity to select after refresh
      */
-    refresh(entityId = null) {
+    async refresh(entityId = null) {
         try {
             // Force a fresh copy of all entities
-            this.entities = this.getAll ? [...(this.getAll() || [])] : [];
+            const entities = this.getAll ? await this.getAll() : [];
+            this.entities = Array.isArray(entities) ? [...entities] : [];
             
             // Debug log
             console.log(`Refreshing UI with ${this.entities.length} ${this.entityName}(s)`, this.entities);
@@ -101,14 +109,14 @@ export class BaseUI {
             // If an entity ID is provided, select it
             if (entityId) {
                 // Force a fresh copy of the entity
-                const freshEntity = this.getById ? this.getById(entityId) : null;
+                const freshEntity = this.getById ? await this.getById(entityId) : null;
                 if (freshEntity) {
                     this.currentEntity = freshEntity;
                     this.selectEntity(entityId);
                 }
             } else if (this.currentEntity) {
                 // Otherwise, refresh the current entity if available
-                const freshEntity = this.getById ? this.getById(this.currentEntity.id) : null;
+                const freshEntity = this.getById ? await this.getById(this.currentEntity.id) : null;
                 if (freshEntity) {
                     this.currentEntity = freshEntity;
                     this.renderDetails(freshEntity);
@@ -116,6 +124,7 @@ export class BaseUI {
             }
         } catch (error) {
             console.error('Error refreshing UI:', error);
+            showToast(`Error refreshing ${this.entityName} data`, 'error');
         }
     }
     

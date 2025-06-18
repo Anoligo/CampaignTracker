@@ -77,6 +77,126 @@ export const SETTINGS_SCHEMA = {
 };
 
 export const STATE_SCHEMA = {
+    // Characters
+    characters: {
+        type: 'array',
+        items: {
+            type: 'object',
+            required: ['id', 'name', 'playerId', 'race', 'class', 'level'],
+            properties: {
+                id: { type: 'string' },
+                name: { type: 'string' },
+                playerId: { type: 'string' }, // Reference to the player who owns this character
+                race: { type: 'string' },
+                class: { type: 'string' },
+                level: { type: 'number', minimum: 1 },
+                background: { type: 'string' },
+                alignment: { type: 'string' },
+                experience: { type: 'number', minimum: 0, default: 0 },
+                hitPoints: {
+                    type: 'object',
+                    required: ['current', 'maximum', 'temporary'],
+                    properties: {
+                        current: { type: 'number', minimum: 0 },
+                        maximum: { type: 'number', minimum: 1 },
+                        temporary: { type: 'number', minimum: 0, default: 0 }
+                    }
+                },
+                abilityScores: {
+                    type: 'object',
+                    required: ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'],
+                    properties: {
+                        strength: { type: 'number', minimum: 1, maximum: 30 },
+                        dexterity: { type: 'number', minimum: 1, maximum: 30 },
+                        constitution: { type: 'number', minimum: 1, maximum: 30 },
+                        intelligence: { type: 'number', minimum: 1, maximum: 30 },
+                        wisdom: { type: 'number', minimum: 1, maximum: 30 },
+                        charisma: { type: 'number', minimum: 1, maximum: 30 }
+                    }
+                },
+                skills: {
+                    type: 'object',
+                    additionalProperties: { type: 'number', minimum: 0, maximum: 99 }
+                },
+                inventory: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        required: ['itemId', 'quantity'],
+                        properties: {
+                            itemId: { type: 'string' },
+                            quantity: { type: 'number', minimum: 1 },
+                            equipped: { type: 'boolean', default: false },
+                            notes: { type: 'string' }
+                        }
+                    }
+                },
+                features: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        required: ['name', 'description'],
+                        properties: {
+                            name: { type: 'string' },
+                            description: { type: 'string' },
+                            uses: { type: 'number' },
+                            maxUses: { type: 'number' },
+                            recharge: { type: 'string' } // e.g., 'long rest', 'short rest', 'dawn'
+                        }
+                    }
+                },
+                spells: {
+                    type: 'object',
+                    properties: {
+                        spellSlots: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                required: ['level', 'maximum', 'remaining'],
+                                properties: {
+                                    level: { type: 'number', minimum: 1, maximum: 9 },
+                                    maximum: { type: 'number', minimum: 0 },
+                                    remaining: { type: 'number', minimum: 0 }
+                                }
+                            }
+                        },
+                        knownSpells: {
+                            type: 'array',
+                            items: { type: 'string' } // Array of spell IDs
+                        },
+                        preparedSpells: {
+                            type: 'array',
+                            items: { type: 'string' } // Array of spell IDs
+                        }
+                    }
+                },
+                conditions: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        required: ['conditionId', 'source', 'appliedAt'],
+                        properties: {
+                            conditionId: { type: 'string' },
+                            source: { type: 'string' }, // e.g., 'spell', 'ability', 'trap'
+                            appliedAt: { type: 'string', format: 'date-time' },
+                            duration: { type: 'string' }, // e.g., '1 hour', 'until dispelled'
+                            notes: { type: 'string' }
+                        }
+                    }
+                },
+                notes: { type: 'string' },
+                appearance: { type: 'string' },
+                backstory: { type: 'string' },
+                personalityTraits: { type: 'string' },
+                ideals: { type: 'string' },
+                bonds: { type: 'string' },
+                flaws: { type: 'string' },
+                createdAt: { type: 'string', format: 'date-time' },
+                updatedAt: { type: 'string', format: 'date-time' }
+            }
+        }
+    },
+    
     // Quests
     quests: {
         type: 'array',
@@ -421,6 +541,7 @@ export const STATE_SCHEMA = {
 
 export const INITIAL_STATE = {
     // Core data collections
+    characters: [],
     quests: [],
     players: [],
     locations: [],

@@ -77,8 +77,20 @@ const server = http.createServer(async (req, res) => {
     // Remove query parameters
     filePath = filePath.split('?')[0];
     
-    // Resolve the file path
-    const fullPath = path.join(__dirname, filePath);
+    // Map URL paths to file system paths
+    let fullPath;
+    
+    // Map specific directories
+    if (filePath.startsWith('/dist/')) {
+        fullPath = path.join(__dirname, filePath.substring(1)); // Remove leading slash
+    } else if (filePath.startsWith('/scripts/')) {
+        fullPath = path.join(__dirname, filePath.substring(1)); // Remove leading slash
+    } else if (filePath === '/') {
+        fullPath = path.join(__dirname, 'index.html');
+    } else {
+        fullPath = path.join(__dirname, filePath);
+    }
+    
     const ext = path.extname(fullPath);
     
     // Default content type
@@ -105,8 +117,26 @@ const server = http.createServer(async (req, res) => {
     
     contentType = mimeTypes[ext] || 'application/octet-stream';
     
+    // Check if the path is a directory and look for index.js
+    if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
+        const indexPath = path.join(fullPath, 'index.js');
+        console.log(`Directory requested: ${fullPath}`);
+        console.log(`Looking for index file at: ${indexPath}`);
+        
+        if (fs.existsSync(indexPath)) {
+            console.log(`Found index file: ${indexPath}`);
+            fullPath = indexPath;
+            contentType = 'application/javascript';
+        } else {
+            console.error(`Index file not found in directory: ${fullPath}`);
+            res.writeHead(403);
+            res.end('Directory listing not allowed');
+            return;
+        }
+    }
+
     // Read the file
-    fs.readFile(fullPath, 'utf8', (err, content) => {
+    fs.readFile(fullPath, (err, content) => {
         if (err) {
             if (err.code === 'ENOENT') {
                 // File not found

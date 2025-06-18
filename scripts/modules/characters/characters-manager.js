@@ -19,35 +19,32 @@ export class CharactersManager {
      * Initialize the characters module
      */
     async initialize() {
-        // Ensure characters array exists in the data manager
-        if (!this.dataManager.appState.characters) {
-            this.dataManager.appState = {
-                ...this.dataManager.appState,
-                characters: []
-            };
-
-            // Persist the updated state if a save method is available
-            if (typeof this.dataManager.saveData === 'function') {
-                this.dataManager.saveData();
-            } else if (
-                this.dataManager.appState &&
-                typeof this.dataManager.appState.saveData === 'function'
-            ) {
-                this.dataManager.appState.saveData();
-            } else {
-                console.warn('No save method available on dataManager');
+        try {
+            // Check if characters collection exists in the data manager
+            const currentState = this.dataManager.appState;
+            
+            // If characters array doesn't exist, initialize it
+            if (!currentState.characters) {
+                console.log('Initializing characters array in data manager');
+                // Use the data manager's add method to initialize the collection
+                // This ensures proper initialization and validation
+                this.dataManager.add('characters', [], { generateId: false });
+                // Save the updated state
+                await this.dataManager.saveData();
             }
-        }
 
-        // Initialize the UI if we're in a browser environment
-        if (typeof document !== 'undefined') {
-            try {
-                // Initialize the CharacterUI
-                this.characterUI = new CharacterUI(this.characterService, this.dataManager);
-                console.log('Characters module initialized with inline form');
-            } catch (error) {
-                console.error('Error initializing Characters module:', error);
+            // Initialize the UI if we're in a browser environment
+            if (typeof document !== 'undefined') {
+                try {
+                    // Initialize the CharacterUI
+                    this.characterUI = new CharacterUI(this.characterService, this.dataManager);
+                    console.log('Characters module initialized with inline form');
+                } catch (error) {
+                    console.error('Error initializing Characters module UI:', error);
+                }
             }
+        } catch (error) {
+            console.error('Error initializing Characters module:', error);
         }
     }
 

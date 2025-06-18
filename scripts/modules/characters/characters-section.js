@@ -1,10 +1,9 @@
 /**
  * Characters Section Initialization
- * Handles the initialization of the characters section
+ * Handles the initialization of the characters section using the new unified appState pattern
  */
 
-import { CharactersManager } from './characters-manager.js';
-import { CharacterUI } from './ui/character-ui.js';
+import { CharactersManager } from './characters-manager-new.js';
 import { appState } from '../../core/state/app-state.js';
 
 /**
@@ -29,13 +28,11 @@ export async function initializeCharactersSection() {
                 // exposes a saveData function. The previous code attempted to
                 // import a non-existent `dataManager` export and resulted in the
                 // manager receiving `undefined`.
-                // Use the underlying DataService instance but keep a reference
-                // to appState for backwards compatibility with modules that
-                // expect `dataManager.appState`.
+                // Use the underlying DataService instance
+                // The DataService already has all the necessary state management
                 const dataManager = appState.dataService;
-                dataManager.appState = appState;
 
-                // Initialize the characters manager
+                // Initialize the characters manager with the data manager
                 window.app = window.app || {};
                 window.app.charactersManager = new CharactersManager(dataManager);
                 
@@ -43,13 +40,14 @@ export async function initializeCharactersSection() {
                 await window.app.charactersManager.initialize();
                 console.log('Characters manager initialized');
                 
-                // Initialize the UI if the container is found
+                // The UI is now initialized by the manager, but we'll keep this
+                // for backward compatibility with any existing code
                 const characterList = document.getElementById('characterList');
                 const characterDetails = document.getElementById('characterDetails');
-                const characterSearch = document.getElementById('characterSearch');
-                const addCharacterBtn = document.getElementById('addCharacterBtn');
                 
                 if (characterList && characterDetails) {
+                    // The manager will handle the UI initialization
+                    window.app.charactersManager.render();
                     // Initialize the UI
                     window.app.characterUI = new CharacterUI(
                         window.app.charactersManager.characterService,

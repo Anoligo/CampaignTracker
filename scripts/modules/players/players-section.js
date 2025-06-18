@@ -1,31 +1,46 @@
-import { PlayersManager } from './players-manager.js';
 import { appState } from '../../core/state/app-state.js';
+import { PlayersManager } from './players-manager-new.js';
 
 /**
  * Initialize the players section when navigated to.
+ * This is now a thin wrapper around the PlayersManager which handles its own initialization.
  */
 export async function initializePlayersSection() {
     try {
-        console.log('Initializing players section...');
+        console.log('[PlayersSection] Initializing players section...');
+        
+        // Check if the players container exists
         const container = document.getElementById('players');
         if (!container) {
-            console.error('Players container not found');
+            console.error('[PlayersSection] Players container not found');
             return;
         }
 
+        // Initialize the players manager if it doesn't exist
         if (!window.app?.playersManager) {
-            const dataManager = { appState };
+            console.log('[PlayersSection] Creating new PlayersManager');
+            
+            // Use the data service from appState
+            const dataManager = appState.dataService || { appState };
+            
+            // Create and store the manager
             window.app = window.app || {};
             window.app.playersManager = new PlayersManager(dataManager);
+            
+            // The manager will handle its own initialization when the section becomes visible
+            console.log('[PlayersSection] PlayersManager created');
         } else {
-            console.log('Players manager already initialized');
+            console.log('[PlayersSection] Players manager already initialized');
+            
+            // If the manager exists but the section is visible, trigger a render
+            if (container.classList.contains('active')) {
+                window.app.playersManager.render();
+            }
         }
-
-        // Refresh the list on each initialization
-        window.app.playersManager?.ui?.renderList();
-        console.log('Players section initialized');
+        
+        console.log('[PlayersSection] Players section initialization complete');
     } catch (error) {
-        console.error('Failed to initialize players section:', error);
+        console.error('[PlayersSection] Failed to initialize players section:', error);
     }
 }
 

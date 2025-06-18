@@ -115,6 +115,7 @@ export class AppInitializer {
         this._registerPlayersSection(navManager);
         this._registerConditionsSection(navManager);
         this._registerFactionsSection(navManager);
+        this._registerLootSection(navManager);
 
         // Initialize other sections (locations) if needed
         /*
@@ -240,6 +241,38 @@ export class AppInitializer {
                 }
             })
             .catch(error => console.error('Failed to load factions module:', error));
+    }
+    
+    /**
+     * Register the loot section initializer
+     * @param {NavigationManager} navManager - The navigation manager
+     * @private
+     */
+    static _registerLootSection(navManager) {
+        console.log('[AppInitializer] Registering loot section');
+        import('../../modules/loot/index.js')
+            .then(module => {
+                console.log('[AppInitializer] Loot module loaded');
+                if (module.LootManager) {
+                    // Initialize the loot manager when the section is activated
+                    const initializeLoot = async () => {
+                        try {
+                            console.log('[AppInitializer] Initializing loot section');
+                            const lootManager = new module.LootManager(appState);
+                            await lootManager.initialize();
+                            window.app = window.app || {};
+                            window.app.lootManager = lootManager;
+                            console.log('[AppInitializer] Loot section initialized');
+                        } catch (error) {
+                            console.error('[AppInitializer] Failed to initialize loot section:', error);
+                        }
+                    };
+                    
+                    navManager.registerSectionInitializer('loot', initializeLoot);
+                    console.log('[AppInitializer] Loot section initializer registered');
+                }
+            })
+            .catch(error => console.error('[AppInitializer] Failed to load loot module:', error));
     }
 }
 

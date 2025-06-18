@@ -1,7 +1,7 @@
 import { LootManager } from './loot-manager.js';
 import * as LootEnums from './enums/loot-enums.js';
 import { Item } from './models/item-model.js';
-import { LootUI } from './ui/loot-ui-new.js';
+import { LootUI } from './ui/index.js';
 
 // Export all the components
 export {

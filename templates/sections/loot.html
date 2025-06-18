@@ -1,50 +1,91 @@
                     <!-- Loot Section -->
                     <div id="loot" class="section">
                         <div class="loot-container">
-                            <!-- Loot Filters -->
-                            <div class="loot-filters">
-                                <div class="loot-filters__search">
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                        <input type="text" id="lootItemSearch" class="form-control" placeholder="Search items..." data-search-type="loot">
-                                    </div>
-                                </div>
-                                <div class="loot-filters__controls">
+                            <!-- Header with title and actions -->
+                            <div class="section-header">
+                                <h2 class="section-title">Loot & Curses</h2>
+                                <div class="section-actions">
                                     <button id="addItemBtn" class="btn btn-primary">
                                         <i class="fas fa-plus me-2"></i>Add Item
                                     </button>
                                 </div>
                             </div>
 
+                            <!-- Search and filter bar -->
+                            <div class="search-filter-bar">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="template-lootItemSearch" class="form-control" placeholder="Search items..." aria-label="Search items" data-search-type="loot">
+                                </div>
+                                <div class="filter-options">
+                                    <div class="filter-group">
+                                        <label for="filterRarity" class="filter-label">Rarity</label>
+                                        <select id="filterRarity" class="form-select form-select-sm">
+                                            <option value="">All Rarities</option>
+                                            <option value="COMMON">Common</option>
+                                            <option value="UNCOMMON">Uncommon</option>
+                                            <option value="RARE">Rare</option>
+                                            <option value="VERY_RARE">Very Rare</option>
+                                            <option value="LEGENDARY">Legendary</option>
+                                            <option value="ARTIFACT">Artifact</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label for="filterType" class="filter-label">Type</label>
+                                        <select id="filterType" class="form-select form-select-sm">
+                                            <option value="">All Types</option>
+                                            <option value="WEAPON">Weapon</option>
+                                            <option value="ARMOR">Armor</option>
+                                            <option value="POTION">Potion</option>
+                                            <option value="SCROLL">Scroll</option>
+                                            <option value="WONDROUS">Wondrous Item</option>
+                                            <option value="MISC">Miscellaneous</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-group filter-checkbox">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterCursed">
+                                            <label class="form-check-label" for="filterCursed">Show Cursed Only</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Main content area -->
                             <div class="loot-content">
                                 <!-- Item List -->
                                 <div class="loot-list-container">
-                                    <h2 class="section-title">Loot & Curses</h2>
                                     <div id="itemList" class="loot-list">
                                         <!-- Items will be loaded here -->
-                                        <div class="loot-empty">
-                                            <div class="loot-empty__icon">
+                                        <div class="empty-state">
+                                            <div class="empty-state__icon">
                                                 <i class="fas fa-coins"></i>
                                             </div>
-                                            <p class="loot-empty__message">No items found</p>
-                                            <button id="addFirstItemBtn" class="btn btn-primary">
+                                            <p class="empty-state__message">No items found</p>
+                                            <button id="addFirstItemBtn" class="btn btn-outline-primary mt-3">
                                                 <i class="fas fa-plus me-2"></i>Add Your First Item
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Item Details -->
+                                <!-- Item Details and Form Container -->
                                 <div class="loot-details-container">
+                                    <!-- Form Container (initially hidden) -->
+                                    <div id="lootFormContainer" class="loot-form-container" style="display: none;">
+                                        <!-- Form will be rendered here by LootForm -->
+                                    </div>
+                                    
+                                    <!-- Item Details (initially shown) -->
                                     <div id="itemDetails" class="loot-details">
-                                        <div class="loot-empty">
-                                            <i class="fas fa-coins fa-3x mb-3"></i>
-                                            <p class="loot-empty__message">Select an item to view details</p>
+                                        <div class="empty-state empty-state--details">
+                                            <i class="fas fa-hand-pointer fa-3x mb-3"></i>
+                                            <p class="empty-state__message">Select an item to view or edit details</p>
+                                            <p class="empty-state__hint">Or click "Add Item" to create a new one</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         </div>
                     </div>
 
