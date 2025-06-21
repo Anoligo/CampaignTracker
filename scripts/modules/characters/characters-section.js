@@ -47,12 +47,14 @@ export async function initializeCharactersSection() {
                 
                 if (characterList && characterDetails) {
                     // The manager will handle the UI initialization
-                    window.app.charactersManager.render();
-                    // Initialize the UI
-                    window.app.characterUI = new CharacterUI(
-                        window.app.charactersManager.characterService,
-                        dataManager
-                    );
+                    await window.app.charactersManager.render();
+                    
+                    // Get the UI instance from the manager
+                    window.app.characterUI = window.app.charactersManager.characterUI;
+                    
+                    if (!window.app.characterUI) {
+                        console.warn('CharacterUI not initialized by CharactersManager');
+                    }
                     
                     // Function to set up event listeners
                     const setupEventListeners = () => {
@@ -167,8 +169,8 @@ export async function initializeCharactersSection() {
                         });
                     }
                     
-                    // Load initial data
-                    window.app.characterUI.renderCharacterList();
+                    // Load initial data using refresh() from BaseUI
+                    await window.app.characterUI.refresh();
                     
                     console.log('Characters UI initialized');
                 } else {
@@ -186,7 +188,7 @@ export async function initializeCharactersSection() {
             console.log('Characters manager already initialized');
             // Refresh the UI if already initialized
             if (window.app.characterUI) {
-                window.app.characterUI.renderCharacterList();
+                await window.app.characterUI.refresh();
             }
         }
         

@@ -97,7 +97,6 @@ Maintain character details, backstories, current status, and unique effects.
 * Character profile with name, class, level, ancestry
 * Backstory (long-form text)
 * Inventory and loot (including cursed/special items)
-* Current conditions (injured, cursed, etc.)
 * GM notes and tags
 * Activity log or XP progression (optional)
 

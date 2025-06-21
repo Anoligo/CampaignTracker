@@ -273,325 +273,154 @@ export class QuestService {
     }
 
     async _saveQuests(quests) {
-        try {
-            if (!Array.isArray(quests)) {
-                console.error('Invalid quests data - expected array, got:', quests);
-                return [];
+        if (!Array.isArray(quests)) {
+            console.error('Invalid quests data - expected array, got:', quests);
+            throw new Error('Invalid quests data - expected array');
+        }
+        
+        console.log('_saveQuests called with quests:', quests);
+        
+        // Define valid quest types and statuses (case-insensitive)
+        const validQuestTypes = ['main', 'side', 'personal', 'guild', 'other'];
+        const validQuestStatuses = ['available', 'ongoing', 'completed', 'failed'];
+        
+        // Ensure we have a valid quests array (defensive copy)
+        const validQuests = quests.filter(q => q && (q.id || q.title || q.name));
+        
+        if (validQuests.length === 0) {
+            console.warn('No valid quests to save');
+            return [];
+        }
+        
+        // Function to normalize quest data
+        const normalizeQuest = (quest) => {
+            // Ensure we have a valid object
+            if (!quest || typeof quest !== 'object') {
+                throw new Error('Invalid quest data - expected object');
             }
             
-            console.log('_saveQuests called with quests:', quests);
-            
-            // Define valid quest types and statuses (case-insensitive)
-            const validQuestTypes = ['main', 'side', 'personal', 'guild', 'other'];
-            const validQuestStatuses = ['available', 'ongoing', 'completed', 'failed'];
-            
-            // Ensure we have a valid quests array (defensive copy)
-            const validQuests = quests.filter(q => q && (q.id || q.title || q.name));
-            
-            if (validQuests.length === 0) {
-                console.warn('No valid quests to save');
-                return [];
-            }
-            
-            // Function to normalize quest data
-            const normalizeQuest = (quest) => {
-                // Ensure we have a valid object
-                if (!quest || typeof quest !== 'object') {
-                    return null;
-                }
-                
-                // Create a new object to avoid modifying the original
-                const normalized = { ...quest };
-                
-                // Ensure required fields exist and have valid values
-                if (!normalized.id) {
-                    normalized.id = `quest-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-                }
-                
-                // Copy over any additional properties not already handled
-                Object.keys(quest).forEach(key => {
-                    if (!(key in normalized) && key !== '_error') {
-                        // Handle Date objects
-                        if (quest[key] instanceof Date) {
-                            normalized[key] = quest[key].toISOString();
-                        } 
-                        // Handle arrays
-                        else if (Array.isArray(quest[key])) {
-                            normalized[key] = [...quest[key]];
-                        }
-                        // Handle nested objects
-                        else if (quest[key] && typeof quest[key] === 'object' && quest[key] !== null) {
-                            normalized[key] = { ...quest[key] };
-                        }
-                        // Handle primitives
-                        else {
-                            normalized[key] = quest[key];
-                        }
-                    }
-                });
-                
-                // Ensure type and status are valid
-                const validTypes = ['main', 'side', 'personal', 'guild', 'other'];
-                if (!validTypes.includes(normalized.type)) {
-                    console.warn(`Invalid quest type '${normalized.type}', defaulting to 'main'`);
-                    normalized.type = 'main';
-                }
-                
-                const validStatuses = ['available', 'ongoing', 'completed', 'failed'];
-                if (!validStatuses.includes(normalized.status)) {
-                    console.warn(`Invalid quest status '${normalized.status}', defaulting to 'available'`);
-                    normalized.status = 'available';
-                }
-                
-                return normalized;
+            // Create a new object with all required fields
+            const normalizedQuest = {
+                id: quest.id || `quest-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                title: quest.title || quest.name || 'Untitled Quest',
+                name: quest.name || quest.title || 'Untitled Quest',
+                description: quest.description || '',
+                type: validQuestTypes.includes(quest.type?.toLowerCase()) 
+                    ? quest.type.toLowerCase() 
+                    : 'other',
+                status: validQuestStatuses.includes(quest.status?.toLowerCase())
+                    ? quest.status.toLowerCase()
+                    : 'available',
+                journalEntries: Array.isArray(quest.journalEntries) 
+                    ? [...quest.journalEntries] 
+                    : [],
+                relatedQuests: Array.isArray(quest.relatedQuests) 
+                    ? [...quest.relatedQuests] 
+                    : [],
+                notes: typeof quest.notes === 'string' ? quest.notes : '',
+                resolution: {
+                    session: quest.resolution?.session || '',
+                    date: quest.resolution?.date || null,
+                    xp: typeof quest.resolution?.xp === 'number' 
+                        ? quest.resolution.xp 
+                        : 0
+                },
+                createdAt: quest.createdAt || new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             };
             
-            // Convert Quest instances to plain objects and normalize them
-            const questsToSave = quests.map((quest, index) => {
-                try {
-                    // Ensure we have a valid quest object
-                    if (!quest || typeof quest !== 'object') {
-                        console.warn(`Invalid quest at index ${index}, creating default quest`);
-                        return {
-                            id: `quest-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-                            title: 'Untitled Quest',
-                            name: 'Untitled Quest',
-                            description: 'No description provided',
-                            type: 'other',
-                            status: 'available',
-                            journalEntries: [],
-                            relatedItems: [],
-                            relatedLocations: [],
-                            relatedCharacters: [],
-                            relatedFactions: [],
-                            relatedQuests: [],
-                            notes: '',
-                            resolution: {
-                                session: '',
-                                date: null,
-                                xp: 0
-                            },
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString()
-                        };
-                    }
-                    
-                    // Create a new plain object with all required fields
-                    const plainQuest = {
-                        id: quest.id || `quest-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-                        title: quest.title || quest.name || 'Untitled Quest',
-                        name: quest.name || quest.title || 'Untitled Quest',
-                        description: quest.description || '',
-                        type: (quest.type || 'other').toString().toLowerCase(),
-                        status: (quest.status || 'available').toString().toLowerCase(),
-                        journalEntries: Array.isArray(quest.journalEntries) ? [...quest.journalEntries] : [],
-                        relatedItems: Array.isArray(quest.relatedItems) ? [...quest.relatedItems] : [],
-                        relatedLocations: Array.isArray(quest.relatedLocations) ? [...quest.relatedLocations] : [],
-                        relatedCharacters: Array.isArray(quest.relatedCharacters) ? [...quest.relatedCharacters] : [],
-                        relatedFactions: Array.isArray(quest.relatedFactions) ? [...quest.relatedFactions] : [],
-                        relatedQuests: Array.isArray(quest.relatedQuests) ? [...quest.relatedQuests] : [],
-                        notes: typeof quest.notes === 'string' ? quest.notes : '',
-                        resolution: {
-                            session: quest.resolution?.session || '',
-                            date: quest.resolution?.date || null,
-                            xp: typeof quest.resolution?.xp === 'number' ? quest.resolution.xp : 0
-                        },
-                        createdAt: quest.createdAt || new Date().toISOString(),
-                        updatedAt: quest.updatedAt || new Date().toISOString()
-                    };
-                    
-                    // Copy any additional properties that aren't handled above
-                    Object.keys(quest).forEach(key => {
-                        if (!(key in plainQuest) && key !== '_error') {
-                            // Handle Date objects
-                            if (quest[key] instanceof Date) {
-                                plainQuest[key] = quest[key].toISOString();
-                            } 
-                            // Handle arrays
-                            else if (Array.isArray(quest[key])) {
-                                plainQuest[key] = [...quest[key]];
-                            }
-                            // Handle nested objects
-                            else if (quest[key] && typeof quest[key] === 'object' && quest[key] !== null) {
-                                plainQuest[key] = { ...quest[key] };
-                            }
-                            // Handle primitives
-                            else {
-                                plainQuest[key] = quest[key];
-                            }
-                        }
-                    });
-                    
-                    // Ensure type and status are valid
-                    const validTypes = ['main', 'side', 'personal', 'guild', 'other'];
-                    if (!validTypes.includes(plainQuest.type)) {
-                        console.warn(`Invalid quest type '${plainQuest.type}', defaulting to 'other'`);
-                        plainQuest.type = 'other';
-                    }
-                    
-                    const validStatuses = ['available', 'ongoing', 'completed', 'failed'];
-                    if (!validStatuses.includes(plainQuest.status)) {
-                        console.warn(`Invalid quest status '${plainQuest.status}', defaulting to 'available'`);
-                        plainQuest.status = 'available';
-                    }
-                    
-                    // Return the fully constructed quest object
-                    return plainQuest;
-                        
-                    } catch (error) {
-                        console.error(`Error processing quest at index ${index}:`, error);
-                        // Return a minimal valid quest if processing fails
-                        return {
-                            id: `quest-error-${Date.now()}-${index}`,
-                            title: 'Error Processing Quest',
-                            description: 'This quest could not be properly processed.',
-                            type: 'other',
-                            status: 'available',
-                            journalEntries: [],
-                            relatedItems: [],
-                            relatedLocations: [],
-                            relatedCharacters: [],
-                            relatedFactions: [],
-                            relatedQuests: [],
-                            notes: '',
-                            _error: `Error during processing: ${error.message}`
-                        };
-                    }
-                })
-                // Filter out any null quests that couldn't be normalized
-                .filter(quest => quest !== null);
+            // Copy over any additional properties not already handled
+            Object.keys(quest).forEach(key => {
+                if (!(key in normalizedQuest)) {
+                    normalizedQuest[key] = quest[key];
+                }
+            });
             
-            console.log('Saving quests to state:', questsToSave);
-            
-            // Ensure we have a reference to the data manager and its services
-            if (!this.dataManager) {
-                console.error('DataManager is not available');
-                throw new Error('DataManager is not available');
+            return normalizedQuest;
+        };
+        
+        // Process all quests
+        const questsToSave = [];
+        for (const [index, quest] of validQuests.entries()) {
+            try {
+                const normalizedQuest = normalizeQuest(quest);
+                if (normalizedQuest) {
+                    questsToSave.push(normalizedQuest);
+                }
+            } catch (error) {
+                console.error(`Error processing quest at index ${index}:`, error);
+                // Continue with other quests even if one fails
             }
-            
-            // First try to use the DataService if available
+        }
+        
+        if (questsToSave.length === 0) {
+            throw new Error('No valid quests could be processed');
+        }
+        
+        // Ensure we have a reference to the data manager
+        if (!this.dataManager) {
+            throw new Error('DataManager is not available');
+        }
+        
+        try {
+            // Try DataService first if available
             if (this.dataManager.dataService) {
-                console.log('Using DataService to save quests');
-                try {
-                    // Get current state without modifying the original
-                    const currentState = {
-                        ...(this.dataManager.dataService.appState?.state || this.dataManager.dataService.appState || {})
-                    };
-                    
-                    // Update only the quests in the state
-                    const updatedState = {
-                        ...currentState,
-                        quests: questsToSave,
-                        lastUpdated: new Date().toISOString()
-                    };
-                    
-                    console.log('Saving updated state via DataService:', updatedState);
-                    
-                    // Use the proper state update method if available
-                    if (typeof this.dataManager.dataService.updateState === 'function') {
-                        await this.dataManager.dataService.updateState(updatedState);
-                    } else if (typeof this.dataManager.dataService._saveData === 'function') {
-                        this.dataManager.dataService._state = updatedState;
-                        await this.dataManager.dataService._saveData();
-                    } else {
-                        throw new Error('No valid save method found on DataService');
-                    }
-                    
-                    console.log('Successfully saved quests via DataService');
+                console.log('Attempting to save via DataService');
+                
+                // Get current state to preserve other data
+                const currentState = this.dataManager.dataService.state || {};
+                
+                // Update only the quests in the state
+                const updatedState = {
+                    ...currentState,
+                    quests: questsToSave,
+                    lastUpdated: new Date().toISOString()
+                };
+                
+                // Use the proper state update method if available
+                if (typeof this.dataManager.dataService.updateState === 'function') {
+                    await this.dataManager.dataService.updateState(updatedState);
+                    console.log('Successfully saved quests via DataService.updateState()');
                     return questsToSave;
-                } catch (dataServiceError) {
-                    console.error('Error saving quests via DataService:', dataServiceError);
-                    // Don't throw here, try fallback methods
-                }
-            }
-            
-            // Try using appState if available
-            if (this.dataManager.appState) {
-                console.log('Attempting to save via appState');
-                try {
-                    // Create a new state object instead of mutating the existing one
-                    const currentState = {
-                        ...(this.dataManager.appState.state || {}),
-                        quests: [...questsToSave],
-                        lastUpdated: new Date().toISOString()
-                    };
-                    
-                    console.log('Updating appState with quests:', currentState.quests);
-                    
-                    // Update appState using the proper update method if available
-                    if (typeof this.dataManager.appState.update === 'function') {
-                        console.log('Calling appState.update()');
-                        await this.dataManager.appState.update({ quests: questsToSave });
-                        console.log('Successfully updated appState via update()');
-                    } 
-                    // Fall back to direct assignment if update method doesn't exist
-                    else {
-                        this.dataManager.appState.quests = [...questsToSave];
-                        this.dataManager.appState.state = { ...currentState };
-                        console.log('Directly assigned quests to appState');
-                    }
-                    
-                    // If appState has a save method, use it
-                    if (typeof this.dataManager.appState.save === 'function') {
-                        console.log('Calling appState.save()');
-                        await this.dataManager.appState.save();
-                        console.log('Successfully saved quests via appState.save()');
-                    }
-                    
-                    // If appState has _saveData, try that as fallback
-                    if (typeof this.dataManager.appState._saveData === 'function') {
-                        console.log('Calling appState._saveData()');
-                        await this.dataManager.appState._saveData();
-                        console.log('Successfully saved quests via appState._saveData()');
-                    }
-                    
+                } 
+                
+                if (typeof this.dataManager.dataService._saveData === 'function') {
+                    this.dataManager.dataService._state = updatedState;
+                    await this.dataManager.dataService._saveData();
+                    console.log('Successfully saved quests via DataService._saveData()');
                     return questsToSave;
-                    
-                    // Fall back to direct localStorage
-                    if (typeof Storage !== 'undefined') {
-                        console.log('Falling back to direct localStorage save');
-                        try {
-                            const stateToSave = this.dataManager.appState.state || this.dataManager.appState;
-                            console.log('Saving to localStorage:', stateToSave);
-                            localStorage.setItem('ironMeridianState', JSON.stringify(stateToSave));
-                            console.log('Successfully saved to localStorage');
-                            return quests;
-                        } catch (localStorageError) {
-                            console.error('Error saving to localStorage:', localStorageError);
-                            throw new Error(`Failed to save to localStorage: ${localStorageError.message}`);
-                        }
-                    }
-                    
-                } catch (appStateError) {
-                    console.error('Error saving quests via appState:', appStateError);
-                    // Don't throw here, try next method
                 }
             }
             
-            // If we get here, all save methods failed
-            console.error('All save methods failed. Could not persist quests. Current state:', this.dataManager);
-            
-            // One last attempt with direct localStorage as a fallback
-            if (typeof Storage !== 'undefined') {
-                try {
-                    console.log('Last attempt: Saving to localStorage directly');
-                    const stateToSave = {
-                        quests: questsToSave,
-                        version: '1.0.0',
-                        lastUpdated: new Date().toISOString()
-                    };
-                    localStorage.setItem('ironMeridianState', JSON.stringify(stateToSave));
-                    console.log('Successfully saved minimal state to localStorage');
-                    return quests;
-                } catch (finalError) {
-                    console.error('Final fallback save failed:', finalError);
-                }
+            // Fall back to dataManager methods
+            if (typeof this.dataManager.saveData === 'function') {
+                console.log('Saving quests via dataManager.saveData()');
+                await this.dataManager.saveData({ quests: questsToSave });
+                console.log('Successfully saved quests via dataManager.saveData()');
+                return questsToSave;
             }
             
-            throw new Error('Failed to save quests: All save methods failed. Check console for details.');
+            if (typeof this.dataManager.update === 'function') {
+                console.log('Saving quests via dataManager.update()');
+                await this.dataManager.update('quests', questsToSave);
+                console.log('Successfully saved quests via dataManager.update()');
+                return questsToSave;
+            }
+            
+            // Check if appState is available and has a setState method
+            if (this.dataManager.appState && typeof this.dataManager.appState.setState === 'function') {
+                console.log('Saving quests via appState.setState()');
+                await this.dataManager.appState.setState({ quests: questsToSave });
+                console.log('Successfully saved quests via appState.setState()');
+                return questsToSave;
+            }
+            
+            // If we get here, no valid save method was found
+            throw new Error('No valid save method available in dataManager');
+            
         } catch (error) {
-            console.error('Error in _saveQuests:', error);
-            throw error;
+            console.error('Error saving quests:', error);
+            throw new Error(`Failed to save quests: ${error.message}`);
         }
     }
 }

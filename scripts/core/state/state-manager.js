@@ -1,16 +1,34 @@
-import { StorageManager } from '../storage/storage-manager.js';
+import { DataService } from '../../modules/data/services/data-service.js';
 
 /**
  * State Manager
  * Centralized state management with persistence and subscription support
+ * Uses DataService for all persistence operations
  */
 export class StateManager {
+    static #dataService = null;
+
+    /**
+     * Initialize the StateManager with a DataService instance
+     * @param {DataService} dataService - The DataService instance to use for persistence
+     */
+    static initialize(dataService) {
+        if (!(dataService instanceof DataService)) {
+            throw new Error('StateManager must be initialized with a valid DataService instance');
+        }
+        this.#dataService = dataService;
+    }
+
     /**
      * Create a new StateManager instance
      * @param {Object} initialState - The initial state object
-     * @param {string} storageKey - The key to use for localStorage persistence
+     * @param {string} storageKey - The key to use for state persistence (used as a namespace in DataService)
      */
     constructor(initialState = null, storageKey = 'appState') {
+        if (!StateManager.#dataService) {
+            throw new Error('StateManager must be initialized with DataService before use. Call StateManager.initialize(dataService)');
+        }
+
         this._storageKey = storageKey;
         this._subscribers = new Set();
         this._isInitialized = false;
@@ -19,9 +37,9 @@ export class StateManager {
         if (initialState !== null) {
             this._state = this._deepClone(initialState);
             this._isInitialized = true;
-            this._saveState(); // Save the initial state to storage
+            this._saveState(); // Save the initial state to DataService
         } else {
-            // Load state from storage
+            // Load state from DataService
             this._loadState();
         }
     }
@@ -122,7 +140,9 @@ export class StateManager {
         this._state = this._deepClone(this._getInitialState());
         
         if (clearStorage) {
-            StorageManager.remove(this._storageKey);
+            // Remove the state from DataService
+            const update = { [this._storageKey]: undefined };
+            StateManager.#dataService.updateState(update);
         } else {
             this._saveState();
         }
@@ -131,18 +151,20 @@ export class StateManager {
     }
 
     /**
-     * Load state from storage
+     * Load state from DataService
      * @private
      */
     _loadState() {
         if (this._isInitialized) return;
         
         try {
-            const savedState = StorageManager.load(this._storageKey);
+            // Get the full state from DataService
+            const fullState = StateManager.#dataService.exportState() || {};
+            const savedState = fullState[this._storageKey];
             const initialState = this._getInitialState();
             
             if (savedState) {
-                console.log('Loaded state from storage:', savedState);
+                console.log('Loaded state from DataService:', savedState);
                 
                 // Create a new state object with default values from initialState
                 const newState = { ...initialState };
@@ -171,30 +193,34 @@ export class StateManager {
                 // No saved state, use initial state
                 this._state = { ...initialState };
                 console.log('No saved state, using initial state:', this._state);
-                // Save the initial state to storage
+                // Save the initial state to DataService
                 this._saveState();
             }
             
             this._isInitialized = true;
         } catch (error) {
-            console.error('Error loading state from storage:', error);
+            console.error('Error loading state from DataService:', error);
             // Fall back to initial state
             this._state = this._getInitialState();
             this._isInitialized = true;
-            // Save the initial state to storage
+            // Save the initial state to DataService
             this._saveState();
         }
     }
 
     /**
-     * Save current state to storage
+     * Save current state to DataService
      * @private
      */
     _saveState() {
         try {
-            StorageManager.save(this._storageKey, this._state);
+            if (!this._isInitialized) return;
+            
+            // Update the state in DataService using the storageKey as a namespace
+            const update = { [this._storageKey]: this._state };
+            StateManager.#dataService.updateState(update);
         } catch (error) {
-            console.error('Error saving state to storage:', error);
+            console.error('Error saving state to DataService:', error);
         }
     }
 

@@ -33,6 +33,3 @@ export const QUEST_STATUS = {
 // For backward compatibility
 export { QuestService as LegacyQuestService } from './services/quest-service.js';
 export { QuestsManager as LegacyQuestsManager } from './quests-manager.js';
-    FAILED: 'failed',
-    ON_HOLD: 'on-hold'
-};

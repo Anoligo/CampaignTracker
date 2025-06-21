@@ -1,8 +1,3 @@
-// Use relative path so the module works on GitHub Pages when hosted in a
-// subdirectory. Absolute paths break because the site root is not the domain
-// root when served from a project page.
-import { DataService } from '../../modules/data/services/data-service.js';
-
 /**
  * DataServiceAdapter
  * 
@@ -13,16 +8,37 @@ import { DataService } from '../../modules/data/services/data-service.js';
 export class DataServiceAdapter {
     /**
      * Create a new DataServiceAdapter instance
-     * @param {DataService} [dataService] - The DataService instance to use (optional, will create one if not provided)
+     * @param {Object} [dataService] - The DataService instance to use (optional, will be set later if not provided)
      */
     constructor(dataService) {
-        this.dataService = dataService || new DataService();
-        
-        // Ensure the data service is properly initialized
-        this._ensureInitialized();
-        
         this._subscribers = new Set();
+        this._isInitialized = false;
+        
+        if (dataService) {
+            this.setDataService(dataService);
+        } else {
+            // Import DataService dynamically to avoid circular dependencies
+            import('../../modules/data/services/data-service.js')
+                .then(module => {
+                    this.setDataService(new module.DataService());
+                })
+                .catch(error => {
+                    console.error('Failed to initialize DataService:', error);
+                });
+        }
+    }
+    
+    /**
+     * Set the DataService instance
+     * @param {Object} dataService - The DataService instance to use
+     */
+    setDataService(dataService) {
+        this.dataService = dataService;
+        this._ensureInitialized();
         this._isInitialized = true;
+        
+        // Notify subscribers that the service is now ready
+        this._notifySubscribers();
     }
 
     /**
@@ -33,14 +49,56 @@ export class DataServiceAdapter {
         // This method can be overridden by subclasses to perform additional initialization
         // For example, to set up default UI state or settings
     }
+    
+    /**
+     * Notify all subscribers of state changes
+     * @private
+     */
+    _notifySubscribers() {
+        if (!this._subscribers || this._subscribers.size === 0) return;
+        
+        const state = this.state;
+        this._subscribers.forEach(callback => {
+            try {
+                callback(state);
+            } catch (error) {
+                console.error('Error in subscriber callback:', error);
+            }
+        });
+    }
 
     /**
      * Get the current state
      * @returns {Object} The current application state
+     * @throws {Error} If the DataService is not yet initialized
      */
     get state() {
+        if (!this.dataService) {
+            throw new Error('DataService is not yet initialized. Ensure you wait for initialization to complete.');
+        }
         // Return a deep clone of the state to prevent direct mutations
         return this.dataService.exportState();
+    }
+    
+    /**
+     * Wait for the DataService to be initialized
+     * @returns {Promise<void>} Resolves when the DataService is ready
+     */
+    async waitForInitialization() {
+        if (this._isInitialized && this.dataService) {
+            return Promise.resolve();
+        }
+        
+        return new Promise((resolve) => {
+            const checkInitialized = () => {
+                if (this._isInitialized && this.dataService) {
+                    resolve();
+                } else {
+                    setTimeout(checkInitialized, 10);
+                }
+            };
+            checkInitialized();
+        });
     }
 
     /**

@@ -27,6 +27,13 @@ export class PlayersManager {
         this.initialized = false;
         this._isRendering = false;
         
+        // Expose service methods directly on the manager for easier access
+        this.getAllPlayers = this.playerService.getAllPlayers.bind(this.playerService);
+        this.getPlayerById = this.playerService.getPlayerById.bind(this.playerService);
+        this.createPlayer = this.playerService.createPlayer.bind(this.playerService);
+        this.updatePlayer = this.playerService.updatePlayer.bind(this.playerService);
+        this.deletePlayer = this.playerService.deletePlayer.bind(this.playerService);
+        
         if (!isTest) {
             this.initialize();
         }
@@ -46,6 +53,9 @@ export class PlayersManager {
         
         console.log('[PlayersManager] Initializing...');
         
+        // Set flag early to prevent re-initialization
+        this.initialized = true;
+        
         try {
             // Initialize the UI if we're in a browser environment
             if (typeof document !== 'undefined') {
@@ -60,6 +70,7 @@ export class PlayersManager {
                     console.log('[PlayersManager] UI and forms initialized');
                 } catch (error) {
                     console.error('[PlayersManager] Error initializing UI:', error);
+                    this.initialized = false; // Reset flag on error
                     throw error;
                 }
             }
@@ -67,7 +78,6 @@ export class PlayersManager {
             // Set up section observer for dynamic loading
             this.setupSectionObserver();
             
-            this.initialized = true;
             console.log('[PlayersManager] Initialization complete');
             return true;
         } catch (error) {

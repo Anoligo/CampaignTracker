@@ -13,7 +13,7 @@ export class QuestsManager {
      * @param {boolean} isTest - Whether this is a test instance (prevents sample data creation)
      */
     constructor(dataManager, isTest = false) {
-        console.log('[QuestsManager] Initializing with dataManager:', dataManager ? 'valid' : 'invalid');
+        console.log('[QuestsManager] Creating new instance with dataManager:', dataManager ? 'valid' : 'invalid');
         
         if (!dataManager) {
             throw new Error('Data manager is required');
@@ -24,12 +24,14 @@ export class QuestsManager {
         this.questUI = null;
         this.initialized = false;
         this._isRendering = false;
+        this._initializationPromise = null;
         
         if (!isTest) {
-            this.initialize();
+            // Don't await here to avoid blocking the constructor
+            this.initialize().catch(error => {
+                console.error('[QuestsManager] Error during initialization:', error);
+            });
         }
-        
-        console.log('[QuestsManager] Initialization complete');
     }
     
     /**
@@ -37,48 +39,53 @@ export class QuestsManager {
      * @returns {Promise<boolean>} True if initialization was successful
      */
     async initialize() {
+        // If we're already initializing, return the existing promise
+        if (this._initializationPromise) {
+            return this._initializationPromise;
+        }
+
+        // If already initialized, return immediately
         if (this.initialized) {
             console.log('[QuestsManager] Already initialized');
-            return true;
+            return Promise.resolve(true);
         }
+
+        console.log('[QuestsManager] Starting initialization...');
         
-        console.log('[QuestsManager] Initializing...');
-        
-        try {
-            // Initialize the UI if we're in a browser environment
-            if (typeof document !== 'undefined') {
-                try {
-                    // Initialize the QuestUI
+        // Create a promise that will resolve when initialization is complete
+        this._initializationPromise = (async () => {
+            try {
+                // Initialize the UI if we're in a browser environment
+                if (typeof document !== 'undefined') {
                     this.questUI = new QuestUI(this);
-                    
-                    // Set up event listeners
                     this.setupEventListeners();
-                    
-                    console.log('[QuestsManager] UI initialized');
-                } catch (error) {
-                    console.error('[QuestsManager] Error initializing UI:', error);
-                    throw error;
                 }
+                
+                // Set up the mutation observer to detect when the quests section becomes visible
+                this.setupSectionObserver();
+                
+                // Create sample quests if none exist
+                const quests = this.questService.getAllQuests();
+                if (quests.length === 0 && !this._sampleQuestsCreated) {
+                    console.log('[QuestsManager] No quests found, creating sample quests');
+                    await this.createSampleQuests();
+                    this._sampleQuestsCreated = true;
+                }
+                
+                this.initialized = true;
+                console.log('[QuestsManager] Initialization complete');
+                return true;
+            } catch (error) {
+                console.error('[QuestsManager] Error during initialization:', error);
+                this.initialized = false;
+                throw error;
+            } finally {
+                // Clear the initialization promise when done
+                this._initializationPromise = null;
             }
-            
-            // Set up section observer for dynamic loading
-            this.setupSectionObserver();
-            
-            // Create sample quests if none exist
-            if (this.questService.getAllQuests().length === 0 && !this._sampleQuestsCreated) {
-                console.log('[QuestsManager] No quests found, creating sample quests');
-                await this.createSampleQuests();
-                this._sampleQuestsCreated = true;
-            }
-            
-            this.initialized = true;
-            console.log('[QuestsManager] Initialization complete');
-            return true;
-        } catch (error) {
-            console.error('[QuestsManager] Error during initialization:', error);
-            this.initialized = false;
-            throw error;
-        }
+        })();
+
+        return this._initializationPromise;
     }
     
     /**
@@ -112,24 +119,74 @@ export class QuestsManager {
     }
     
     /**
+     * Debounce timer for section visibility checks
+     * @private
+     */
+    _debounceTimer = null;
+
+    /**
+     * Last known visibility state to prevent redundant checks
+     * @private
+     */
+    _lastVisibilityState = false;
+
+    /**
      * Check if the quests section is visible and initialize/cleanup accordingly
      * @private
      */
-    checkSectionVisibility() {
-        const section = document.getElementById('quests');
-        if (!section) return;
-        
-        const isVisible = section.classList.contains('active');
-        
-        if (isVisible && !this.initialized) {
-            console.log('[QuestsManager] Quests section became visible, initializing...');
-            this.initialize().catch(error => {
-                console.error('[QuestsManager] Error initializing after section became visible:', error);
-            });
-        } else if (!isVisible && this.initialized) {
-            console.log('[QuestsManager] Quests section hidden, cleaning up...');
-            this.cleanup();
+    async checkSectionVisibility() {
+        // Clear any pending debounce
+        if (this._debounceTimer) {
+            clearTimeout(this._debounceTimer);
+            this._debounceTimer = null;
         }
+
+        // Use a small debounce to handle rapid class changes
+        this._debounceTimer = setTimeout(async () => {
+            try {
+                const section = document.getElementById('quests');
+                if (!section) {
+                    console.warn('[QuestsManager] Quests section not found');
+                    return;
+                }
+                
+                // More robust visibility check
+                const isVisible = section.classList.contains('active') && 
+                                 section.offsetParent !== null && 
+                                 getComputedStyle(section).display !== 'none';
+                
+                // Skip if visibility hasn't actually changed
+                if (isVisible === this._lastVisibilityState) {
+                    return;
+                }
+                
+                this._lastVisibilityState = isVisible;
+                
+                if (isVisible) {
+                    console.log('[QuestsManager] Quests section became visible, initializing...');
+                    try {
+                        // Only initialize if not already initialized
+                        if (!this.initialized) {
+                            await this.initialize();
+                            console.log('[QuestsManager] Initialization completed after section became visible');
+                        }
+                    } catch (error) {
+                        console.error('[QuestsManager] Error initializing after section became visible:', error);
+                        // Reset initialization state on error to allow retry
+                        this.initialized = false;
+                        this._initializationPromise = null;
+                    }
+                } else {
+                    console.log('[QuestsManager] Quests section hidden, cleaning up...');
+                    this.cleanup();
+                    console.log('[QuestsManager] Cleanup completed after section was hidden');
+                }
+            } catch (error) {
+                console.error('[QuestsManager] Error in checkSectionVisibility:', error);
+            } finally {
+                this._debounceTimer = null;
+            }
+        }, 100); // 100ms debounce
     }
     
     /**
@@ -149,28 +206,73 @@ export class QuestsManager {
     cleanup() {
         console.log('[QuestsManager] Cleaning up...');
         
+        // Clear any pending debounce timer
+        if (this._debounceTimer) {
+            clearTimeout(this._debounceTimer);
+            this._debounceTimer = null;
+            console.log('[QuestsManager] Cleared pending debounce timer');
+        }
+        
+        // Reset visibility state
+        this._lastVisibilityState = false;
+        
+        // Cancel any pending initialization
+        if (this._initializationPromise) {
+            console.log('[QuestsManager] Cancelling pending initialization');
+            this._initializationPromise = null;
+        }
+        
+        // Clean up UI components
         if (this.questUI) {
-            // If QuestUI has a cleanup method, call it
-            if (typeof this.questUI.cleanup === 'function') {
-                this.questUI.cleanup();
+            console.log('[QuestsManager] Cleaning up QuestUI');
+            try {
+                if (typeof this.questUI.cleanup === 'function') {
+                    this.questUI.cleanup();
+                }
+                // Remove any DOM elements created by the UI
+                const uiContainer = document.getElementById('quests-container');
+                if (uiContainer) {
+                    uiContainer.innerHTML = '';
+                }
+            } catch (error) {
+                console.error('[QuestsManager] Error during QuestUI cleanup:', error);
+            } finally {
+                this.questUI = null;
             }
-            this.questUI = null;
         }
         
+        // Clean up observer
         if (this.observer) {
-            this.observer.disconnect();
-            this.observer = null;
+            console.log('[QuestsManager] Disconnecting observer');
+            try {
+                this.observer.disconnect();
+            } catch (error) {
+                console.error('[QuestsManager] Error disconnecting observer:', error);
+            } finally {
+                this.observer = null;
+            }
+            
+        // Reset initialization state
+        this.initialized = false;
         }
         
+        // Reset state
         this.initialized = false;
         this._isRendering = false;
+        
+        // Clear any pending timeouts/intervals if they exist
+        if (this._renderDebounceTimer) {
+            clearTimeout(this._renderDebounceTimer);
+            this._renderDebounceTimer = null;
+        }
+        
         console.log('[QuestsManager] Cleanup complete');
     }
     
     /**
      * Render the quests manager
      */
-    render() {
+    async render() {
         console.groupCollapsed('[QuestsManager] Render called');
         
         // Prevent re-rendering if we're already in the process of rendering
@@ -180,14 +282,18 @@ export class QuestsManager {
             return;
         }
         
+        // Don't render if not initialized or section is not visible
+        const section = document.getElementById('quests');
+        if (!this.initialized || !section || !section.classList.contains('active')) {
+            console.log('[QuestsManager] Not rendering: section not visible or not initialized');
+            console.groupEnd();
+            return;
+        }
+        
         this._isRendering = true;
         console.log('[QuestsManager] Starting render');
         
         try {
-            if (!this.initialized) {
-                this.initialize();
-                return; // initialize will call render again when done
-            }
             
             // Only render if the quests section is visible
             const section = document.getElementById('quests');

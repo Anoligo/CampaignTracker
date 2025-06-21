@@ -4,7 +4,8 @@
  */
 
 import { Player } from '../models/player-model.js';
-import { PlayerClass, PlayerRace } from '../enums/player-enums.js';
+import { PlayerClass } from '../enums/player-enums.js';
+import { PlayerRace } from '../enums/race-enums.js';
 
 export class PlayerService {
     /**
@@ -110,7 +111,6 @@ export class PlayerService {
             if (data.speed !== undefined) player.speed = data.speed;
             if (data.notes !== undefined) player.notes = data.notes;
             if (data.inventory) player.inventory = [...data.inventory];
-            if (data.conditions) player.conditions = [...data.conditions];
             if (data.activeQuests) player.activeQuests = [...data.activeQuests];
             if (data.completedQuests) player.completedQuests = [...data.completedQuests];
             
@@ -251,34 +251,7 @@ export class PlayerService {
         return this.updatePlayer(playerId, { inventory: updatedPlayer.inventory });
     }
     
-    /**
-     * Add a condition to a player
-     * @param {string} playerId - Player ID
-     * @param {string} condition - Condition to add
-     * @returns {Object|undefined} Updated player or undefined if not found
-     */
-    addCondition(playerId, condition) {
-        const player = this.getPlayerById(playerId);
-        if (!player) return undefined;
-        
-        const conditions = [...new Set([...(player.conditions || []), condition])];
-        return this.updatePlayer(playerId, { conditions });
-    }
-    
-    /**
-     * Remove a condition from a player
-     * @param {string} playerId - Player ID
-     * @param {string} condition - Condition to remove
-     * @returns {Object|undefined} Updated player or undefined if not found
-     */
-    removeCondition(playerId, condition) {
-        const player = this.getPlayerById(playerId);
-        if (!player || !player.conditions) return player;
-        
-        const conditions = player.conditions.filter(c => c !== condition);
-        return this.updatePlayer(playerId, { conditions });
-    }
-    
+
     /**
      * Search players by name or notes
      * @param {string} query - Search query

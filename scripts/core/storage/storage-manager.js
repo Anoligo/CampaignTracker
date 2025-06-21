@@ -1,95 +1,128 @@
+import { DataService } from '../../modules/data/services/data-service.js';
+
 /**
  * Storage Manager
- * Handles all localStorage operations with error handling and type safety
+ * Delegates all storage operations to DataService for centralized state management.
+ * Maintains backward compatibility with existing code while ensuring all state
+ * is managed through the DataService.
  */
-
 export class StorageManager {
+    static #dataService = null;
+
     /**
-     * Save data to localStorage
+     * Initialize the StorageManager with a DataService instance
+     * @param {DataService} dataService - The DataService instance to use for persistence
+     */
+    static initialize(dataService) {
+        if (!(dataService instanceof DataService)) {
+            throw new Error('StorageManager must be initialized with a valid DataService instance');
+        }
+        this.#dataService = dataService;
+    }
+
+    /**
+     * Save data to the data store
      * @param {string} key - The key under which to store the data
-     * @param {any} data - The data to store (will be stringified)
+     * @param {any} data - The data to store
      * @returns {boolean} - True if successful, false otherwise
      */
     static save(key, data) {
         try {
+            if (!this.#dataService) {
+                console.warn('StorageManager not initialized with DataService');
+                return false;
+            }
+
             if (typeof key !== 'string' || key.trim() === '') {
                 throw new Error('Invalid key provided');
             }
             
-            const serialized = JSON.stringify(data);
-            localStorage.setItem(key, serialized);
+            // Update the state via DataService
+            const update = { [key]: data };
+            this.#dataService.updateState(update);
             return true;
         } catch (error) {
-            console.error(`Error saving to localStorage (key: ${key}):`, error);
+            console.error(`Error saving data (key: ${key}):`, error);
             return false;
         }
     }
 
     /**
-     * Load data from localStorage
+     * Load data from the data store
      * @param {string} key - The key of the data to load
-     * @returns {any|null} - The parsed data or null if not found/invalid
+     * @returns {any|null} - The data or null if not found/invalid
      */
     static load(key) {
         try {
-            // Check if localStorage is available
-            if (typeof localStorage === 'undefined' || !localStorage) {
-                console.warn('localStorage is not available in this environment');
+            if (!this.#dataService) {
+                console.warn('StorageManager not initialized with DataService');
                 return null;
             }
 
-            // Validate key
             if (typeof key !== 'string' || key.trim() === '') {
                 console.error('Invalid key provided to StorageManager.load:', key);
                 return null;
             }
 
-            // Get and validate data
-            const data = localStorage.getItem(key);
-            if (data === null || data === undefined) {
-                console.log(`No data found in localStorage for key: ${key}`);
+            // Get the current state from DataService
+            const state = this.#dataService.exportState() || {};
+            
+            if (!(key in state)) {
+                console.log(`No data found for key: ${key}`);
                 return null;
             }
 
-            if (typeof data !== 'string') {
-                console.error(`Unexpected data type in localStorage for key ${key}:`, typeof data);
-                return null;
-            }
-
-            const trimmedData = data.trim();
-            if (trimmedData === '') {
-                console.log(`Empty data found in localStorage for key: ${key}`);
-                return null;
-            }
-
-            // Parse and return the data
-            return JSON.parse(trimmedData);
+            return state[key];
         } catch (error) {
-            console.error(`Error loading from localStorage (key: ${key}):`, error);
+            console.error(`Error loading data (key: ${key}):`, error);
             return null;
         }
     }
 
     /**
-     * Remove an item from localStorage
+     * Remove an item from the data store
      * @param {string} key - The key of the item to remove
+     * @returns {boolean} - True if successful, false otherwise
      */
     static remove(key) {
         try {
-            localStorage.removeItem(key);
+            if (!this.#dataService) {
+                console.warn('StorageManager not initialized with DataService');
+                return false;
+            }
+
+            if (typeof key !== 'string' || key.trim() === '') {
+                console.error('Invalid key provided to StorageManager.remove:', key);
+                return false;
+            }
+
+            // Update the state via DataService, setting the key to undefined will remove it
+            const update = { [key]: undefined };
+            this.#dataService.updateState(update);
+            return true;
         } catch (error) {
-            console.error(`Error removing item from localStorage (key: ${key}):`, error);
+            console.error(`Error removing data (key: ${key}):`, error);
+            return false;
         }
     }
 
     /**
-     * Clear all application data from localStorage
+     * Clear all application data
+     * @returns {boolean} - True if successful, false otherwise
      */
     static clearAll() {
         try {
-            localStorage.clear();
+            if (!this.#dataService) {
+                console.warn('StorageManager not initialized with DataService');
+                return false;
+            }
+
+            // Reset the entire state to an empty object
+            this.#dataService.clearData();
+            return true;
         } catch (error) {
-            console.error('Error clearing localStorage:', error);
+            console.error('Error clearing data store:', error);
+            return false;
         }
     }
 }

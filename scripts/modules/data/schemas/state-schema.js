@@ -437,34 +437,6 @@ export const STATE_SCHEMA = {
         }
     },
 
-    // Conditions/Effects
-    conditions: {
-        type: 'array',
-        items: {
-            type: 'object',
-            required: ['id', 'name', 'effect', 'type'],
-            properties: {
-                id: { type: 'string' },
-                name: { type: 'string' },
-                effect: { type: 'string' },
-                type: {
-                    type: 'string',
-                    enum: ['condition', 'disease', 'curse', 'poison', 'other']
-                },
-                duration: { type: 'string' }, // e.g., "24 hours", "until dispelled"
-                isMagical: { type: 'boolean', default: false },
-                canStack: { type: 'boolean', default: false },
-                notes: { type: 'string' },
-                affectedCharacterIds: { 
-                    type: 'array',
-                    items: { type: 'string' } // Array of character IDs
-                },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' }
-            }
-        }
-    },
-
     // Session Notes
     sessionNotes: {
         type: 'array',
@@ -548,7 +520,7 @@ export const INITIAL_STATE = {
     loot: [],
     factions: [],
     npcs: [],
-    conditions: [],
+
     sessionNotes: [],
     guildLogs: {
         activities: [],

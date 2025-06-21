@@ -66,6 +66,21 @@ export class CharacterUI extends BaseUI {
     }
     
     /**
+     * Clean up event listeners and resources
+     */
+    cleanup() {
+        console.log('[CharacterUI] Cleaning up...');
+        
+        // Remove any custom event listeners here
+        // Example: document.removeEventListener('customEvent', this.handler);
+        
+        // Clean up any DOM elements or references
+        // This will be called when the characters section is hidden
+        
+        console.log('[CharacterUI] Cleanup complete');
+    }
+    
+    /**
      * Create a list item for a character
      * @param {Object} character - Character to create list item for
      * @returns {HTMLElement} The created list item

@@ -40,11 +40,52 @@ export class QuestService {
      */
     _saveState() {
         try {
-            this.dataManager.saveData();
-            return true;
+            console.log('[QuestService] Attempting to save quest data...');
+            
+            // Get the current state
+            const currentState = this.dataManager.appState;
+            
+            // Update the quests in the state if needed
+            if (!Array.isArray(currentState.quests)) {
+                currentState.quests = [];
+            }
+            
+            // Trigger a save operation - DataService will handle persistence and notifications
+            const saveResult = this.dataManager.saveData();
+            
+            if (saveResult) {
+                console.log('[QuestService] Successfully saved quest data');
+            } else {
+                console.warn('[QuestService] Save operation may not have completed successfully');
+            }
+            
+            return saveResult;
         } catch (error) {
-            console.error('Error saving quest data:', error);
-            return false;
+            console.error('[QuestService] Error saving quest data:', error);
+            
+            // Log additional error details if available
+            if (error instanceof Error) {
+                console.error('[QuestService] Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+            }
+            
+            // Try to log the current state that failed to save
+            try {
+                const state = this.dataManager.appState;
+                console.error('[QuestService] State at time of error:', JSON.stringify({
+                    quests: state.quests,
+                    hasQuests: Array.isArray(state.quests),
+                    questsCount: state.quests?.length
+                }, null, 2));
+            } catch (e) {
+                console.error('[QuestService] Could not log state at time of error:', e);
+            }
+            
+            // Re-throw the error to be handled by the caller
+            throw error;
         }
     }
     

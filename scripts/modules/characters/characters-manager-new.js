@@ -4,7 +4,7 @@
  */
 
 import { CharacterService } from './services/character-service-new.js';
-import { CharacterUI } from './ui/character-ui.js';
+import { CharacterUI } from './ui/character-ui-new.js';
 
 export class CharactersManager {
     /**

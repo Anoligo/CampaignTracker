@@ -1,5 +1,12 @@
-// Use uuid from global window object
-const { v4: uuidv4 } = window.uuid;
+// Local implementation of UUID v4
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 import { StateValidator } from '../validators/state-validator.js';
 import { INITIAL_STATE } from '../schemas/state-schema.js';
 
@@ -93,7 +100,6 @@ export class DataService {
                                 inventory: Array.isArray(player.inventory) ? [...player.inventory] : [],
                                 activeQuests: Array.isArray(player.activeQuests) ? [...player.activeQuests] : [],
                                 completedQuests: Array.isArray(player.completedQuests) ? [...player.completedQuests] : [],
-                                conditions: Array.isArray(player.conditions) ? [...player.conditions] : [],
                                 notes: typeof player.notes === 'string' ? player.notes : '',
                                 createdAt: player.createdAt || new Date().toISOString(),
                                 updatedAt: player.updatedAt || new Date().toISOString()
@@ -232,7 +238,6 @@ export class DataService {
                 inventory: Array.isArray(player.inventory) ? player.inventory : [],
                 activeQuests: Array.isArray(player.activeQuests) ? player.activeQuests : [],
                 completedQuests: Array.isArray(player.completedQuests) ? player.completedQuests : [],
-                conditions: Array.isArray(player.conditions) ? player.conditions : [],
                 notes: player.notes || '',
                 createdAt: player.createdAt || new Date().toISOString(),
                 updatedAt: player.updatedAt || new Date().toISOString()
@@ -281,7 +286,7 @@ export class DataService {
         }
         
         // Ensure other top-level arrays exist and are properly initialized
-        const topLevelArrays = ['locations', 'loot', 'factions', 'npcs', 'conditions', 'sessionNotes'];
+        const topLevelArrays = ['locations', 'loot', 'factions', 'npcs', 'sessionNotes'];
         topLevelArrays.forEach(field => {
             if (!Array.isArray(fixedState[field])) {
                 fixedState[field] = [];
@@ -346,7 +351,6 @@ export class DataService {
                     inventory: [],
                     activeQuests: [],
                     completedQuests: [],
-                    conditions: [],
                     notes: '',
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
@@ -368,7 +372,6 @@ export class DataService {
                 inventory: Array.isArray(player.inventory) ? [...player.inventory] : [],
                 activeQuests: Array.isArray(player.activeQuests) ? [...player.activeQuests] : [],
                 completedQuests: Array.isArray(player.completedQuests) ? [...player.completedQuests] : [],
-                conditions: Array.isArray(player.conditions) ? [...player.conditions] : [],
                 notes: typeof player.notes === 'string' ? player.notes : '',
                 createdAt: player.createdAt || new Date().toISOString(),
                 updatedAt: player.updatedAt || new Date().toISOString()
@@ -497,63 +500,156 @@ export class DataService {
      * @returns {boolean} True if save was successful, false otherwise
      */
     _saveData() {
+        console.groupCollapsed('[DataService] Starting save operation');
+        
         try {
             if (!this._state) {
-                console.error('Cannot save: state is null or undefined');
+                const error = new Error('Cannot save: state is null or undefined');
+                console.error(error.message);
+                console.groupEnd();
                 return false;
             }
             
             // Create a deep copy of the state to avoid reference issues
-            const stateToSave = JSON.parse(JSON.stringify(this._state));
+            let stateToSave;
+            try {
+                stateToSave = JSON.parse(JSON.stringify(this._state));
+                console.log('[DataService] Created deep copy of state for saving');
+            } catch (copyError) {
+                console.error('[DataService] Error creating deep copy of state:', copyError);
+                console.groupEnd();
+                return false;
+            }
             
             // Validate the state before saving
+            console.log('[DataService] Validating state before saving...');
             const errors = StateValidator.validateState(stateToSave);
+            
             if (errors.length > 0) {
-                console.warn('Validation errors in state before saving:', errors);
-                console.warn('Current state being saved:', JSON.stringify(stateToSave, null, 2));
+                console.warn(`[DataService] Found ${errors.length} validation errors before saving:`);
+                errors.forEach((error, index) => {
+                    console.warn(`[${index + 1}] ${error.path}: ${error.message}`);
+                });
+                
+                // Log problematic state parts for debugging
+                console.log('[DataService] Problematic state parts:', JSON.stringify({
+                    quests: {
+                        count: stateToSave.quests?.length,
+                        sample: stateToSave.quests?.[0],
+                        hasInvalid: stateToSave.quests?.some(q => !q || !q.id || !q.title)
+                    },
+                    players: {
+                        count: stateToSave.players?.length,
+                        sample: stateToSave.players?.[0]
+                    }
+                }, null, 2));
                 
                 // Try to fix the state before saving
-                console.log('Attempting to fix invalid state...');
-                const fixedState = this._fixInvalidState(JSON.parse(JSON.stringify(stateToSave)));
-                const fixedErrors = StateValidator.validateState(fixedState);
-                
-                if (fixedErrors.length > 0) {
-                    console.error('Could not fix all validation errors:', fixedErrors);
-                    console.error('Fixed state that still has errors:', JSON.stringify(fixedState, null, 2));
+                console.log('[DataService] Attempting to fix invalid state...');
+                try {
+                    const fixedState = this._fixInvalidState(JSON.parse(JSON.stringify(stateToSave)));
+                    const fixedErrors = StateValidator.validateState(fixedState);
+                    
+                    if (fixedErrors.length > 0) {
+                        console.error(`[DataService] Could not fix all validation errors (${fixedErrors.length} remaining):`);
+                        fixedErrors.forEach((error, index) => {
+                            console.error(`[${index + 1}] ${error.path}: ${error.message}`);
+                        });
+                        
+                        // Log the fixed state that still has errors for debugging
+                        console.error('[DataService] Fixed state that still has errors:', 
+                            JSON.stringify(fixedState, (key, value) => {
+                                // Handle circular references
+                                if (typeof value === 'object' && value !== null) {
+                                    if (key === 'parent' || key === 'children') return '[Circular]';
+                                }
+                                return value;
+                            }, 2));
+                        
+                        console.groupEnd();
+                        return false;
+                    }
+                    
+                    console.log('[DataService] Successfully fixed state, saving fixed state');
+                    // Use the fixed state for saving
+                    this._state = fixedState;
+                    stateToSave = JSON.parse(JSON.stringify(fixedState)); // Create a fresh copy
+                } catch (fixError) {
+                    console.error('[DataService] Error during state fix attempt:', fixError);
+                    console.groupEnd();
                     return false;
                 }
-                
-                console.log('Successfully fixed state, saving fixed state');
-                // Use the fixed state
-                this._state = fixedState;
+            } else {
+                console.log('[DataService] State validation passed');
             }
             
             // Ensure we have a valid state to save
             if (!stateToSave) {
-                console.error('No valid state to save');
+                console.error('[DataService] No valid state to save after validation');
+                console.groupEnd();
                 return false;
             }
             
-            console.log('Saving state to localStorage:', stateToSave);
-            localStorage.setItem('ironMeridianState', JSON.stringify(stateToSave));
-            
-            // Notify observers of the state change
-            this._notifyObservers();
-            
-            console.log('State saved successfully');
-            return true;
+            // Try to save to localStorage
+            try {
+                console.log('[DataService] Attempting to save to localStorage...');
+                localStorage.setItem('ironMeridianState', JSON.stringify(stateToSave));
+                console.log('[DataService] Successfully saved state to localStorage');
+                
+                // Notify observers of the state change
+                console.log('[DataService] Notifying observers of state change...');
+                this._notifyObservers();
+                
+                console.log('[DataService] State saved and observers notified successfully');
+                console.groupEnd();
+                return true;
+                
+            } catch (saveError) {
+                console.error('[DataService] Error saving to localStorage:', saveError);
+                
+                // If we get a QuotaExceededError, try to clean up and save a minimal state
+                if (saveError.name === 'QuotaExceededError') {
+                    console.warn('[DataService] Storage quota exceeded, attempting to save minimal state...');
+                    try {
+                        const minimalState = { ...INITIAL_STATE };
+                        localStorage.setItem('ironMeridianState', JSON.stringify(minimalState));
+                        console.warn('[DataService] Saved minimal valid state due to quota exceeded');
+                        console.groupEnd();
+                        return false;
+                    } catch (minimalSaveError) {
+                        console.error('[DataService] Could not save minimal state:', minimalSaveError);
+                        console.groupEnd();
+                        return false;
+                    }
+                }
+                
+                console.groupEnd();
+                return false;
+            }
             
         } catch (error) {
-            console.error('Error saving data to localStorage:', error);
+            console.error('[DataService] Unexpected error during save operation:', error);
             
-            // Attempt to save a minimal valid state if possible
+            // Log additional error details if available
+            if (error instanceof Error) {
+                console.error('[DataService] Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack?.split('\n').slice(0, 5).join('\n') + '...' // Just first few lines of stack
+                });
+            }
+            
+            // As a last resort, try to save a minimal valid state
             try {
+                console.warn('[DataService] Attempting to save minimal valid state...');
                 const minimalState = { ...INITIAL_STATE };
                 localStorage.setItem('ironMeridianState', JSON.stringify(minimalState));
-                console.warn('Saved minimal valid state due to error');
+                console.warn('[DataService] Saved minimal valid state after error');
+                console.groupEnd();
                 return false;
             } catch (fallbackError) {
-                console.error('Could not save minimal state:', fallbackError);
+                console.error('[DataService] Could not save minimal state:', fallbackError);
+                console.groupEnd();
                 return false;
             }
         }
@@ -838,7 +934,7 @@ export class DataService {
         return this.getAll('players', filter).map(player => ({
             ...player,
             inventory: this.getRelatedEntities('loot', player.inventory || []),
-            conditions: this.getRelatedEntities('conditions', player.conditions || []),
+            conditions: [],
             relatedQuests: this.getRelatedEntities('quests', player.relatedQuests || [])
         }));
     }

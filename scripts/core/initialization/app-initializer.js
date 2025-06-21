@@ -1,6 +1,7 @@
 import { appState } from '../state/app-state.js';
 import NavigationManager from '../navigation/navigation-manager.js';
 import { showToast } from '../../components/ui-components.js';
+import { DataServiceInitializer } from './data-service-initializer.js';
 
 /**
  * Application Initializer
@@ -12,6 +13,11 @@ export class AppInitializer {
      */
     static async initialize() {
         try {
+            console.log('Starting application initialization...');
+            
+            // First, initialize DataService and related services
+            await DataServiceInitializer.initialize();
+            
             // Initialize state (this will also load any saved state)
             await this._initializeState();
             
@@ -38,19 +44,17 @@ export class AppInitializer {
      */
     static async _initializeState() {
         try {
-            // Wait for the state to be fully loaded
-            await new Promise((resolve) => {
-                const checkState = () => {
-                    if (appState._isInitialized) {
-                        resolve();
-                    } else {
-                        setTimeout(checkState, 10);
-                    }
-                };
-                checkState();
-            });
+            console.log('Initializing application state...');
             
-            console.log('State initialized', appState.state);
+            // Wait for the state to be fully loaded and DataService to be ready
+            await appState.waitForInitialization();
+            
+            // Ensure we have a valid state
+            if (!appState.state) {
+                throw new Error('Failed to initialize application state: State is null or undefined');
+            }
+            
+            console.log('State initialized successfully');
         } catch (error) {
             console.error('Error initializing state:', error);
             throw error;
@@ -113,7 +117,6 @@ export class AppInitializer {
         this._registerQuestsSection(navManager);
         this._registerCharactersSection(navManager);
         this._registerPlayersSection(navManager);
-        this._registerConditionsSection(navManager);
         this._registerFactionsSection(navManager);
         this._registerLootSection(navManager);
 
@@ -163,8 +166,14 @@ export class AppInitializer {
 
     static async _ensureQuestManager(module) {
         if (!window.app.questsManager) {
-            const dataManager = { appState };
-            window.app.questsManager = new module.QuestsManager(dataManager);
+            // Use the dataService from appState which is an instance of DataService
+            const dataService = appState.dataService;
+            if (!dataService) {
+                console.error('DataService not available in appState');
+                return;
+            }
+            window.app.questsManager = new module.QuestsManager(dataService);
+            console.log('QuestsManager initialized with DataService');
         }
     }
 
@@ -221,17 +230,6 @@ export class AppInitializer {
             })
             .catch(error => console.error("Failed to load players module:", error));
     }
-
-    static _registerConditionsSection(navManager) {
-        import('../../modules/conditions/index.js')
-            .then(module => {
-                if (module.initializeConditionsSection) {
-                    navManager.registerSectionInitializer('conditions', module.initializeConditionsSection);
-                }
-            })
-            .catch(error => console.error('Failed to load conditions module:', error));
-    }
-
 
     static _registerFactionsSection(navManager) {
         import('../../modules/factions/index.js')

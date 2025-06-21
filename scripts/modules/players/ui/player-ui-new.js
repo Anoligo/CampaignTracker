@@ -16,16 +16,7 @@ export class PlayerUI extends BaseUI {
      * @param {Object} dataManager - Instance of DataManager for accessing related entities
      */
     constructor(playerManager) {
-        // Add debug logging
-        console.log('PlayerUI constructor called');
-        console.log('PlayerManager:', playerManager);
-        console.log('Players available:', playerManager.service.getAllPlayers());
-        
-        // Check if DOM elements exist before initializing
-        console.log('DOM check - playerList element:', document.getElementById('playerList'));
-        console.log('DOM check - playerDetails element:', document.getElementById('playerDetails'));
-        console.log('DOM check - players container:', document.getElementById('players'));
-        
+        // Call super() first before accessing 'this'
         super({
             containerId: 'players',
             listId: 'playerList',
@@ -34,31 +25,66 @@ export class PlayerUI extends BaseUI {
             addButtonId: 'addPlayerBtn',
             entityName: 'player',
             getAll: () => {
-                const players = playerManager.service.getAllPlayers();
+                const players = playerManager.getAllPlayers();
                 console.log('getAll called, returning players:', players);
                 return players;
             },
-            getById: (id) => playerManager.service.getPlayerById(id),
-            add: (player) => playerManager.service.createPlayer(player),
-            update: (id, updates) => playerManager.service.updatePlayer(id, updates),
-            delete: (id) => playerManager.service.deletePlayer(id)
+            getById: (id) => playerManager.getPlayerById(id),
+            add: (player) => playerManager.createPlayer(player),
+            update: (id, updates) => playerManager.updatePlayer(id, updates),
+            delete: (id) => playerManager.deletePlayer(id)
         });
         
+        // Now it's safe to use 'this'
+        this._isInitializing = true;
+        
+        // Store references
         this.playerManager = playerManager;
-        this.service = playerManager.service;
+        this.service = playerManager.playerService;
         this.dataManager = playerManager.dataManager;
         
-        // Double check if the list element was found after initialization
-        console.log('After init - this.listElement:', this.listElement);
+        // Add debug logging
+        console.log('PlayerUI constructor called');
+        console.log('PlayerManager:', playerManager);
+        
+        // Check if playerManager has the required methods
+        if (typeof playerManager.getAllPlayers === 'function') {
+            try {
+                const players = playerManager.getAllPlayers();
+                console.log('Players available:', players);
+            } catch (error) {
+                console.warn('Error getting players:', error);
+            }
+        } else {
+            console.warn('PlayerManager does not have getAllPlayers method');
+        }
+        
+        // Check if DOM elements exist before initializing
+        console.log('DOM check - playerList element:', document.getElementById('playerList'));
+        console.log('DOM check - playerDetails element:', document.getElementById('playerDetails'));
+        console.log('DOM check - players container:', document.getElementById('players'));
         
         // Bind additional methods
         this.formatClassName = this.formatClassName.bind(this);
         
-        // Try to directly initialize the list
-        setTimeout(() => {
-            console.log('Delayed check - trying to render list directly');
-            this.renderList();
-        }, 500);
+        // Double check if the list element was found after initialization
+        console.log('After init - this.listElement:', this.listElement);
+        
+        // Try to directly initialize the list after a short delay
+        // to ensure the DOM is ready and prevent infinite loops
+        this._isInitializing = false;
+        
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                if (!this._isInitializing) {
+                    console.log('Delayed check - trying to render list directly');
+                    this.renderList().catch(error => {
+                        console.error('Error rendering player list:', error);
+                    });
+                }
+            }, 100);
+        });
     }
     
     /**
@@ -420,17 +446,21 @@ export class PlayerUI extends BaseUI {
      * Override the renderList method from BaseUI to add debugging
      * @param {Array} entities - Entities to render (optional)
      */
+    /**
+     * Render the list of players
+     * @param {Array} [entities] - Optional array of players to render
+     * @returns {Promise<void>}
+     */
     renderList(entities) {
-        try {
-            console.log('PlayerUI.renderList called with entities:', entities);
-            
-            // Ensure we have the list element
-            if (!this.listElement) {
-                console.error('List element not found!');
-                this.listElement = document.getElementById('playerList');
+        return new Promise((resolve, reject) => {
+            try {
+                console.log('PlayerUI.renderList called with entities:', entities);
+                
+                // Ensure we have the list element
                 if (!this.listElement) {
-                    console.error('Could not find player list element!');
-                    return;
+                    console.error('List element not found!');
+                    this.listElement = document.getElementById('playerList');
+                    if (!this.listElement) {
                 }
             }
             
@@ -453,6 +483,7 @@ export class PlayerUI extends BaseUI {
                         No players found. Click "Add player" to create one.
                     </div>
                 `;
+                resolve();
                 return;
             }
             
@@ -478,16 +509,17 @@ export class PlayerUI extends BaseUI {
             
             console.log(`Rendered ${playersToRender.length} players`);
             
-            // If we have a current player, ensure it's selected in the list
+            // If we have a selected player, highlight it
             if (this.currentEntity) {
-                const selectedItem = this.listElement.querySelector(`[data-entity-id="${this.currentEntity.id}"]`);
-                if (selectedItem) {
-                    selectedItem.classList.add('entity-card-selected');
-                }
+                this.highlightSelectedItem(this.currentEntity.id);
             }
+            
+            resolve();
         } catch (error) {
             console.error('Error rendering player list:', error);
+            reject(error);
         }
+    });
     }
 
     /**
@@ -499,5 +531,29 @@ export class PlayerUI extends BaseUI {
         if (playerId) {
             this.handleSelect(playerId);
         }
+    }
+    
+    /**
+     * Clean up event listeners and resources
+     */
+    cleanup() {
+        console.log('[PlayerUI] Cleaning up...');
+        
+        // Remove any event listeners or clean up resources here
+        // For example, if you have any event listeners on window/document:
+        // window.removeEventListener('resize', this.handleResize);
+        
+        // Clear any intervals or timeouts
+        if (this._debounceTimer) {
+            clearTimeout(this._debounceTimer);
+        }
+        
+        // Clear references to DOM elements
+        this.listElement = null;
+        this.detailsElement = null;
+        this.searchInput = null;
+        this.addButton = null;
+        
+        console.log('[PlayerUI] Cleanup complete');
     }
 }
