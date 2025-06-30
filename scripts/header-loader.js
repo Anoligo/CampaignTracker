@@ -24,11 +24,20 @@ export async function loadHeader() {
 
         // Collapse the mobile dropdown after navigating
         if (headerNav) {
-            headerNav.addEventListener('click', (e) => {
-                if (e.target.closest('a') && window.innerWidth <= 991) {
+            const collapseMenu = () => {
+                if (window.innerWidth <= 991) {
                     headerNav.classList.remove('show');
                 }
+            };
+
+            headerNav.addEventListener('click', (e) => {
+                if (e.target.closest('a')) {
+                    collapseMenu();
+                }
             });
+
+            // Support closing the menu when navigation changes without a click
+            window.addEventListener('hashchange', collapseMenu);
         }
     } catch (err) {
         console.error(err);
