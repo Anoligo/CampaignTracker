@@ -258,8 +258,15 @@ export function createConfirmationModal(options) {
  * @param {string} options.type - Toast type (success, error, warning, info)
  * @param {number} options.duration - Duration in milliseconds
  */
-export function showToast(options) {
-    const { message, type = 'info', duration = 5000 } = options;
+export function showToast(options, type, duration) {
+    // Support legacy signature showToast(message, type, duration)
+    if (typeof options === 'string') {
+        options = { message: options, type, duration };
+    }
+
+    const { message, type: toastType = 'info', duration: toastDuration = 5000 } = options || {};
+
+    if (!message) return;
     
     // Create or get toast container
     let toastContainer = document.getElementById('toast-container');
@@ -275,7 +282,7 @@ export function showToast(options) {
     
     // Create toast element
     const toast = document.createElement('div');
-    toast.className = `toast show align-items-center text-white bg-${type} border-0`;
+    toast.className = `toast show align-items-center text-white bg-${toastType} border-0`;
     toast.role = 'alert';
     toast.setAttribute('aria-live', 'assertive');
     toast.setAttribute('aria-atomic', 'true');
@@ -301,5 +308,5 @@ export function showToast(options) {
                 toast.parentNode.removeChild(toast);
             }
         }, 300);
-    }, duration);
+    }, toastDuration);
 }
