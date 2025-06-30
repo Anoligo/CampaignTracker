@@ -1,69 +1,47 @@
 /**
- * Toasts
- * Notification toasts that appear temporarily to provide feedback
+ * Notification toasts
  */
+@use '../variables' as vars;
 
 .toast {
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    margin-bottom: 0.75rem;
-    : var(--shadow-md);
-    -radius: var(---radius);
-    max-width: 350px;
-    -: var(--bg-card);
-    : 1px solid var(--);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow-md);
+  border-radius: vars.$border-radius;
+  max-width: 350px;
+  background: vars.$card-bg;
+  border: 1px solid vars.$border-color;
 
-    &.show {
-        opacity: 1;
-    }
+  &.show {
+    opacity: 1;
+  }
 
-    .toast-body {
-        padding: 0.75rem 1rem;
-    }
+  .toast-body {
+    padding: 0.75rem 1rem;
+  }
 
-    // Toast Colors
-    &.bg-primary {
-        -: var(--primary) !important;
-        : var(--white);
-    }
-
-    &.bg-success {
-        -: var(--success) !important;
-        : var(--white);
-    }
-
-    &.bg-danger {
-        -: var(--danger) !important;
-        : var(--white);
-    }
-
-    &.bg-warning {
-        -: var(--warning) !important;
-        : var(--dark);
-    }
-
-    &.bg-info {
-        -: var(--info) !important;
-        : var(--white);
-    }
+  &.bg-primary { background: vars.$primary !important; color: vars.$white; }
+  &.bg-success { background: vars.$success !important; color: vars.$white; }
+  &.bg-danger { background: vars.$danger !important; color: vars.$white; }
+  &.bg-warning { background: vars.$warning !important; color: vars.$dark; }
+  &.bg-info    { background: vars.$info !important; color: vars.$white; }
 }
 
-// Toast Container
 .toast-container {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1100;
-    max-width: 100%;
-    width: 350px;
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1100;
+  max-width: 100%;
+  width: 350px;
 }
 
-// Close Button
 .btn-close {
-    opacity: 0.8;
-    transition: opacity 0.15s ease-in-out;
+  opacity: 0.8;
+  transition: opacity 0.15s ease-in-out;
 
-    &:hover {
-        opacity: 1;
-    }
+  &:hover {
+    opacity: 1;
+  }
 }

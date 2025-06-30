@@ -266,11 +266,11 @@
     vars.$danger, 
     vars.$danger, 
     #fff,
-    scale(vars.$danger, $lightness: -7.5%),
-    scale(vars.$danger, $lightness: -10%),
+    scale-color(vars.$danger, $lightness: -7.5%),
+    scale-color(vars.$danger, $lightness: -10%),
     #fff,
-    scale(vars.$danger, $lightness: -10%),
-    scale(vars.$danger, $lightness: -12.5%),
+    scale-color(vars.$danger, $lightness: -10%),
+    scale-color(vars.$danger, $lightness: -12.5%),
     #fff
   );
 }
@@ -289,11 +289,11 @@
     vars.$warning, 
     vars.$warning, 
     #212529,
-    scale(vars.$warning, $lightness: -7.5%),
-    scale(vars.$warning, $lightness: -10%),
+    scale-color(vars.$warning, $lightness: -7.5%),
+    scale-color(vars.$warning, $lightness: -10%),
     #212529,
-    scale(vars.$warning, $lightness: -10%),
-    scale(vars.$warning, $lightness: -12.5%),
+    scale-color(vars.$warning, $lightness: -10%),
+    scale-color(vars.$warning, $lightness: -12.5%),
     #212529
   );
 }
@@ -312,11 +312,11 @@
     vars.$info, 
     vars.$info, 
     #fff,
-    .scale(vars.$info, $lightness: -7.5%),
-    .scale(vars.$info, $lightness: -10%),
+    scale-color(vars.$info, $lightness: -7.5%),
+    scale-color(vars.$info, $lightness: -10%),
     #fff,
-    .scale(vars.$info, $lightness: -10%),
-    .scale(vars.$info, $lightness: -12.5%),
+    scale-color(vars.$info, $lightness: -10%),
+    scale-color(vars.$info, $lightness: -12.5%),
     #fff
   );
 }
@@ -335,11 +335,11 @@
     vars.$light, 
     vars.$light, 
     #212529,
-    .scale(vars.$light, $lightness: -7.5%),
-    .scale(vars.$light, $lightness: -10%),
+    scale-color(vars.$light, $lightness: -7.5%),
+    scale-color(vars.$light, $lightness: -10%),
     #212529,
-    .scale(vars.$light, $lightness: -10%),
-    .scale(vars.$light, $lightness: -12.5%),
+    scale-color(vars.$light, $lightness: -10%),
+    scale-color(vars.$light, $lightness: -12.5%),
     #212529
   );
 }
@@ -358,11 +358,11 @@
     vars.$dark, 
     vars.$dark, 
     #fff,
-    .scale(vars.$dark, $lightness: -7.5%),
-    .scale(vars.$dark, $lightness: -10%),
+    scale-color(vars.$dark, $lightness: -7.5%),
+    scale-color(vars.$dark, $lightness: -10%),
     #fff,
-    .scale(vars.$dark, $lightness: -10%),
-    .scale(vars.$dark, $lightness: -12.5%),
+    scale-color(vars.$dark, $lightness: -10%),
+    scale-color(vars.$dark, $lightness: -12.5%),
     #fff
   );
 }
@@ -383,22 +383,23 @@
     vars.$primary,
     transparent,
     transparent,
-    .scale(vars.$primary, $lightness: -10%),
+    scale-color(vars.$primary, $lightness: -10%),
     transparent,
     transparent,
-    .scale(vars.$primary, $lightness: -10%)
+    scale-color(vars.$primary, $lightness: -10%)
   );
   text-decoration: none;
-  : none;
+  border: none;
+  background-color: transparent;
 
   &:hover, &:focus {
     text-decoration: underline;
-    -: transparent;
-    -: transparent;
+    background-color: transparent;
+    border-color: transparent;
   }
 
   &:disabled, &.disabled {
-    : vars.$gray-500;
+    color: vars.$gray-500;
     pointer-events: none;
   }
 }

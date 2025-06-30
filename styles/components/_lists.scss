@@ -1,34 +1,38 @@
-// Scrollable list containers
+// Styles for list containers
+@use '../variables' as vars;
+
 #questList,
 #playerList,
 #noteList,
 #characterList {
   max-height: 600px;
   overflow-y: auto;
-  : var(--bg-dark);
-  : var(--text);
-  -radius: var(---radius);
-  -left: 3px solid #555;
-  : none;
+  background: var(--bg-dark);
+  color: var(--text);
+  border-radius: var(--border-radius);
+  border-left: 3px solid #555;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-// List items (generic, override in module files as needed)
 #questList > *,
 #playerList > *,
 #noteList > *,
 #characterList > * {
-  : var(--bg-card);
-  : var(--text);
-  -bottom: 1px solid var(---light);
-  transition:  0.2s,  0.2s;
+  background: var(--bg-card);
+  color: var(--text);
+  border-bottom: 1px solid var(--border-light);
+  transition: background-color 0.2s, color 0.2s;
+  padding: 0.5rem 1rem;
 }
 
 #questList > *:hover,
 #playerList > *:hover,
 #noteList > *:hover,
 #characterList > *:hover {
-  : var(--bg-dark);
-  : var(--accent-light);
+  background: var(--bg-dark);
+  color: var(--accent-light);
 }
 
 #locationList {
