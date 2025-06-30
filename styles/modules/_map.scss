@@ -34,10 +34,10 @@
     height: 600px;
     border: 1px solid var(--border);
     border-radius: var(--border-radius);
-    background-color: #f0f0f0;
+    background-color: var(--gray-200);
     background-image: 
-        linear-gradient(#ccc 1px, transparent 1px),
-        linear-gradient(90deg, #ccc 1px, transparent 1px);
+        linear-gradient(var(--gray-400) 1px, transparent 1px),
+        linear-gradient(90deg, var(--gray-400) 1px, transparent 1px);
     background-size: 40px 40px;
     cursor: grab;
     touch-action: none;
