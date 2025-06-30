@@ -1,7 +1,7 @@
 import { Faction } from './models/faction.js';
 // Relative import to support GitHub Pages where the site may be served from a
 // subdirectory.
-import { DataService } from '../data/services/data-service.js';
+import { DataServiceInitializer } from '../../core/initialization/data-service-initializer.js';
 
 /**
  * Manages all faction-related operations and data
@@ -12,7 +12,7 @@ export class FactionManager {
      * @param {DataService} dataService - The application's data service
      */
     constructor(dataService = null) {
-        this.dataService = dataService || new DataService();
+        this.dataService = dataService || DataServiceInitializer.getDataService();
         this.factions = new Map();
         this.initialized = false;
         this.loadFactions();

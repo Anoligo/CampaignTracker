@@ -1,5 +1,5 @@
 import { FactionUI } from './ui/faction-ui.js';
-import { DataService } from '../data/services/data-service.js';
+import { DataServiceInitializer } from '../../core/initialization/data-service-initializer.js';
 
 /**
  * Initialize the factions section when navigated to.
@@ -14,8 +14,7 @@ export async function initializeFactionsSection() {
 
         if (!window.app) window.app = {};
         if (!window.app.factionUI) {
-            // Create a new DataService instance for the FactionUI
-            const dataService = new DataService();
+            const dataService = DataServiceInitializer.getDataService();
             window.app.factionUI = new FactionUI(container, dataService);
         } else {
             window.app.factionUI.refresh?.();

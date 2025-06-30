@@ -5,6 +5,8 @@
  * It provides a compatible interface for the rest of the application while using
  * the new DataService under the hood.
  */
+import { DataServiceInitializer } from '../initialization/data-service-initializer.js';
+
 export class DataServiceAdapter {
     /**
      * Create a new DataServiceAdapter instance
@@ -17,10 +19,9 @@ export class DataServiceAdapter {
         if (dataService) {
             this.setDataService(dataService);
         } else {
-            // Import DataService dynamically to avoid circular dependencies
-            import('../../modules/data/services/data-service.js')
-                .then(module => {
-                    this.setDataService(new module.DataService());
+            DataServiceInitializer.initialize()
+                .then(() => {
+                    this.setDataService(DataServiceInitializer.getDataService());
                 })
                 .catch(error => {
                     console.error('Failed to initialize DataService:', error);
