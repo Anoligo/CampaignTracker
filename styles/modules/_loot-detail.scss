@@ -1,0 +1,127 @@
+.loot-detail {
+  padding: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+  
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  &__title {
+    margin: 0;
+    color: var(--text-primary);
+  }
+  
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  &__section {
+    margin-bottom: 1.5rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    &-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      
+      &::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border-color);
+        margin-left: 0.75rem;
+      }
+    }
+  }
+  
+  &__properties {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  &__property {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  
+  &__value {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    word-break: break-word;
+  }
+  
+  &__content {
+    line-height: 1.6;
+    
+    p {
+      margin: 0 0 1rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Rarity badges
+.rarity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &--common {
+    background-color: var(--rarity-common-bg);
+    color: var(--rarity-common-text);
+  }
+  
+  &--uncommon {
+    background-color: var(--rarity-uncommon-bg);
+    color: var(--rarity-uncommon-text);
+  }
+  
+  &--rare {
+    background-color: var(--rarity-rare-bg);
+    color: var(--rarity-rare-text);
+  }
+  
+  &--very-rare {
+    background-color: var(--rarity-very-rare-bg);
+    color: var(--rarity-very-rare-text);
+  }
+  
+  &--legendary {
+    background-color: var(--rarity-legendary-bg);
+    color: var(--rarity-legendary-text);
+  }
+  
+  &--artifact {
+    background-color: var(--rarity-artifact-bg);
+    color: var(--rarity-artifact-text);
+  }
