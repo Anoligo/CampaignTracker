@@ -8,10 +8,12 @@ export async function loadHeader() {
         placeholder.outerHTML = html;
 
         const toggleBtn = document.getElementById('sidebarToggle');
-        const sidebar = document.querySelector('.app-sidebar');
-        if (toggleBtn && sidebar) {
+        if (toggleBtn) {
             toggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('show');
+                const sidebar = document.querySelector('.app-sidebar');
+                if (sidebar) {
+                    sidebar.classList.toggle('show');
+                }
             });
         }
     } catch (err) {
