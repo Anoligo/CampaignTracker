@@ -24,7 +24,7 @@
 .quest-list > * {
   background: var(--bg-card);
   color: var(--text);
-  border-left: 3px solid #555;
+  border-left: 3px solid var(--border-light);
   border-radius: var(--border-radius);
   margin-bottom: 0.5rem;
   transition: background 0.2s, color 0.2s, transform 0.2s;
@@ -40,7 +40,7 @@
 .quest-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-left: 3px solid #555;
+  border-left: 3px solid var(--border-light);
   border-radius: var(--border-radius);
   color: var(--text);
   padding: 1.25rem;
