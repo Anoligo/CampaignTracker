@@ -10,14 +10,14 @@ export async function loadHeader() {
         const toggleBtn = document.getElementById('sidebarToggle');
         if (toggleBtn) {
             toggleBtn.addEventListener('click', () => {
+                const isMobile = window.innerWidth <= 991;
                 const sidebar = document.querySelector('.app-sidebar');
-                if (sidebar) {
-                    sidebar.classList.toggle('show');
-                }
-
                 const headerNav = document.getElementById('mainNav');
-                if (headerNav && window.innerWidth <= 991) {
-                    headerNav.classList.toggle('show');
+
+                if (isMobile) {
+                    if (headerNav) headerNav.classList.toggle('show');
+                } else {
+                    if (sidebar) sidebar.classList.toggle('show');
                 }
             });
         }
