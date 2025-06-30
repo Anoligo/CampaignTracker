@@ -14,6 +14,11 @@ export async function loadHeader() {
                 if (sidebar) {
                     sidebar.classList.toggle('show');
                 }
+
+                const headerNav = document.getElementById('mainNav');
+                if (headerNav && window.innerWidth <= 991) {
+                    headerNav.classList.toggle('show');
+                }
             });
         }
     } catch (err) {
