@@ -13,108 +13,41 @@ export class FactionManager {
      */
     constructor(dataService = null) {
         this.dataService = dataService || DataServiceInitializer.getDataService();
-        this.factions = new Map();
-        this.initialized = false;
-        this.loadFactions();
+        this.initialized = true;
     }
 
     /**
-     * Load factions from the data service
+     * Convenience getter for the current list of factions
+     * @returns {Array<Object>} Array of faction objects
      */
-    async loadFactions() {
-        try {
-            // Get all factions from the data service
-            const factionsData = this.dataService.getAll('factions');
-            
-            // Convert to Faction objects and store in Map
-            this.factions = new Map(factionsData.map(f => [f.id, new Faction(f)]));
-            
-            this.initialized = true;
-        } catch (error) {
-            console.error('Error loading factions:', error);
-            this.factions = new Map();
-            this.initialized = true;
-        }
-    }
-    
-    /**
-     * Save factions to the data service
-     */
-    async saveFactions() {
-        try {
-            const factionsArray = Array.from(this.factions.values()).map(f => f.toJSON());
-            
-            // Update factions in the data service
-            const currentFactions = this.dataService.getAll('factions');
-            const currentFactionIds = new Set(currentFactions.map(f => f.id));
-            
-            // Add or update factions
-            for (const faction of factionsArray) {
-                if (currentFactionIds.has(faction.id)) {
-                    this.dataService.update('factions', faction.id, faction);
-                } else {
-                    this.dataService.add('factions', faction);
-                }
-            }
-            
-            // Remove factions that no longer exist
-            const newFactionIds = new Set(factionsArray.map(f => f.id));
-            for (const faction of currentFactions) {
-                if (!newFactionIds.has(faction.id)) {
-                    this.dataService.remove('factions', faction.id);
-                }
-            }
-            
-        } catch (error) {
-            console.error('Error saving factions:', error);
-            throw error; // Re-throw to allow error handling in the UI
-        }
+    _getFactions() {
+        return this.dataService.getAll('factions');
     }
 
     // Create a new faction (alias for createFaction for backward compatibility)
     addFaction(data = {}) {
         console.log('addFaction called with data:', data);
-        // Ensure we don't have an ID to force creation of a new one
         const { id, ...factionData } = data;
-        const faction = this.createFaction(factionData);
-        console.log('New faction created:', faction);
-        
-        // Save the updated factions list
-        this.saveFactions();
-        console.log('Factions saved after add');
-        
-        return faction;
+        return this.createFaction(factionData);
     }
-    
+
     // Create a new faction
     createFaction(data = {}) {
         console.log('createFaction called with data:', data);
         const faction = new Faction(data);
-        console.log('New Faction instance created:', faction);
-        
-        // Add to the factions map
-        this.factions.set(faction.id, faction);
-        console.log('Faction added to factions map with ID:', faction.id);
-        
-        // Save the factions
-        this.saveFactions();
-        console.log('Factions saved');
-        
-        // Verify the faction was saved
-        const savedFaction = this.getFaction(faction.id);
-        console.log('Faction retrieved after save:', savedFaction);
-        
+        this.dataService.add('factions', faction.toJSON());
         return faction;
     }
 
     // Get a faction by ID
     getFaction(id) {
-        return this.factions.get(id);
+        const data = this.dataService.get('factions', id);
+        return data ? new Faction(data) : null;
     }
 
     // Get all factions
     getAllFactions() {
-        return Array.from(this.factions.values());
+        return this._getFactions().map(f => new Faction(f));
     }
 
     // Get active factions
@@ -125,35 +58,30 @@ export class FactionManager {
     // Update a faction
     updateFaction(id, data) {
         console.log('Updating faction:', id, 'with data:', data);
-        const faction = this.factions.get(id);
-        if (!faction) {
+        const existing = this.dataService.get('factions', id);
+        if (!existing) {
             console.error('Faction not found:', id);
             return null;
         }
 
-        console.log('Current faction data:', faction);
-        const updatedFaction = new Faction({ ...faction.toJSON(), ...data, id });
-        console.log('Updated faction data:', updatedFaction);
-        
-        this.factions.set(id, updatedFaction);
-        this.saveFactions();
-        console.log('Faction updated and saved');
-        return updatedFaction;
+        const updated = { ...existing, ...data, id };
+        this.dataService.update('factions', id, updated);
+        return new Faction(updated);
     }
 
     // Delete a faction
     deleteFaction(id) {
-        const success = this.factions.delete(id);
-        if (success) {
-            // Remove any relationships to this faction
-            this.factions.forEach(faction => {
-                if (faction.relationships[id]) {
-                    delete faction.relationships[id];
+        const removed = this.dataService.remove('factions', id);
+        if (removed) {
+            const factions = this._getFactions();
+            factions.forEach(f => {
+                if (f.relationships && f.relationships[id] !== undefined) {
+                    const { [id]: _, ...relationships } = f.relationships;
+                    this.dataService.update('factions', f.id, { relationships });
                 }
             });
-            this.saveFactions();
         }
-        return success;
+        return removed;
     }
 
     // Search factions by name, description, or tags
@@ -202,18 +130,20 @@ export class FactionManager {
         const faction1 = this.getFaction(factionId1);
         if (!faction1) return null;
         
-        const result = faction1.setRelationship(factionId2, value);
-        this.saveFactions();
-        return result;
+        const current = faction1.relationships || {};
+        const clamped = Math.max(-100, Math.min(100, value));
+        const relationships = { ...current, [factionId2]: clamped };
+        this.dataService.update('factions', factionId1, { relationships });
+        return clamped;
     }
 
     // Toggle active status of a faction
     toggleFactionActive(id) {
-        const faction = this.getFaction(id);
+        const faction = this.dataService.get('factions', id);
         if (!faction) return null;
-        
-        const isActive = faction.toggleActive();
-        this.saveFactions();
+
+        const isActive = !faction.isActive;
+        this.dataService.update('factions', id, { isActive });
         return isActive;
     }
 
@@ -225,10 +155,9 @@ export class FactionManager {
             
             data.forEach(factionData => {
                 const faction = new Faction(factionData);
-                this.factions.set(faction.id, faction);
+                this.dataService.add('factions', faction.toJSON());
             });
-            
-            this.saveFactions();
+
             return true;
         } catch (error) {
             console.error('Failed to import factions:', error);
