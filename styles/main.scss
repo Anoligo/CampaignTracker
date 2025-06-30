@@ -42,7 +42,11 @@
 @import 'modules/factions/index';
 @import 'modules/quests';
 @import 'modules/characters';
+@import 'modules/character-detail';
 @import 'modules/loot'; // Loot module styles
+@import 'modules/loot-list';
+@import 'modules/loot-form';
+@import 'modules/loot-detail';
 @import 'modules/guild-logs'; // Guild Logs tab styles
 
 // Components
