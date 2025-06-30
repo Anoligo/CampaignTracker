@@ -1,5 +1,5 @@
 // Use a relative path so this module works regardless of the site's base URL.
-import { DataService } from '../services/data-service.js';
+import { DataServiceInitializer } from '../../../core/initialization/data-service-initializer.js';
 
 /**
  * Data Management UI
@@ -11,7 +11,7 @@ export class DataManagementUI {
      * @param {DataService} dataService - The data service instance
      */
     constructor(dataService = null) {
-        this.dataService = dataService || new DataService();
+        this.dataService = dataService || DataServiceInitializer.getDataService();
         this.initialize();
     }
     

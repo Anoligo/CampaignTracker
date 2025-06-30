@@ -1,6 +1,6 @@
 // Use a relative path so the import works correctly when the site is hosted in
 // a subdirectory (e.g. GitHub Pages project sites).
-import { DataService } from '../modules/data/services/data-service.js';
+import { DataServiceInitializer } from '../core/initialization/data-service-initializer.js';
 
 export class DataManagementPage {
     constructor() {
@@ -15,7 +15,7 @@ export class DataManagementPage {
             this.importDataBtn.classList.add('btn-secondary');
         }
         
-        this.dataService = new DataService();
+        this.dataService = DataServiceInitializer.getDataService();
         this._bindEvents();
         
         console.log('DataManagementPage initialized');
