@@ -4,6 +4,13 @@ import { formatEnumValue } from './quest-utils.js';
 import { initEntityDropdown, getDropdownValue } from '../../../utils/relational-inputs.js';
 
 export const formHandler = {
+    toggleListVisibility(show = true) {
+        const { list, search, addButton } = this.elements;
+        const method = show ? 'remove' : 'add';
+        list?.classList[method]('d-none');
+        search?.classList[method]('d-none');
+        addButton?.classList[method]('d-none');
+    },
     showQuestForm(quest = null) {
         this.isEditing = !!quest;
         this.currentQuest = quest || null;
@@ -84,6 +91,8 @@ export const formHandler = {
 
         contentEl.innerHTML = formHtml;
 
+        this.toggleListVisibility(false);
+
         const form = document.getElementById('questForm');
         form.addEventListener('submit', (e) => this.handleFormSubmit(e));
 
@@ -98,6 +107,7 @@ export const formHandler = {
         initEntityDropdown('#relatedQuests', 'quest', quests, { multiple: true });
 
         document.getElementById('cancelQuestBtn').addEventListener('click', () => {
+            this.toggleListVisibility(true);
             if (this.currentQuest) {
                 this.showQuestDetails(this.currentQuest.id);
             } else {
@@ -146,6 +156,7 @@ export const formHandler = {
                 const c = this.elements.details.querySelector('#questDetailsContent') || this.elements.details;
                 c.innerHTML = '';
             }
+            this.toggleListVisibility(true);
         } catch (error) {
             console.error('Error saving quest:', error);
             showToast(`Failed to save quest: ${error.message}`, 'error');
