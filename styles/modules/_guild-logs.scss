@@ -1,0 +1,174 @@
+// Guild Logs Tab Styles - Enforce Dark Theme and Accessible Contrast
+// This file is dedicated to the Guild Logs tab backgrounds, filter controls, and section containers.
+// All color values use CSS variables from _variables.scss only.
+
+.guild-logs-container,
+#guild-logs,
+#guild-logs .content-section,
+#guild-logs .logs-section,
+#guild-logs .logs-list,
+#guild-logs .logs-content {
+  background: var(--bg-dark);
+  color: var(--text);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+#guild-logs .logs-header,
+#guild-logs .logs-filters,
+#guild-logs .logs-filter-group {
+  background: var(--bg-card);
+  color: var(--text);
+  border-bottom: 1px solid var(--border-light);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+#guild-logs .btn,
+#guild-logs .btn-outline-secondary,
+#guild-logs .btn-group > .btn,
+#guild-logs .activity-list .btn,
+#guild-logs .activity-list .btn-outline-secondary,
+#guild-logs .activity-list .btn-group > .btn,
+#guild-logs .btn.btn-outline-secondary,
+#guild-logs .activity-list .btn.btn-outline-secondary {
+  background: var(--bg-card) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border-light) !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  transition: all 0.2s !important;
+}
+
+#guild-logs .btn.btn-outline-secondary,
+#guild-logs .activity-list .btn.btn-outline-secondary {
+  background: var(--bg-card) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+#guild-logs .btn.btn-outline-secondary:active,
+#guild-logs .btn.btn-outline-secondary:focus,
+#guild-logs .btn.btn-outline-secondary:hover,
+#guild-logs .activity-list .btn.btn-outline-secondary:active,
+#guild-logs .activity-list .btn.btn-outline-secondary:focus,
+#guild-logs .activity-list .btn.btn-outline-secondary:hover {
+  background: var(--bg-dark) !important;
+  color: var(--accent-light) !important;
+  border-color: var(--accent) !important;
+  outline: none !important;
+}
+
+#guild-logs .btn-group > .btn,
+#guild-logs .activity-list .btn-group > .btn {
+  background: var(--bg-card) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+#guild-logs .btn:hover,
+#guild-logs .btn-outline-secondary:hover,
+#guild-logs .btn-group > .btn:hover,
+#guild-logs .btn:focus,
+#guild-logs .btn-outline-secondary:focus,
+#guild-logs .btn-group > .btn:focus,
+#guild-logs .activity-list .btn:hover,
+#guild-logs .activity-list .btn-outline-secondary:hover,
+#guild-logs .activity-list .btn-group > .btn:hover,
+#guild-logs .activity-list .btn:focus,
+#guild-logs .activity-list .btn-outline-secondary:focus,
+#guild-logs .activity-list .btn-group > .btn:focus {
+  background: var(--bg-dark) !important;
+  color: var(--accent-light) !important;
+  border-color: var(--accent) !important;
+  outline: none !important;
+}
+
+#guild-logs .btn.active,
+#guild-logs .btn-outline-secondary.active,
+#guild-logs .btn-group > .btn.active,
+#guild-logs .activity-list .btn.active,
+#guild-logs .activity-list .btn-outline-secondary.active,
+#guild-logs .activity-list .btn-group > .btn.active {
+  background: var(--bg-dark) !important;
+  color: var(--accent-light) !important;
+  border-color: var(--accent) !important;
+}
+
+// Ensure lists inside logs tab use correct background
+#guild-logs .list-group,
+#guild-logs .logs-list,
+#guild-logs .activity-list,
+#guild-logs .resource-list {
+  background: var(--bg-dark);
+  color: var(--text);
+}
+
+#guild-logs .list-group-item,
+#guild-logs .logs-list > *,
+#guild-logs .activity-list > *,
+#guild-logs .resource-list > * {
+  background: var(--bg-card);
+  color: var(--text);
+  border-left: 3px solid #555;
+  border-radius: var(--border-radius);
+  margin-bottom: 0.5rem;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+#guild-logs .list-group-item:hover,
+#guild-logs .logs-list > *:hover,
+#guild-logs .activity-list > *:hover,
+#guild-logs .resource-list > *:hover {
+  background: var(--bg-dark);
+  color: var(--accent-light);
+  transform: translateY(-2px);
+}
+
+// Accessibility: Ensure minimum contrast for all text
+#guild-logs,
+#guild-logs * {
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+// Filter/search bar and input for logs/activities/resources
+#guild-logs .list-search-filter-bar {
+  background: var(--bg-card);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  z-index: 10;
+}
+#guild-logs .list-search-icon {
+  background: var(--bg-dark);
+  color: var(--accent-light);
+  border: none;
+}
+#guild-logs .list-search-input {
+  background: var(--bg-dark);
+  color: var(--text);
+  border: 1px solid var(--border-dark);
+  font-size: 1rem;
+  border-radius: var(--border-radius);
+  transition: border-color 0.2s;
+}
+#guild-logs .list-search-input:focus {
+  border-color: var(--accent);
+  outline: none;
+  color: var(--accent-light);
+}
+
+#guild-logs .list-item-count {
+  padding: 0.25rem 0.5rem;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: right;
+  border-top: 1px solid var(--border-light);
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+

@@ -15,14 +15,37 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+  background: var(--bg-dark);
+  color: var(--text);
+  border-radius: var(--border-radius);
+  padding: 0.5rem;
 }
 
-.character-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+.character-list > * {
+  background: var(--bg-card);
+  color: var(--text);
+  border-left: 3px solid #555;
   border-radius: var(--border-radius);
+  margin-bottom: 0.5rem;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.character-list > *:hover {
+  background: var(--bg-dark);
+  color: var(--accent-light);
+  transform: translateY(-2px);
+}
+
+
+.character-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid #555;
+  border-radius: var(--border-radius);
+  color: var(--text);
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: none;
   
   &:hover {
     box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);

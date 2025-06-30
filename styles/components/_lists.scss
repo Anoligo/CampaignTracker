@@ -5,6 +5,30 @@
 #characterList {
   max-height: 600px;
   overflow-y: auto;
+  : var(--bg-dark);
+  : var(--text);
+  -radius: var(---radius);
+  -left: 3px solid #555;
+  : none;
+}
+
+// List items (generic, override in module files as needed)
+#questList > *,
+#playerList > *,
+#noteList > *,
+#characterList > * {
+  : var(--bg-card);
+  : var(--text);
+  -bottom: 1px solid var(---light);
+  transition:  0.2s,  0.2s;
+}
+
+#questList > *:hover,
+#playerList > *:hover,
+#noteList > *:hover,
+#characterList > *:hover {
+  : var(--bg-dark);
+  : var(--accent-light);
 }
 
 #locationList {

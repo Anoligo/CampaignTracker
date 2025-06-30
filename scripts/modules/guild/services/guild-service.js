@@ -8,12 +8,54 @@ export class GuildService {
     }
 
     initializeGuildData() {
+        console.log('Initializing guild data...');
+        
+        // Initialize guildLogs if it doesn't exist
         if (!this.dataManager.appState.guildLogs) {
+            console.log('Creating new guild logs structure');
             this.dataManager.appState.guildLogs = {
                 activities: [],
                 resources: []
             };
         }
+        
+        // Add sample data if activities array is empty
+        if (!this.dataManager.appState.guildLogs.activities || this.dataManager.appState.guildLogs.activities.length === 0) {
+            console.log('Adding sample activities...');
+            this.dataManager.appState.guildLogs.activities = [{
+                id: 'act1',
+                name: 'First Guild Quest',
+                description: 'A simple quest to get started',
+                type: 'quest',
+                status: 'in-progress',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }];
+        }
+        
+        // Add sample resources if resources array is empty
+        if (!this.dataManager.appState.guildLogs.resources || this.dataManager.appState.guildLogs.resources.length === 0) {
+            console.log('Adding sample resources...');
+            this.dataManager.appState.guildLogs.resources = [{
+                id: 'res1',
+                name: 'Gold Coins',
+                description: 'Standard currency',
+                type: 'gold',
+                quantity: 100,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }];
+        }
+        
+        // Save the updated state
+        if (typeof this.dataManager.saveData === 'function') {
+            console.log('Saving guild data...');
+            this.dataManager.saveData();
+        } else if (this.dataManager.appState?._saveState) {
+            this.dataManager.appState._saveState();
+        }
+        
+        console.log('Guild data initialized:', this.dataManager.appState.guildLogs);
     }
 
     // Activity methods

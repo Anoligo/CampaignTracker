@@ -1,5 +1,5 @@
-// Import variables and color functions first
-@use 'sass:color';
+// Import variables and  functions first
+@use 'sass:map' as map;
 @use '../variables' as vars;
 
 /**
@@ -18,22 +18,23 @@
   white-space: nowrap;
   vertical-align: middle;
   user-select: none;
-  background-color: transparent;
-  border: 1px solid transparent;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border-light);
   padding: 0.5rem 1rem;
   font-size: 0.9375rem;
   line-height: 1.5;
-  border-radius: var(--border-radius);
+  border-radius: var(--radius);
   transition: all 0.2s ease-in-out;
   cursor: pointer;
   
-  &:hover {
-    text-decoration: none;
-  }
-  
+  &:hover,
   &:focus {
+    background: var(--bg-dark);
+    color: var(--accent-light);
+    border-color: var(--accent);
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(255,217,102,0.15);
   }
   
   &:disabled,
@@ -47,14 +48,14 @@
     padding: 0.25rem 0.5rem;
     font-size: 0.8125rem;
     line-height: 1.5;
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius-sm);
   }
   
   &.btn-lg {
     padding: 0.75rem 1.5rem;
     font-size: 1.0625rem;
     line-height: 1.5;
-    border-radius: var(--border-radius-lg);
+    border-radius: var(--radius-lg);
   }
   
   // Block button
@@ -81,90 +82,126 @@
   }
 }
 
+// Outline secondary variant for filter buttons
+.btn-outline-secondary {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border-light);
+  
+  &:hover,
+  &:focus,
+  &.active {
+    background: var(--bg-dark);
+    color: var(--accent-light);
+    border-color: var(--accent);
+  }
+}
+
+// Ensure .btn-group > .btn inherits correct styles
+.btn-group > .btn {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border-light);
+  
+  &:hover,
+  &:focus,
+  &.active {
+    background: var(--bg-dark);
+    color: var(--accent-light);
+    border-color: var(--accent);
+  }
+}
+
+
 // Button variants
-@mixin button-variant($background, $border, $color, $hover-background: darken($background, 7.5%), $hover-border: darken($border, 10%), $hover-color: $color, $active-background: darken($background, 10%), $active-border: darken($border, 12.5%), $active-color: $color) {
-  color: $color;
-  background-color: $background;
+@mixin button-variant(
+  $bg,
+  $border,
+  $text,
+  $hover-bg: darken($bg, 7.5%),
+  $hover-border: darken($border, 10%),
+  $hover-text: $text,
+  $active-bg: darken($bg, 10%),
+  $active-border: darken($border, 12.5%),
+  $active-text: $text
+) {
+  background-color: $bg;
   border-color: $border;
+  color: $text;
   
   &:hover {
-    color: $hover-color;
-    background-color: $hover-background;
+    background-color: $hover-bg;
     border-color: $hover-border;
+    color: $hover-text;
   }
   
   &:focus,
   &.focus {
-    color: $hover-color;
-    background-color: $hover-background;
-    border-color: $hover-border;
-    box-shadow: 0 0 0 0.2rem rgba($border, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba($bg, 0.5);
   }
   
   &.disabled,
   &:disabled {
-    color: $color;
-    background-color: $background;
-    border-color: $border;
+    opacity: 0.65;
+    pointer-events: none;
   }
   
   &:not(:disabled):not(.disabled):active,
   &:not(:disabled):not(.disabled).active {
-    color: $active-color;
-    background-color: $active-background;
+    background-color: $active-bg;
     border-color: $active-border;
+    color: $active-text;
     
     &:focus {
-      box-shadow: 0 0 0 0.2rem rgba($border, 0.5);
+      box-shadow: 0 0 0 0.2rem rgba($active-bg, 0.5);
     }
   }
 }
 
-@mixin button-outline-variant($color, $color-hover: #fff, $active-background: $color, $active-border: $color) {
-  color: $color;
-  border-color: $color;
+@mixin button-outline-variant($bg, $text: #fff, $hover-bg: $bg, $hover-text: $text) {
+  background-color: transparent;
+  border-color: $bg;
+  color: $text;
   
   &:hover {
-    color: $color-hover;
-    background-color: $active-background;
-    border-color: $active-border;
+    background-color: $hover-bg;
+    color: $hover-text;
   }
   
   &:focus,
   &.focus {
-    box-shadow: 0 0 0 0.2rem rgba($color, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba($bg, 0.5);
   }
   
   &.disabled,
   &:disabled {
-    color: $color;
-    background-color: transparent;
+    opacity: 0.65;
+    pointer-events: none;
   }
   
   &:not(:disabled):not(.disabled):active,
   &:not(:disabled):not(.disabled).active,
   .show > &.dropdown-toggle {
-    color: $color-hover;
-    background-color: $active-background;
-    border-color: $active-border;
+    background-color: $hover-bg;
+    color: $hover-text;
     
     &:focus {
-      box-shadow: 0 0 0 0.2rem rgba($color, 0.5);
+      box-shadow: 0 0 0 0.2rem rgba($bg, 0.5);
     }
   }
 }
 
-// Button color variants
+// Button  variants
 .btn-primary {
   @include button-variant(
-    vars.$primary, 
-    vars.$primary, 
+    vars.$primary,
+    vars.$primary,
     #fff,
-    color.scale(vars.$primary, $lightness: -7.5%),
-    color.scale(vars.$primary, $lightness: -10%),
+    darken(vars.$primary, 7.5%),
+    darken(vars.$primary, 10%),
     #fff,
-    color.scale(vars.$primary, $lightness: -10%),
-    color.scale(vars.$primary, $lightness: -12.5%),
+    darken(vars.$primary, 10%),
+    darken(vars.$primary, 12.5%),
     #fff
   );
 }
@@ -180,14 +217,14 @@
 
 .btn-secondary {
   @include button-variant(
-    vars.$secondary, 
-    vars.$secondary, 
+    vars.$secondary,
+    vars.$secondary,
     #fff,
-    color.scale(vars.$secondary, $lightness: -7.5%),
-    color.scale(vars.$secondary, $lightness: -10%),
+    darken(vars.$secondary, 7.5%),
+    darken(vars.$secondary, 10%),
     #fff,
-    color.scale(vars.$secondary, $lightness: -10%),
-    color.scale(vars.$secondary, $lightness: -12.5%),
+    darken(vars.$secondary, 10%),
+    darken(vars.$secondary, 12.5%),
     #fff
   );
 }
@@ -203,14 +240,14 @@
 
 .btn-success {
   @include button-variant(
-    vars.$success, 
-    vars.$success, 
+    vars.$success,
+    vars.$success,
     #fff,
-    color.scale(vars.$success, $lightness: -7.5%),
-    color.scale(vars.$success, $lightness: -10%),
+    darken(vars.$success, 7.5%),
+    darken(vars.$success, 10%),
     #fff,
-    color.scale(vars.$success, $lightness: -10%),
-    color.scale(vars.$success, $lightness: -12.5%),
+    darken(vars.$success, 10%),
+    darken(vars.$success, 12.5%),
     #fff
   );
 }
@@ -229,11 +266,11 @@
     vars.$danger, 
     vars.$danger, 
     #fff,
-    color.scale(vars.$danger, $lightness: -7.5%),
-    color.scale(vars.$danger, $lightness: -10%),
+    scale(vars.$danger, $lightness: -7.5%),
+    scale(vars.$danger, $lightness: -10%),
     #fff,
-    color.scale(vars.$danger, $lightness: -10%),
-    color.scale(vars.$danger, $lightness: -12.5%),
+    scale(vars.$danger, $lightness: -10%),
+    scale(vars.$danger, $lightness: -12.5%),
     #fff
   );
 }
@@ -252,11 +289,11 @@
     vars.$warning, 
     vars.$warning, 
     #212529,
-    color.scale(vars.$warning, $lightness: -7.5%),
-    color.scale(vars.$warning, $lightness: -10%),
+    scale(vars.$warning, $lightness: -7.5%),
+    scale(vars.$warning, $lightness: -10%),
     #212529,
-    color.scale(vars.$warning, $lightness: -10%),
-    color.scale(vars.$warning, $lightness: -12.5%),
+    scale(vars.$warning, $lightness: -10%),
+    scale(vars.$warning, $lightness: -12.5%),
     #212529
   );
 }
@@ -275,11 +312,11 @@
     vars.$info, 
     vars.$info, 
     #fff,
-    color.scale(vars.$info, $lightness: -7.5%),
-    color.scale(vars.$info, $lightness: -10%),
+    .scale(vars.$info, $lightness: -7.5%),
+    .scale(vars.$info, $lightness: -10%),
     #fff,
-    color.scale(vars.$info, $lightness: -10%),
-    color.scale(vars.$info, $lightness: -12.5%),
+    .scale(vars.$info, $lightness: -10%),
+    .scale(vars.$info, $lightness: -12.5%),
     #fff
   );
 }
@@ -298,11 +335,11 @@
     vars.$light, 
     vars.$light, 
     #212529,
-    color.scale(vars.$light, $lightness: -7.5%),
-    color.scale(vars.$light, $lightness: -10%),
+    .scale(vars.$light, $lightness: -7.5%),
+    .scale(vars.$light, $lightness: -10%),
     #212529,
-    color.scale(vars.$light, $lightness: -10%),
-    color.scale(vars.$light, $lightness: -12.5%),
+    .scale(vars.$light, $lightness: -10%),
+    .scale(vars.$light, $lightness: -12.5%),
     #212529
   );
 }
@@ -321,11 +358,11 @@
     vars.$dark, 
     vars.$dark, 
     #fff,
-    color.scale(vars.$dark, $lightness: -7.5%),
-    color.scale(vars.$dark, $lightness: -10%),
+    .scale(vars.$dark, $lightness: -7.5%),
+    .scale(vars.$dark, $lightness: -10%),
     #fff,
-    color.scale(vars.$dark, $lightness: -10%),
-    color.scale(vars.$dark, $lightness: -12.5%),
+    .scale(vars.$dark, $lightness: -10%),
+    .scale(vars.$dark, $lightness: -12.5%),
     #fff
   );
 }
@@ -346,22 +383,22 @@
     vars.$primary,
     transparent,
     transparent,
-    color.scale(vars.$primary, $lightness: -10%),
+    .scale(vars.$primary, $lightness: -10%),
     transparent,
     transparent,
-    color.scale(vars.$primary, $lightness: -10%)
+    .scale(vars.$primary, $lightness: -10%)
   );
   text-decoration: none;
-  box-shadow: none;
+  : none;
 
   &:hover, &:focus {
     text-decoration: underline;
-    background-color: transparent;
-    border-color: transparent;
+    -: transparent;
+    -: transparent;
   }
 
   &:disabled, &.disabled {
-    color: vars.$gray-500;
+    : vars.$gray-500;
     pointer-events: none;
   }
 }
@@ -378,13 +415,13 @@
     
     &:not(:first-child) {
       margin-left: -1px;
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
+      -top-left-radius: 0;
+      -bottom-left-radius: 0;
     }
     
     &:not(:last-child) {
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
+      -top-right-radius: 0;
+      -bottom-right-radius: 0;
     }
     
     &:hover,
@@ -400,14 +437,14 @@
     padding: 0.25rem 0.5rem;
     font-size: 0.8125rem;
     line-height: 1.5;
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--radius-sm);
   }
   
   &.btn-group-lg > .btn {
     padding: 0.75rem 1.5rem;
     font-size: 1.0625rem;
     line-height: 1.5;
-    border-radius: var(--border-radius-lg);
+    border-radius: var(--radius-lg);
   }
   
   // Vertical button group
@@ -422,13 +459,13 @@
       &:not(:first-child) {
         margin-left: 0;
         margin-top: -1px;
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
+        -top-left-radius: 0;
+        -top-right-radius: 0;
       }
       
       &:not(:last-child) {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
+        -bottom-left-radius: 0;
+        -bottom-right-radius: 0;
       }
     }
   }

@@ -1,5 +1,5 @@
 import { GuildService } from './services/guild-service.js';
-import { GuildUI } from './ui/guild-ui.js';
+import { GuildUI } from './ui/GuildUI.js';
 
 /**
  * GuildManager coordinates between the UI and the GuildService
@@ -54,44 +54,44 @@ export class GuildManager {
                 activities: [],
                 resources: []
             };
-            
-            // Add some sample data if the arrays are empty
-            if (this.dataManager.appState.guildLogs.activities.length === 0) {
-                console.log('Adding sample activities...');
-                this.dataManager.appState.guildLogs.activities = [
-                    {
-                        id: 'act1',
-                        name: 'First Guild Quest',
-                        description: 'A simple quest to get started',
-                        type: 'quest',
-                        status: 'in-progress',
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    }
-                ];
-            }
-            
-            if (this.dataManager.appState.guildLogs.resources.length === 0) {
-                console.log('Adding sample resources...');
-                this.dataManager.appState.guildLogs.resources = [
-                    {
-                        id: 'res1',
-                        name: 'Gold Coins',
-                        description: 'Standard currency',
-                        type: 'gold',
-                        quantity: 100,
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    }
-                ];
-            }
-            
-            // Persist the updated state
-            if (this.dataManager.saveData) {
-                this.dataManager.saveData();
-            } else if (this.dataManager.appState?._saveState) {
-                this.dataManager.appState._saveState();
-            }
+        }
+        
+        // Add some sample data if the arrays are empty
+        if (!this.dataManager.appState.guildLogs.activities || this.dataManager.appState.guildLogs.activities.length === 0) {
+            console.log('Adding sample activities...');
+            this.dataManager.appState.guildLogs.activities = [
+                {
+                    id: 'act1',
+                    name: 'First Guild Quest',
+                    description: 'A simple quest to get started',
+                    type: 'quest',
+                    status: 'in-progress',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }
+            ];
+        }
+        
+        if (!this.dataManager.appState.guildLogs.resources || this.dataManager.appState.guildLogs.resources.length === 0) {
+            console.log('Adding sample resources...');
+            this.dataManager.appState.guildLogs.resources = [
+                {
+                    id: 'res1',
+                    name: 'Gold Coins',
+                    description: 'Standard currency',
+                    type: 'gold',
+                    quantity: 100,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }
+            ];
+        }
+        
+        // Persist the updated state
+        if (this.dataManager.saveData) {
+            this.dataManager.saveData();
+        } else if (this.dataManager.appState?._saveState) {
+            this.dataManager.appState._saveState();
         }
     }
     
@@ -171,105 +171,82 @@ export class GuildManager {
      * Initialize the guild UI
      */
     async initializeUI() {
-        const guildSection = document.getElementById('guild');
+        // Try both 'guild-logs' and 'guild' for backward compatibility
+        const guildSection = document.getElementById('guild-logs') || document.getElementById('guild');
         if (!guildSection) {
             console.error('Guild section not found');
             return;
         }
         
-        // Set up the guild section UI
-        guildSection.innerHTML = `
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
-                        <h2 class="text-accent mb-4">Guild Management</h2>
-                        
-                        <!-- Tabs -->
-                        <ul class="nav nav-tabs mb-4" id="guildTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="activities-tab" data-bs-toggle="tab" 
-                                    data-bs-target="#activities" type="button" role="tab" aria-controls="activities" 
-                                    aria-selected="true">Activities</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="resources-tab" data-bs-toggle="tab" 
-                                    data-bs-target="#resources" type="button" role="tab" aria-controls="resources" 
-                                    aria-selected="false">Resources</button>
-                            </li>
-                        </ul>
-                        
-                        <!-- Tab Content -->
-                        <div class="tab-content" id="guildTabsContent">
-                            <!-- Activities Tab -->
-                            <div class="tab-pane fade show active" id="activities" role="tabpanel" aria-labelledby="activities-tab">
-                                <div class="card mb-4">
-                                    <div class="card-header bg-card d-flex justify-content-between align-items-center">
-                                        <h3 class="mb-0">Guild Activities</h3>
-                                        <button class="button" id="add-activity-btn">
-                                            <i class="fas fa-plus"></i> Add Activity
+        console.log('Initializing guild UI with existing template');
+        
+        // Check if we need to initialize the template (for backward compatibility)
+        if (guildSection.children.length === 0) {
+            console.log('No template content found, initializing basic structure');
+            guildSection.innerHTML = `
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <h2 class="text-accent mb-4">Guild Management</h2>
+                            
+                            <!-- Activity Log Section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-card-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h3 class="h5 mb-0">Guild Activities</h3>
+                                        <button class="btn btn-primary btn-sm new-activity-btn">
+                                            <i class="fas fa-plus me-1"></i> New Activity
                                         </button>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control bg-card text" 
-                                                    id="activity-search" placeholder="Search activities...">
-                                                <button class="button" type="button" id="activity-search-btn">
-                                                    <i class="fas fa-search"></i>
-                                                </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="activity-list">
+                                        <div class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
                                             </div>
-                                        </div>
-                                        <div class="activity-list">
-                                            <!-- Activities will be rendered here -->
+                                            <p class="mt-2 text-muted">Loading activities...</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Resources Tab -->
-                            <div class="tab-pane fade" id="resources" role="tabpanel" aria-labelledby="resources-tab">
-                                <div class="card">
-                                    <div class="card-header bg-card d-flex justify-content-between align-items-center">
-                                        <h3 class="mb-0">Guild Resources</h3>
-                                        <button class="button" id="add-resource-btn">
-                                            <i class="fas fa-plus"></i> Add Resource
+                            <!-- Resources Section -->
+                            <div class="card">
+                                <div class="card-header bg-card-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h3 class="h5 mb-0">Guild Resources</h3>
+                                        <button class="btn btn-primary btn-sm new-resource-btn">
+                                            <i class="fas fa-plus me-1"></i> New Resource
                                         </button>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control bg-card text" 
-                                                    id="resource-search" placeholder="Search resources...">
-                                                <button class="button" type="button" id="resource-search-btn">
-                                                    <i class="fas fa-search"></i>
-                                                </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="resource-list">
+                                        <div class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
                                             </div>
-                                        </div>
-                                        <div class="resource-list">
-                                            <!-- Resources will be rendered here -->
+                                            <p class="mt-2 text-muted">Loading resources...</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        `;
+                </div>`;
+        }
         
         // Initialize the guild UI
         if (this.guildUI) {
-            this.guildUI.initializeUI();
+            await this.guildUI.initialize();
         }
         
-        // Set up event listeners for the UI
+        // Set up event listeners
         this.setupEventListeners();
         
-        // Setup event listeners after recreating the DOM elements
-        if (this.guildUI) {
-            this.guildUI.setupResourceEventListeners();
-            this.guildUI.initialize();
-        }
+        // Load initial data
+        await this.loadInitialData();
     }
     
     /**

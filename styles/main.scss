@@ -6,6 +6,7 @@
 // Core variables and mixins
 @import 'variables';
 @import 'mixins';
+@import '_global';
 
 // Base styles and resets
 @import 'base/reset';
@@ -42,6 +43,7 @@
 @import 'modules/quests';
 @import 'modules/characters';
 @import 'modules/loot'; // Loot module styles
+@import 'modules/guild-logs'; // Guild Logs tab styles
 
 // Components
 @import 'components/toasts';

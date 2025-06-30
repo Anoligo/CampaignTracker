@@ -7,11 +7,11 @@
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     margin-bottom: 0.75rem;
-    box-shadow: var(--shadow-md);
-    border-radius: var(--border-radius);
+    : var(--shadow-md);
+    -radius: var(---radius);
     max-width: 350px;
-    background-color: var(--bg-card);
-    border: 1px solid var(--border);
+    -: var(--bg-card);
+    : 1px solid var(--);
 
     &.show {
         opacity: 1;
@@ -23,28 +23,28 @@
 
     // Toast Colors
     &.bg-primary {
-        background-color: var(--primary) !important;
-        color: var(--white);
+        -: var(--primary) !important;
+        : var(--white);
     }
 
     &.bg-success {
-        background-color: var(--success) !important;
-        color: var(--white);
+        -: var(--success) !important;
+        : var(--white);
     }
 
     &.bg-danger {
-        background-color: var(--danger) !important;
-        color: var(--white);
+        -: var(--danger) !important;
+        : var(--white);
     }
 
     &.bg-warning {
-        background-color: var(--warning) !important;
-        color: var(--dark);
+        -: var(--warning) !important;
+        : var(--dark);
     }
 
     &.bg-info {
-        background-color: var(--info) !important;
-        color: var(--white);
+        -: var(--info) !important;
+        : var(--white);
     }
 }
 

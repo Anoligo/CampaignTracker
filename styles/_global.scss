@@ -1,0 +1,116 @@
+// _global.scss
+// Universal palette, typography, and surface rules for the Iron Meridian Campaign Tracker
+// Enforces dark "arcane-terminal" theme and palette tokens across all surfaces
+
+@import 'variables';
+
+// 1. Universal Reset & Box Model
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: var(--bg-dark);
+  color: var(--text);
+  font-family: var(--font-main, 'Inter', 'Segoe UI', Arial, sans-serif);
+  font-size: 1rem;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+// 2. Core Palette Enforcement
+body, .app-container, .section, .content-area, .card, .sidebar, .modal-content, .dropdown-menu, .popover {
+  background-color: var(--bg-dark) !important;
+  color: var(--text) !important;
+}
+
+.card, .report, .player-card {
+  background: var(--bg-card) !important;
+  color: var(--text) !important;
+  border-left: 3px solid #555;
+  box-shadow: none;
+  transition: transform 0.15s;
+}
+
+.card:hover, .report:hover, .player-card:hover {
+  transform: translateY(-2px);
+}
+
+// 3. Buttons
+.btn, .button {
+  background: #2c2c2c !important;
+  color: var(--text) !important;
+  border: var(--border-light) !important;
+  font-weight: bold;
+  border-radius: var(--radius, 0.5rem);
+  transition: border-color 0.2s, background 0.2s;
+}
+.btn:hover, .button:hover {
+  border-color: var(--accent) !important;
+}
+
+// 4. Sidebar
+#sidebar, .sidebar {
+  background: #1f1f1f !important;
+  color: var(--text) !important;
+}
+#sidebar .active, .sidebar .active, #sidebar .nav-link.active, .sidebar .nav-link.active {
+  background-color: rgba(255,217,102,0.15) !important;
+  color: var(--accent-light) !important;
+}
+
+// 5. Typography
+h1, h2, h3, h4, h5, h6 {
+  color: var(--accent-light) !important;
+  font-size: clamp(1.25rem, 2vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.text, p, li, td, th, label, span {
+  color: var(--text) !important;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.text-meta, .meta, .small, small {
+  color: #bbbbbbd9 !important;
+  font-size: 0.85rem;
+}
+
+// 6. Accessibility
+:focus {
+  outline: 2px solid var(--accent-light);
+  outline-offset: 2px;
+}
+[aria-disabled='true'], .disabled, :disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+// 7. Utility classes
+.u-hidden { display: none !important; }
+.u-accent { color: var(--accent) !important; }
+.u-bg-card { background: var(--bg-card) !important; }
+.u-bg-dark { background: var(--bg-dark) !important; }
+
+// 8. Fix Bootstrap leaks
+.bg-light, .bg-white, .bg-body, .bg-secondary, .bg-primary,
+.text-light, .text-dark, .text-body, .text-secondary, .text-primary {
+  background: unset !important;
+  color: unset !important;
+}
+
+// 9. Dropdowns & Lists
+.tom-select, .choices, .select2 {
+  background: var(--bg-card) !important;
+  color: var(--text) !important;
+  border: var(--border-light) !important;
+}
+
+// 10. Misc
+hr {
+  border-color: var(--border-light) !important;
+}
+
+// Always prefer palette tokens and never hard-coded hex except for neutral fallback.

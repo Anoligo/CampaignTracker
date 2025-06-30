@@ -1,5 +1,5 @@
 import { Entity } from '../../entity.js';
-import { GuildActivityType } from '../enums/guild-enums.js';
+import { GuildActivityType } from '../enums/guild-activity-type.js';
 
 export class GuildActivity extends Entity {
     constructor(name, description, type = GuildActivityType.QUEST, createdAt = new Date(), updatedAt = new Date()) {

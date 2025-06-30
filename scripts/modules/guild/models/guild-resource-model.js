@@ -1,5 +1,5 @@
 import { Entity } from '../../entity.js';
-import { GuildResourceType } from '../enums/guild-enums.js';
+import { GuildResourceType } from '../enums/guild-resource-type.js';
 
 export class GuildResource extends Entity {
     constructor(name, description, type = GuildResourceType.GOLD, quantity = 0, createdAt = new Date(), updatedAt = new Date()) {

@@ -138,10 +138,25 @@ export class AppInitializer {
         import('../../modules/guild/index.js')
             .then(module => {
                 if (module.initializeGuildSection) {
-                    navManager.registerSectionInitializer('guild', module.initializeGuildSection);
+                    // Register the section initializer with the correct section ID 'guild-logs'
+                    navManager.registerSectionInitializer('guild-logs', module.initializeGuildSection);
+                    console.log('Guild section initializer registered successfully');
+                } else {
+                    console.error('Guild module does not export initializeGuildSection');
                 }
             })
-            .catch(error => console.error('Failed to load guild module:', error));
+            .catch(error => {
+                console.error('Failed to load guild module:', error);
+                // Show error in UI if possible
+                const guildSection = document.getElementById('guild-logs') || document.getElementById('guild');
+                if (guildSection) {
+                    guildSection.innerHTML = `
+                        <div class="alert alert-danger">
+                            Failed to load guild module. Please check the console for details.
+                        </div>
+                    `;
+                }
+            });
     }
 
     static _registerQuestsSection(navManager) {

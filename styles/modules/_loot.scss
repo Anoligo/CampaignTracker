@@ -152,8 +152,26 @@
   overflow-y: auto;
   padding: 0.75rem;
   background: var(--bg-dark);
-  
-  .empty-state {
+  color: var(--text);
+  border-radius: var(--border-radius);
+}
+
+.loot-list > * {
+  background: var(--bg-card);
+  color: var(--text);
+  border-left: 3px solid #555;
+  border-radius: var(--border-radius);
+  margin-bottom: 0.5rem;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.loot-list > *:hover {
+  background: var(--bg-dark);
+  color: var(--accent-light);
+  transform: translateY(-2px);
+}
+
+.loot-list .empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -283,12 +301,8 @@
       margin-bottom: 1rem;
       color: var(--text-muted);
     }
-    
-    &__message {
-      font-size: 1.2rem;
-    }
   }
-}
+
 
 .loot-detail {
   padding: 1.5rem;
