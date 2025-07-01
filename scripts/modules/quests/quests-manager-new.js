@@ -10,23 +10,28 @@ export class QuestsManager {
     /**
      * Create a new QuestsManager instance
      * @param {Object} dataManager - The application's data manager (DataService)
-     * @param {boolean} isTest - Whether this is a test instance (prevents sample data creation)
+     * @param {Object} [options] - Additional options
+     * @param {boolean} [options.createSamples=true] - Whether to create sample quests if none exist
+     * @param {boolean} [options.isTest=false] - Whether this is a test instance (prevents automatic initialization)
      */
-    constructor(dataManager, isTest = false) {
+    constructor(dataManager, options = {}) {
         console.log('[QuestsManager] Creating new instance with dataManager:', dataManager ? 'valid' : 'invalid');
         
         if (!dataManager) {
             throw new Error('Data manager is required');
         }
         
+        const { createSamples = true, isTest = false } = options;
+
         this.dataManager = dataManager;
         this.questService = new QuestService(dataManager);
         this.questUI = null;
         this.initialized = false;
         this._isRendering = false;
         this._initializationPromise = null;
-        
-        if (!isTest) {
+        this.options = { createSamples, isTest };
+
+        if (!this.options.isTest) {
             // Don't await here to avoid blocking the constructor
             this.initialize().catch(error => {
                 console.error('[QuestsManager] Error during initialization:', error);
@@ -64,9 +69,9 @@ export class QuestsManager {
                 // Set up the mutation observer to detect when the quests section becomes visible
                 this.setupSectionObserver();
                 
-                // Create sample quests if none exist
+                // Create sample quests if requested and none exist
                 const quests = this.questService.getAllQuests();
-                if (quests.length === 0 && !this._sampleQuestsCreated) {
+                if (this.options.createSamples && quests.length === 0 && !this._sampleQuestsCreated) {
                     console.log('[QuestsManager] No quests found, creating sample quests');
                     await this.createSampleQuests();
                     this._sampleQuestsCreated = true;
