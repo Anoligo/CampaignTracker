@@ -893,6 +893,42 @@ export class DataService {
         this._saveData();
         return true;
     }
+
+    /**
+     * Alias for remove to maintain backwards compatibility
+     * @param {string} collection - The collection name
+     * @param {string} id - The entity ID
+     * @returns {boolean} True if removed, false otherwise
+     */
+    delete(collection, id) {
+        return this.remove(collection, id);
+    }
+
+    /**
+     * Merge updates into the current state and persist the result
+     * @param {Object} updates - Partial state updates
+     * @returns {Object} The updated state
+     */
+    updateState(updates = {}) {
+        if (!updates || typeof updates !== 'object') {
+            throw new Error('Updates must be an object');
+        }
+
+        const newState = { ...this._state };
+        for (const [key, value] of Object.entries(updates)) {
+            if (Array.isArray(value)) {
+                newState[key] = [...value];
+            } else if (value && typeof value === 'object') {
+                newState[key] = { ...(newState[key] || {}), ...value };
+            } else {
+                newState[key] = value;
+            }
+        }
+
+        this._state = newState;
+        this._saveData();
+        return this._getStateCopy();
+    }
     
     // ====================================
     // Entity-Specific Methods
