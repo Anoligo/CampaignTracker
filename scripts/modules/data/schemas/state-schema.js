@@ -11,7 +11,7 @@ export const UI_STATE_SCHEMA = {
         activeSection: {
             type: 'string',
             enum: [
-                'dashboard', 'quests', 'players', 'characters', 'locations',
+                'dashboard', 'quests', 'players', 'locations',
                 'loot', 'npcs', 'factions', 'session-notes', 'guild-logs',
                 'settings'
             ]
