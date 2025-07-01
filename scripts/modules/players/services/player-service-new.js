@@ -27,10 +27,12 @@ export class PlayerService {
      * @private
      */
     initialize() {
-        // Ensure players array exists in appState
-        if (!Array.isArray(this.dataManager.appState[this.STORAGE_KEY])) {
-            this.dataManager.appState[this.STORAGE_KEY] = [];
-            this._saveState();
+        // Ensure players array exists in the underlying state
+        // DataService guarantees the collection is initialized, but this check
+        // is kept for safety when migrating old data.
+        const players = this.dataManager.getAll?.(this.STORAGE_KEY);
+        if (!Array.isArray(players)) {
+            this.dataManager.updateState({ [this.STORAGE_KEY]: [] });
         }
     }
     
@@ -54,7 +56,11 @@ export class PlayerService {
      * @returns {Array<Object>} Array of players
      */
     getAllPlayers() {
-        return [...(this.dataManager.appState[this.STORAGE_KEY] || [])];
+        // Use DataService.getAll to retrieve players so we don't rely on the
+        // appState getter which returns a deep copy
+        return this.dataManager.getAll
+            ? this.dataManager.getAll(this.STORAGE_KEY)
+            : [...(this.dataManager.appState[this.STORAGE_KEY] || [])];
     }
     
     /**
@@ -64,6 +70,9 @@ export class PlayerService {
      */
     getPlayerById(id) {
         if (!id) return undefined;
+        if (this.dataManager.get) {
+            return this.dataManager.get(this.STORAGE_KEY, id);
+        }
         return this.dataManager.appState[this.STORAGE_KEY]?.find(player => player.id === id);
     }
     
@@ -79,8 +88,9 @@ export class PlayerService {
             }
             
             // Ensure players array exists
-            if (!Array.isArray(this.dataManager.appState[this.STORAGE_KEY])) {
-                this.dataManager.appState[this.STORAGE_KEY] = [];
+            const existingPlayers = this.dataManager.getAll?.(this.STORAGE_KEY);
+            if (!Array.isArray(existingPlayers)) {
+                this.dataManager.updateState({ [this.STORAGE_KEY]: [] });
             }
             
             // Validate player class
@@ -122,18 +132,20 @@ export class PlayerService {
             player.createdAt = new Date().toISOString();
             player.updatedAt = new Date().toISOString();
             
-            // Add to the players array
-            this.dataManager.appState[this.STORAGE_KEY] = [
-                ...this.dataManager.appState[this.STORAGE_KEY],
-                player
-            ];
+            // Persist via DataService to ensure state mutations are saved
+            const savedPlayer = this.dataManager.add
+                ? this.dataManager.add(this.STORAGE_KEY, player, { generateId: false })
+                : (this.dataManager.appState[this.STORAGE_KEY] = [
+                      ...this.dataManager.appState[this.STORAGE_KEY],
+                      player
+                  ]) && player;
             
             // Save the state
             if (!this._saveState()) {
                 throw new Error('Failed to save player');
             }
             
-            return player;
+            return savedPlayer;
         } catch (error) {
             console.error('Error creating player:', error);
             throw error;
@@ -152,24 +164,29 @@ export class PlayerService {
                 throw new Error('ID and updates are required');
             }
             
-            const index = this.dataManager.appState[this.STORAGE_KEY]?.findIndex(p => p.id === id) ?? -1;
-            if (index === -1) {
+            let existingPlayer = this.getPlayerById(id);
+            if (!existingPlayer) {
                 console.warn(`Player with ID ${id} not found`);
                 return undefined;
             }
-            
-            // Create updated player
+
             const updatedPlayer = {
-                ...this.dataManager.appState[this.STORAGE_KEY][index],
+                ...existingPlayer,
                 ...updates,
-                id, // Ensure ID doesn't change
+                id,
                 updatedAt: new Date().toISOString()
             };
-            
-            // Update the array
-            const updatedPlayers = [...this.dataManager.appState[this.STORAGE_KEY]];
-            updatedPlayers[index] = updatedPlayer;
-            this.dataManager.appState[this.STORAGE_KEY] = updatedPlayers;
+
+            if (this.dataManager.update) {
+                this.dataManager.update(this.STORAGE_KEY, id, updatedPlayer);
+            } else {
+                const players = [...(this.dataManager.appState[this.STORAGE_KEY] || [])];
+                const idx = players.findIndex(p => p.id === id);
+                if (idx >= 0) {
+                    players[idx] = updatedPlayer;
+                    this.dataManager.appState[this.STORAGE_KEY] = players;
+                }
+            }
             
             // Save the state
             if (!this._saveState()) {
@@ -194,13 +211,21 @@ export class PlayerService {
                 throw new Error('ID is required');
             }
             
-            const initialLength = this.dataManager.appState[this.STORAGE_KEY]?.length || 0;
-            this.dataManager.appState[this.STORAGE_KEY] = 
-                this.dataManager.appState[this.STORAGE_KEY]?.filter(p => p.id !== id) || [];
-            
-            if (this.dataManager.appState[this.STORAGE_KEY].length === initialLength) {
-                console.warn(`Player with ID ${id} not found`);
-                return false;
+            const initialLength = this.getAllPlayers().length;
+
+            if (this.dataManager.remove) {
+                const removed = this.dataManager.remove(this.STORAGE_KEY, id);
+                if (!removed) {
+                    console.warn(`Player with ID ${id} not found`);
+                    return false;
+                }
+            } else {
+                const players = [...(this.dataManager.appState[this.STORAGE_KEY] || [])].filter(p => p.id !== id);
+                if (players.length === initialLength) {
+                    console.warn(`Player with ID ${id} not found`);
+                    return false;
+                }
+                this.dataManager.appState[this.STORAGE_KEY] = players;
             }
             
             // Save the state
