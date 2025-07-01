@@ -187,9 +187,9 @@ export class NotesForms {
         const note = this.service.getNoteById(noteId);
         if (!note) return;
 
-        // Get characters from both players and characters arrays
+        // Get characters from both players and NPC arrays
         const players = this.dataManager.appState.players || [];
-        const characters = this.dataManager.appState.characters || [];
+        const characters = this.dataManager.appState.npcs || [];
         const allCharacters = [...players, ...characters];
         
         const availableCharacters = allCharacters.filter(character => 

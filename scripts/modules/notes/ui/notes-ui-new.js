@@ -93,30 +93,15 @@ export class NotesUI extends BaseUI {
         }
         
         // Add related entities sections
-        // Handle both the legacy format (note.relatedQuests) and the new format (note.relatedEntities.quests)
-        
+
         // Process related quests
-        const relatedQuests = [];
-        // Add from legacy format if available
-        if (note.relatedQuests && note.relatedQuests.length > 0) {
-            relatedQuests.push(...note.relatedQuests);
-        }
-        // Add from new format if available
-        if (note.relatedEntities && note.relatedEntities.quests && note.relatedEntities.quests.length > 0) {
-            // For each quest ID in relatedEntities.quests, add it to relatedQuests if it's not already there
-            note.relatedEntities.quests.forEach(questId => {
-                if (!relatedQuests.some(q => q.id === questId)) {
-                    // Try to find the quest in the app state
-                    const quest = this.dataManager.appState.quests?.find(q => q.id === questId);
-                    if (quest) {
-                        relatedQuests.push({
-                            id: questId,
-                            name: quest.name || quest.title || `Quest ${questId.substring(0, 6)}`
-                        });
-                    }
-                }
-            });
-        }
+        const relatedQuests = (note.relatedEntities?.quests || []).map(questId => {
+            const quest = this.dataManager.appState.quests?.find(q => q.id === questId);
+            return {
+                id: questId,
+                name: quest ? quest.name || quest.title || `Quest ${questId.substring(0,6)}` : `Quest ${questId.substring(0,6)}`
+            };
+        });
         if (relatedQuests.length > 0) {
             sections.push({
                 title: 'Related Quests',
@@ -125,25 +110,13 @@ export class NotesUI extends BaseUI {
         }
         
         // Process related locations
-        const relatedLocations = [];
-        // Add from legacy format if available
-        if (note.relatedLocations && note.relatedLocations.length > 0) {
-            relatedLocations.push(...note.relatedLocations);
-        }
-        // Add from new format if available
-        if (note.relatedEntities && note.relatedEntities.locations && note.relatedEntities.locations.length > 0) {
-            note.relatedEntities.locations.forEach(locationId => {
-                if (!relatedLocations.some(l => l.id === locationId)) {
-                    const location = this.dataManager.appState.locations?.find(l => l.id === locationId);
-                    if (location) {
-                        relatedLocations.push({
-                            id: locationId,
-                            name: location.name || `Location ${locationId.substring(0, 6)}`
-                        });
-                    }
-                }
-            });
-        }
+        const relatedLocations = (note.relatedEntities?.locations || []).map(locationId => {
+            const location = this.dataManager.appState.locations?.find(l => l.id === locationId);
+            return {
+                id: locationId,
+                name: location ? location.name || `Location ${locationId.substring(0,6)}` : `Location ${locationId.substring(0,6)}`
+            };
+        });
         if (relatedLocations.length > 0) {
             sections.push({
                 title: 'Related Locations',
@@ -152,25 +125,13 @@ export class NotesUI extends BaseUI {
         }
         
         // Process related characters
-        const relatedCharacters = [];
-        // Add from legacy format if available
-        if (note.relatedCharacters && note.relatedCharacters.length > 0) {
-            relatedCharacters.push(...note.relatedCharacters);
-        }
-        // Add from new format if available
-        if (note.relatedEntities && note.relatedEntities.characters && note.relatedEntities.characters.length > 0) {
-            note.relatedEntities.characters.forEach(characterId => {
-                if (!relatedCharacters.some(c => c.id === characterId)) {
-                    const character = this.dataManager.appState.characters?.find(c => c.id === characterId);
-                    if (character) {
-                        relatedCharacters.push({
-                            id: characterId,
-                            name: character.name || `Character ${characterId.substring(0, 6)}`
-                        });
-                    }
-                }
-            });
-        }
+        const relatedCharacters = (note.relatedEntities?.characters || []).map(characterId => {
+            const character = this.dataManager.appState.npcs?.find(c => c.id === characterId);
+            return {
+                id: characterId,
+                name: character ? character.name || `Character ${characterId.substring(0,6)}` : `Character ${characterId.substring(0,6)}`
+            };
+        });
         if (relatedCharacters.length > 0) {
             sections.push({
                 title: 'Related Characters',
@@ -179,25 +140,13 @@ export class NotesUI extends BaseUI {
         }
         
         // Process related items
-        const relatedItems = [];
-        // Add from legacy format if available
-        if (note.relatedItems && note.relatedItems.length > 0) {
-            relatedItems.push(...note.relatedItems);
-        }
-        // Add from new format if available
-        if (note.relatedEntities && note.relatedEntities.items && note.relatedEntities.items.length > 0) {
-            note.relatedEntities.items.forEach(itemId => {
-                if (!relatedItems.some(i => i.id === itemId)) {
-                    const item = this.dataManager.appState.loot?.find(i => i.id === itemId);
-                    if (item) {
-                        relatedItems.push({
-                            id: itemId,
-                            name: item.name || item.title || `Item ${itemId.substring(0, 6)}`
-                        });
-                    }
-                }
-            });
-        }
+        const relatedItems = (note.relatedEntities?.items || []).map(itemId => {
+            const item = this.dataManager.appState.loot?.find(i => i.id === itemId);
+            return {
+                id: itemId,
+                name: item ? item.name || item.title || `Item ${itemId.substring(0,6)}` : `Item ${itemId.substring(0,6)}`
+            };
+        });
         if (relatedItems.length > 0) {
             sections.push({
                 title: 'Related Items',
@@ -772,8 +721,8 @@ export class NotesUI extends BaseUI {
                 }
                 break;
             case 'character':
-                if (this.dataManager.appState.characters) {
-                    entities = this.dataManager.appState.characters;
+                if (this.dataManager.appState.npcs) {
+                    entities = this.dataManager.appState.npcs;
                 }
                 break;
             case 'item':
@@ -784,25 +733,7 @@ export class NotesUI extends BaseUI {
         }
         
         // Check which entities are already related to the note
-        const alreadyRelatedIds = new Set();
-        
-        // Check in the legacy format
-        const legacyKey = `related${entityType.charAt(0).toUpperCase() + entityType.slice(1)}s`;
-        if (currentNote[legacyKey] && Array.isArray(currentNote[legacyKey])) {
-            currentNote[legacyKey].forEach(entity => {
-                if (entity && entity.id) {
-                    alreadyRelatedIds.add(entity.id);
-                }
-            });
-        }
-        
-        // Check in the new format
-        const newFormatKey = `${entityType}s`;
-        if (currentNote.relatedEntities && Array.isArray(currentNote.relatedEntities[newFormatKey])) {
-            currentNote.relatedEntities[newFormatKey].forEach(id => {
-                alreadyRelatedIds.add(id);
-            });
-        }
+        const alreadyRelatedIds = new Set(currentNote.relatedEntities?.[`${entityType}s`] || []);
         
         // Filter out already related entities
         const availableEntities = entities.filter(entity => !alreadyRelatedIds.has(entity.id));
@@ -870,8 +801,8 @@ export class NotesUI extends BaseUI {
                 }
                 break;
             case 'character':
-                if (this.dataManager.appState.characters) {
-                    entity = this.dataManager.appState.characters.find(c => c.id === entityId);
+                if (this.dataManager.appState.npcs) {
+                    entity = this.dataManager.appState.npcs.find(c => c.id === entityId);
                 }
                 break;
             case 'item':
@@ -902,31 +833,6 @@ export class NotesUI extends BaseUI {
         
         // Refresh the note to show the updated related entities
         const updatedNote = this.getById(noteId);
-        
-        // Make sure the related entity appears in the UI
-        // First, check if we need to add the entity name for display purposes
-        const relatedEntitiesKey = `relatedEntities`;
-        const entityTypeKey = `${entityType}s`;
-        
-        if (updatedNote.relatedEntities && 
-            updatedNote.relatedEntities[entityTypeKey] && 
-            updatedNote.relatedEntities[entityTypeKey].includes(entityId)) {
-            
-            // Create the display property if it doesn't exist
-            if (!updatedNote[`related${entityType.charAt(0).toUpperCase() + entityType.slice(1)}s`]) {
-                updatedNote[`related${entityType.charAt(0).toUpperCase() + entityType.slice(1)}s`] = [];
-            }
-            
-            // Check if the entity is already in the display array
-            const displayArray = updatedNote[`related${entityType.charAt(0).toUpperCase() + entityType.slice(1)}s`];
-            if (!displayArray.some(e => e.id === entityId)) {
-                // Add the entity to the display array
-                displayArray.push({
-                    id: entityId,
-                    name: entity.name || entity.title || `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} ${entityId.substring(0, 6)}`
-                });
-            }
-        }
         
         // Refresh the UI
         this.renderDetails(updatedNote);

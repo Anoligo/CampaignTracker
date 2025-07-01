@@ -173,14 +173,7 @@ export class DataService {
         // Start with a deep clone of the state to avoid mutating the original
         const fixedState = JSON.parse(JSON.stringify(state));
 
-        // Backwards compatibility: migrate old `characters` array to `npcs`
-        if (
-            (!Array.isArray(fixedState.npcs) || fixedState.npcs.length === 0) &&
-            Array.isArray(fixedState.characters)
-        ) {
-            console.log('Migrating legacy `characters` array to `npcs`');
-            fixedState.npcs = [...fixedState.characters];
-        }
+
         
         // Ensure quests is an array and filter out invalid quests
         if (!Array.isArray(fixedState.quests)) {
