@@ -8,7 +8,7 @@ function uuidv4() {
 }
 
 import { StateValidator } from '../validators/state-validator.js';
-import { INITIAL_STATE } from '../schemas/state-schema.js';
+import { STATE_SCHEMA, INITIAL_STATE } from '../schemas/state-schema.js';
 
 /**
  * DataService handles all data operations including CRUD and persistence
@@ -187,34 +187,48 @@ export class DataService {
             console.log('Initializing quests array');
             fixedState.quests = [];
         } else {
-            fixedState.quests = fixedState.quests.filter(quest =>
-                quest &&
-                typeof quest === 'object' &&
-                quest.id &&
-                (quest.title || quest.name)
-            ).map(quest => ({
-                ...quest,
-                // Ensure required fields exist with defaults
-                title: quest.title || quest.name || 'Untitled Quest',
-                name: quest.name || quest.title || 'untitled-quest',
-                description: quest.description || '',
-                type: quest.type || 'side',
-                status: quest.status || 'available',
-                journalEntries: Array.isArray(quest.journalEntries) ? quest.journalEntries : [],
-                relatedItems: Array.isArray(quest.relatedItems) ? quest.relatedItems : [],
-                relatedLocations: Array.isArray(quest.relatedLocations) ? quest.relatedLocations : [],
-                relatedCharacters: Array.isArray(quest.relatedCharacters) ? quest.relatedCharacters : [],
-                relatedFactions: Array.isArray(quest.relatedFactions) ? quest.relatedFactions : [],
-                relatedQuests: Array.isArray(quest.relatedQuests) ? quest.relatedQuests : [],
-                notes: quest.notes || '',
-                resolution: {
-                    session: quest.resolution?.session || '',
-                    date: quest.resolution?.date || null,
-                    xp: quest.resolution?.xp || 0
-                },
-                createdAt: quest.createdAt || new Date().toISOString(),
-                updatedAt: quest.updatedAt || new Date().toISOString()
-            }));
+            fixedState.quests = fixedState.quests
+                .filter(quest =>
+                    quest &&
+                    typeof quest === 'object' &&
+                    quest.id &&
+                    (quest.title || quest.name)
+                )
+                .map(quest => {
+                    const cleaned = {
+                        ...quest,
+                        // Ensure required fields exist with defaults
+                        title: quest.title || quest.name || 'Untitled Quest',
+                        name: quest.name || quest.title || 'untitled-quest',
+                        description: quest.description || '',
+                        type: quest.type || 'side',
+                        status: quest.status || 'available',
+                        journalEntries: Array.isArray(quest.journalEntries) ? quest.journalEntries : [],
+                        relatedItems: Array.isArray(quest.relatedItems) ? quest.relatedItems : [],
+                        relatedLocations: Array.isArray(quest.relatedLocations) ? quest.relatedLocations : [],
+                        relatedCharacters: Array.isArray(quest.relatedCharacters) ? quest.relatedCharacters : [],
+                        relatedFactions: Array.isArray(quest.relatedFactions) ? quest.relatedFactions : [],
+                        relatedQuests: Array.isArray(quest.relatedQuests) ? quest.relatedQuests : [],
+                        notes: Array.isArray(quest.notes)
+                            ? quest.notes.map(n => n.text || '').join('; ')
+                            : (typeof quest.notes === 'string' ? quest.notes : ''),
+                        resolution: {
+                            session: typeof quest.resolution?.session === 'string' ? quest.resolution.session : '',
+                            date: typeof quest.resolution?.date === 'string' ? quest.resolution.date : null,
+                            xp: typeof quest.resolution?.xp === 'number' ? quest.resolution.xp : 0
+                        },
+                        createdAt: quest.createdAt || new Date().toISOString(),
+                        updatedAt: quest.updatedAt || new Date().toISOString()
+                    };
+
+                    // Validate cleaned quest against schema
+                    const questErrors = StateValidator.validateObject(cleaned, STATE_SCHEMA.quests.items);
+                    if (questErrors.length > 0) {
+                        console.warn('Quest validation errors after cleaning:', questErrors, cleaned);
+                    }
+
+                    return cleaned;
+                });
         }
         
         // Ensure players is an array and filter out invalid players
