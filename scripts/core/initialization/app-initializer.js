@@ -187,7 +187,7 @@ export class AppInitializer {
                 console.error('DataService not available in appState');
                 return;
             }
-            window.app.questsManager = new module.QuestsManager(dataService);
+            window.app.questsManager = new module.QuestsManager(dataService, { createSamples: false });
             console.log('QuestsManager initialized with DataService');
         }
     }
