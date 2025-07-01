@@ -231,7 +231,9 @@ export class AppInitializer {
         import('../../modules/characters/index.js')
             .then(module => {
                 if (module.initializeCharactersSection) {
-                    navManager.registerSectionInitializer('characters', module.initializeCharactersSection);
+                    // The NPC section uses the "npcs" id in the DOM
+                    // so register the initializer with that id
+                    navManager.registerSectionInitializer('npcs', module.initializeCharactersSection);
                 }
             })
             .catch(error => console.error('Failed to load characters module:', error));
