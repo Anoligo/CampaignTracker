@@ -872,7 +872,7 @@ export class CharacterUI {
      * @param {boolean} show - Whether to show the button
      */
     toggleAddButton(show) {
-        const addCharacterBtn = document.getElementById('add-character-btn');
+        const addCharacterBtn = document.getElementById('addCharacterBtn');
         if (addCharacterBtn) {
             addCharacterBtn.style.display = show ? 'block' : 'none';
         }

@@ -13,8 +13,8 @@ export async function initializeCharactersSection() {
     try {
         console.log('Initializing characters section...');
         
-        // Check if the characters container exists
-        const container = document.getElementById('characters');
+        // Check if the NPCs container exists
+        const container = document.getElementById('npcs');
         if (!container) {
             console.error('Characters container not found');
             return;
@@ -59,7 +59,7 @@ export async function initializeCharactersSection() {
                     // Function to set up event listeners
                     const setupEventListeners = () => {
                         const btn = document.getElementById('addCharacterBtn');
-                        const container = document.getElementById('characters') || document.documentElement;
+                        const container = document.getElementById('npcs') || document.documentElement;
                         
                         // Log button state for debugging
                         const logButtonState = () => {

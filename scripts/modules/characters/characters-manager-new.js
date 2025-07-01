@@ -71,7 +71,7 @@ export class CharactersManager {
      * @private
      */
     setupSectionObserver() {
-        const targetNode = document.getElementById('characters');
+        const targetNode = document.getElementById('npcs');
         if (!targetNode) {
             console.warn('[CharactersManager] Characters section not found, will retry on next render');
             return;
@@ -101,7 +101,7 @@ export class CharactersManager {
      * @private
      */
     checkSectionVisibility() {
-        const section = document.getElementById('characters');
+        const section = document.getElementById('npcs');
         if (!section) return;
         
         const isVisible = section.classList.contains('active');
@@ -161,7 +161,7 @@ export class CharactersManager {
             }
             
             // Only render if the characters section is visible
-            const section = document.getElementById('characters');
+            const section = document.getElementById('npcs');
             if (section && section.classList.contains('active') && this.characterUI) {
                 this.characterUI.refresh()
                     .catch(error => {
