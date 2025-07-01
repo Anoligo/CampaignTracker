@@ -133,8 +133,10 @@ export class QuestService {
      * @returns {Array<Quest>} Array of quests
      */
     getAllQuests(filters = {}) {
-        let quests = [...(this.dataManager.appState[this.STORAGE_KEY] || [])];
-        
+        let quests = this.dataManager.getAll
+            ? this.dataManager.getAll(this.STORAGE_KEY)
+            : [...(this.dataManager.appState[this.STORAGE_KEY] || [])];
+
         // Convert plain objects to Quest instances
         quests = quests.map(quest => this._toQuest(quest));
         
@@ -171,12 +173,7 @@ export class QuestService {
             if (!data) {
                 throw new Error('Quest data is required');
             }
-            
-            // Ensure quests array exists
-            if (!Array.isArray(this.dataManager.appState[this.STORAGE_KEY])) {
-                this.dataManager.appState[this.STORAGE_KEY] = [];
-            }
-            
+
             // Create quest with required fields and defaults
             const quest = this._toQuest({
                 ...data,
@@ -185,19 +182,13 @@ export class QuestService {
                 status: data.status || QuestStatus.ACTIVE,
                 type: data.type || QuestType.MAIN
             });
-            
-            // Add to the quests array
-            this.dataManager.appState[this.STORAGE_KEY] = [
-                ...this.dataManager.appState[this.STORAGE_KEY],
-                quest
-            ];
-            
-            // Save the state
-            if (!this._saveState()) {
-                throw new Error('Failed to save quest');
-            }
-            
-            return quest;
+
+            // Use DataService to add and persist the quest
+            const saved = this.dataManager.add
+                ? this.dataManager.add(this.STORAGE_KEY, quest, { generateId: false })
+                : null;
+
+            return saved ? this._toQuest(saved) : quest;
         } catch (error) {
             console.error('Error creating quest:', error);
             throw error;
@@ -215,38 +206,12 @@ export class QuestService {
             if (!id || !updates) {
                 throw new Error('ID and updates are required');
             }
-            
-            const index = this.dataManager.appState[this.STORAGE_KEY]?.findIndex(q => q.id === id) ?? -1;
-            if (index === -1) {
-                console.warn(`Quest with ID ${id} not found`);
-                return undefined;
-            }
-            
-            // Get the current quest
-            const currentQuest = this._toQuest(this.dataManager.appState[this.STORAGE_KEY][index]);
-            
-            // Create updated quest
-            const updatedQuest = {
-                ...currentQuest,
-                ...updates,
-                id, // Ensure ID doesn't change
-                updatedAt: new Date().toISOString()
-            };
-            
-            // Convert back to Quest instance
-            const quest = this._toQuest(updatedQuest);
-            
-            // Update the array
-            const updatedQuests = [...this.dataManager.appState[this.STORAGE_KEY]];
-            updatedQuests[index] = quest;
-            this.dataManager.appState[this.STORAGE_KEY] = updatedQuests;
-            
-            // Save the state
-            if (!this._saveState()) {
-                throw new Error('Failed to update quest');
-            }
-            
-            return quest;
+
+            const updated = this.dataManager.update
+                ? this.dataManager.update(this.STORAGE_KEY, id, updates)
+                : null;
+
+            return updated ? this._toQuest(updated) : undefined;
         } catch (error) {
             console.error(`Error updating quest ${id}:`, error);
             throw error;
@@ -263,22 +228,13 @@ export class QuestService {
             if (!id) {
                 throw new Error('ID is required');
             }
-            
-            const initialLength = this.dataManager.appState[this.STORAGE_KEY]?.length || 0;
-            this.dataManager.appState[this.STORAGE_KEY] = 
-                this.dataManager.appState[this.STORAGE_KEY]?.filter(q => q.id !== id) || [];
-            
-            if (this.dataManager.appState[this.STORAGE_KEY].length === initialLength) {
-                console.warn(`Quest with ID ${id} not found`);
+
+            if (!this.dataManager.remove) {
+                console.warn('Data manager does not support remove');
                 return false;
             }
-            
-            // Save the state
-            if (!this._saveState()) {
-                throw new Error('Failed to delete quest');
-            }
-            
-            return true;
+
+            return this.dataManager.remove(this.STORAGE_KEY, id);
         } catch (error) {
             console.error(`Error deleting quest ${id}:`, error);
             throw error;
