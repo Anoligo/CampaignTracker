@@ -234,13 +234,12 @@ export const STATE_SCHEMA = {
                     items: { type: 'string' } // Array of quest IDs
                 },
                 notes: { type: 'string' },
-                resolution: { 
+                resolution: {
                     type: 'object',
                     properties: {
-                        outcome: { type: 'string' },
-                        xpAwarded: { type: 'number' },
-                        sessionDate: { type: 'string', format: 'date' },
-                        details: { type: 'string' }
+                        session: { type: 'string' },
+                        date: { type: ['string', 'null'], format: 'date' },
+                        xp: { type: 'number' }
                     }
                 },
                 createdAt: { type: 'string', format: 'date-time' },
