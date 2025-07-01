@@ -451,14 +451,7 @@ export class QuestsManager {
                     status: 'active',
                     difficulty: 'medium',
                     rewards: ['500 gold', 'Rare Artifact'],
-                    notes: [
-                        {
-                            id: 'note-1',
-                            text: 'The artifact is said to be hidden in the ruins of Eldermere',
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString()
-                        }
-                    ]
+                    notes: 'The artifact is said to be hidden in the ruins of Eldermere.'
                 },
                 {
                     title: 'Bandit Infestation',
