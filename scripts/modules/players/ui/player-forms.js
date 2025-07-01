@@ -3,7 +3,8 @@ import { gameDataService } from '../../game-data/services/game-data-service.js';
 export class PlayerForms {
     constructor(playerManager) {
         this.playerManager = playerManager;
-        this.ui = playerManager.ui;
+        // Support both legacy and new manager property names
+        this.ui = playerManager.playerUI || playerManager.ui;
     }
 
     showNewPlayerForm() {
@@ -57,7 +58,24 @@ export class PlayerForms {
         if (form) {
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
-                this.playerManager.createNewPlayer(e.target);
+
+                const data = {
+                    name: form.playerName.value,
+                    playerClass: form.playerClass.value,
+                    level: parseInt(form.playerLevel.value, 10) || 1,
+                    race: form.playerRace.value
+                };
+
+                const player = this.playerManager.createPlayer(data);
+
+                // Refresh the list and highlight the new player
+                const ui = this.playerManager.playerUI || this.playerManager.ui;
+                ui?.renderList();
+                if (player?.id) {
+                    ui?.handleSelect(player.id);
+                }
+
+                form.reset();
             });
         }
         
@@ -69,7 +87,8 @@ export class PlayerForms {
     }
 
     showEditPlayerForm(playerId) {
-        const player = this.playerManager.service.getPlayerById(playerId);
+        const service = this.playerManager.playerService || this.playerManager.service;
+        const player = service.getPlayerById(playerId);
         if (!player) return;
 
         const details = document.getElementById('playerDetails');
@@ -98,8 +117,8 @@ export class PlayerForms {
                         <label for="playerClass" class="form-label">Class *</label>
                         <select class="form-select" id="playerClass" name="playerClass" required>
                             <option value="">Select a class</option>
-                            ${gameDataService.getClasses().map(cls => 
-                                `<option value="${cls.id}" ${player.class === cls.id ? 'selected' : ''}>
+                            ${gameDataService.getClasses().map(cls =>
+                                `<option value="${cls.id}" ${(player.playerClass || player.class) === cls.id ? 'selected' : ''}>
                                     ${cls.name}
                                 </option>`
                             ).join('')}
@@ -122,7 +141,19 @@ export class PlayerForms {
         if (form) {
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
-                this.playerManager.updatePlayer(playerId, e.target);
+
+                const updates = {
+                    name: form.playerName.value,
+                    playerClass: form.playerClass.value,
+                    level: parseInt(form.playerLevel.value, 10) || 1,
+                    race: form.playerRace.value
+                };
+
+                this.playerManager.updatePlayer(playerId, updates);
+
+                const ui = this.playerManager.playerUI || this.playerManager.ui;
+                ui?.renderList();
+                ui?.handleSelect(playerId);
             });
         }
         
