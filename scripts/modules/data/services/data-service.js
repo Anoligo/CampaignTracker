@@ -187,12 +187,11 @@ export class DataService {
             console.log('Initializing quests array');
             fixedState.quests = [];
         } else {
-            fixedState.quests = fixedState.quests.filter(quest => 
-                quest && 
-                typeof quest === 'object' && 
-                quest.id && 
-                quest.title && 
-                quest.name
+            fixedState.quests = fixedState.quests.filter(quest =>
+                quest &&
+                typeof quest === 'object' &&
+                quest.id &&
+                (quest.title || quest.name)
             ).map(quest => ({
                 ...quest,
                 // Ensure required fields exist with defaults
