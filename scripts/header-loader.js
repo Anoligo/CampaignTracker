@@ -11,14 +11,7 @@ export async function loadHeader() {
         const headerNav = document.getElementById('mainNav');
         if (toggleBtn) {
             toggleBtn.addEventListener('click', () => {
-                const isMobile = window.innerWidth <= 991;
-                const sidebar = document.querySelector('.app-sidebar');
-
-                if (isMobile) {
-                    if (headerNav) headerNav.classList.toggle('show');
-                } else {
-                    if (sidebar) sidebar.classList.toggle('show');
-                }
+                if (headerNav) headerNav.classList.toggle('show');
             });
         }
 
