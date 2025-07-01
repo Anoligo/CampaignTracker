@@ -44,7 +44,7 @@ export class CharacterUI extends BaseUI {
      */
     constructor(characterService, dataManager) {
         super({
-            containerId: 'characters',
+            containerId: 'npcs',
             listId: 'characterList',
             detailsId: 'characterDetails',
             searchId: 'characterSearch',
