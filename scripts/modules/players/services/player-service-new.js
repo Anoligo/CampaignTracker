@@ -94,13 +94,17 @@ export class PlayerService {
                 : PlayerRace.HUMAN;
             
             // Create player with required fields and defaults
+            // Note: Player constructor expects (name, class, level, id, createdAt, updatedAt)
+            // Race is not part of the constructor parameters
             const player = new Player(
                 data.name || 'Unnamed Player',
                 playerClass,
                 typeof data.level === 'number' ? data.level : 1,
-                race,
                 data.id || `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
             );
+
+            // Assign race separately so it persists in the saved state
+            player.race = race;
             
             // Add optional fields
             if (data.experience !== undefined) player.experience = data.experience;
