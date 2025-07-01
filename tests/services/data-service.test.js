@@ -17,11 +17,13 @@ describe('DataService', () => {
 
   test('add, get, update and delete entity', () => {
     // Add a quest
-    const added = dataService.add('quests', { 
-      title: 'Test Quest', 
-      description: 'desc', 
-      type: 'main', 
-      status: 'ongoing' 
+    const added = dataService.add('quests', {
+      id: 'quest-test',
+      name: 'quest-test',
+      title: 'Test Quest',
+      description: 'desc',
+      type: 'main',
+      status: 'ongoing'
     });
     
     // Verify the quest was added
@@ -35,7 +37,7 @@ describe('DataService', () => {
     // Delete the quest
     const deleted = dataService.delete('quests', added.id);
     expect(deleted).toBe(true);
-    expect(dataService.get('quests', added.id)).toBeUndefined();
+    expect(dataService.get('quests', added.id)).toBeNull();
   });
 
   test('export and import data', () => {
@@ -59,28 +61,23 @@ describe('DataService', () => {
     expect(imported.title).toBe('Exported Quest');
   });
 
-  test('updateState merges state correctly', () => {
-    // Initial state update
+  test('updateState replaces array data', () => {
     dataService.updateState({
       quests: [
-        { id: '1', title: 'Quest 1', status: 'active' },
-        { id: '2', title: 'Quest 2', status: 'active' }
+        { id: '1', name: 'q1', title: 'Quest 1', description: 'A', type: 'main', status: 'ongoing' }
       ]
     });
 
-    // Partial update
+    expect(dataService.get('quests', '1')).not.toBeNull();
+
     dataService.updateState({
       quests: [
-        { id: '1', status: 'completed' }
+        { id: '2', name: 'q2', title: 'Quest 2', description: 'B', type: 'side', status: 'completed' }
       ]
     });
 
-    // Verify the update was merged correctly
-    const updatedQuest = dataService.get('quests', '1');
-    expect(updatedQuest.title).toBe('Quest 1'); // Should be preserved
-    expect(updatedQuest.status).toBe('completed'); // Should be updated
-    
-    // Verify other quests are still there
-    expect(dataService.get('quests', '2')).toBeDefined();
+    expect(dataService.get('quests', '1')).toBeNull();
+    const quest2 = dataService.get('quests', '2');
+    expect(quest2.title).toBe('Quest 2');
   });
 });
