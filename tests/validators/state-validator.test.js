@@ -23,7 +23,7 @@ describe('StateValidator', () => {
     const invalidState = {
       ...INITIAL_STATE,
       quests: [
-        { 
+        {
           id: '1',
           title: 'Test Quest',
           description: 'Test',
@@ -33,9 +33,10 @@ describe('StateValidator', () => {
         }
       ]
     };
-    
+
     const errors = StateValidator.validateState(invalidState);
-    expect(errors.length).toBe(0); // Should pass validation
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors.some(e => e.includes('status'))).toBe(true);
   });
 
   test('validates nested objects', () => {
@@ -55,7 +56,8 @@ describe('StateValidator', () => {
     };
     
     const errors = StateValidator.validateState(invalidState);
-    expect(errors).toEqual([]); // Should pass validation
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors.some(e => e.includes('guildLogs.activities'))).toBe(true);
   });
 
   test('validates date formats', () => {
