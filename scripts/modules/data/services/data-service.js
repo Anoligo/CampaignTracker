@@ -526,8 +526,12 @@ export class DataService {
             
             if (errors.length > 0) {
                 console.warn(`[DataService] Found ${errors.length} validation errors before saving:`);
-                errors.forEach((error, index) => {
-                    console.warn(`[${index + 1}] ${error.path}: ${error.message}`);
+                errors.forEach((err, idx) => {
+                    if (typeof err === 'string') {
+                        console.warn(`[${idx + 1}] ${err}`);
+                    } else {
+                        console.warn(`[${idx + 1}] ${err.path}: ${err.message}`);
+                    }
                 });
                 
                 // Log problematic state parts for debugging
@@ -551,8 +555,12 @@ export class DataService {
                     
                     if (fixedErrors.length > 0) {
                         console.error(`[DataService] Could not fix all validation errors (${fixedErrors.length} remaining):`);
-                        fixedErrors.forEach((error, index) => {
-                            console.error(`[${index + 1}] ${error.path}: ${error.message}`);
+                        fixedErrors.forEach((err, idx) => {
+                            if (typeof err === 'string') {
+                                console.error(`[${idx + 1}] ${err}`);
+                            } else {
+                                console.error(`[${idx + 1}] ${err.path}: ${err.message}`);
+                            }
                         });
                         
                         // Log the fixed state that still has errors for debugging
