@@ -99,15 +99,17 @@ export async function initializeCharactersSection() {
                             e.stopPropagation();
                             e.stopImmediatePropagation();
 
-                            console.log('Calling handleAddCharacter...');
+                            console.log('Calling character add handler...');
                             try {
                                 if (window.app?.characterUI?.handleAddCharacter) {
                                     window.app.characterUI.handleAddCharacter();
+                                } else if (window.app?.characterUI?.handleAdd) {
+                                    window.app.characterUI.handleAdd();
                                 } else {
-                                    console.error('Character UI or handleAddCharacter method not available');
+                                    console.error('Character UI add handler not available');
                                 }
                             } catch (err) {
-                                console.error('Error in handleAddCharacter:', err);
+                                console.error('Error invoking add handler:', err);
                             }
                         };
 
