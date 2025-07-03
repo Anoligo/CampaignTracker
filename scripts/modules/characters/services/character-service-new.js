@@ -23,10 +23,11 @@ export class CharacterService {
      * @private
      */
     initialize() {
-        // Ensure characters array exists in appState
-        if (!Array.isArray(this.dataManager.appState[this.STORAGE_KEY])) {
-            this.dataManager.appState[this.STORAGE_KEY] = [];
-            this._saveState();
+        // Ensure the collection exists within the underlying data service
+        try {
+            this.dataManager.getAll(this.STORAGE_KEY);
+        } catch (err) {
+            this.dataManager.updateState({ [this.STORAGE_KEY]: [] });
         }
     }
     
@@ -50,7 +51,7 @@ export class CharacterService {
      * @returns {Array<Object>} Array of characters
      */
     getAllCharacters() {
-        return [...(this.dataManager.appState[this.STORAGE_KEY] || [])];
+        return this.dataManager.getAll(this.STORAGE_KEY);
     }
     
     /**
@@ -60,7 +61,7 @@ export class CharacterService {
      */
     getCharacterById(id) {
         if (!id) return undefined;
-        return this.dataManager.appState[this.STORAGE_KEY]?.find(char => char.id === id);
+        return this.dataManager.get(this.STORAGE_KEY, id);
     }
     
     /**
@@ -73,12 +74,7 @@ export class CharacterService {
             if (!data) {
                 throw new Error('Character data is required');
             }
-            
-            // Ensure characters array exists
-            if (!Array.isArray(this.dataManager.appState[this.STORAGE_KEY])) {
-                this.dataManager.appState[this.STORAGE_KEY] = [];
-            }
-            
+
             // Create character with required fields and defaults
             const character = {
                 id: data.id || `char-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -98,18 +94,8 @@ export class CharacterService {
                 ...data // Spread any additional properties
             };
             
-            // Add to the characters array
-            this.dataManager.appState[this.STORAGE_KEY] = [
-                ...this.dataManager.appState[this.STORAGE_KEY],
-                character
-            ];
-            
-            // Save the state
-            if (!this._saveState()) {
-                throw new Error('Failed to save character');
-            }
-            
-            return character;
+            // Persist using the data service
+            return this.dataManager.add(this.STORAGE_KEY, character);
         } catch (error) {
             console.error('Error creating character:', error);
             throw error;
@@ -127,32 +113,21 @@ export class CharacterService {
             if (!id || !updates) {
                 throw new Error('ID and updates are required');
             }
-            
-            const index = this.dataManager.appState[this.STORAGE_KEY]?.findIndex(char => char.id === id) ?? -1;
-            if (index === -1) {
+
+            const current = this.getCharacterById(id);
+            if (!current) {
                 console.warn(`Character with ID ${id} not found`);
                 return undefined;
             }
-            
-            // Create updated character
+
             const updatedCharacter = {
-                ...this.dataManager.appState[this.STORAGE_KEY][index],
+                ...current,
                 ...updates,
-                id, // Ensure ID doesn't change
+                id,
                 updatedAt: new Date().toISOString()
             };
-            
-            // Update the array
-            const updatedCharacters = [...this.dataManager.appState[this.STORAGE_KEY]];
-            updatedCharacters[index] = updatedCharacter;
-            this.dataManager.appState[this.STORAGE_KEY] = updatedCharacters;
-            
-            // Save the state
-            if (!this._saveState()) {
-                throw new Error('Failed to update character');
-            }
-            
-            return updatedCharacter;
+
+            return this.dataManager.update(this.STORAGE_KEY, id, updatedCharacter);
         } catch (error) {
             console.error(`Error updating character ${id}:`, error);
             throw error;
@@ -169,22 +144,8 @@ export class CharacterService {
             if (!id) {
                 throw new Error('ID is required');
             }
-            
-            const initialLength = this.dataManager.appState[this.STORAGE_KEY]?.length || 0;
-            this.dataManager.appState[this.STORAGE_KEY] = 
-                this.dataManager.appState[this.STORAGE_KEY]?.filter(char => char.id !== id) || [];
-            
-            if (this.dataManager.appState[this.STORAGE_KEY].length === initialLength) {
-                console.warn(`Character with ID ${id} not found`);
-                return false;
-            }
-            
-            // Save the state
-            if (!this._saveState()) {
-                throw new Error('Failed to delete character');
-            }
-            
-            return true;
+
+            return this.dataManager.remove(this.STORAGE_KEY, id);
         } catch (error) {
             console.error(`Error deleting character ${id}:`, error);
             throw error;
