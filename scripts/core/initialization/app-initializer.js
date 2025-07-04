@@ -273,7 +273,10 @@ export class AppInitializer {
                     const initializeLoot = async () => {
                         try {
                             console.log('[AppInitializer] Initializing loot section');
-                            const lootManager = new module.LootManager(appState);
+                            // Pass the underlying DataService so loot data is
+                            // persisted correctly
+                            const dataSource = appState.dataService || appState;
+                            const lootManager = new module.LootManager(dataSource);
                             await lootManager.initialize();
                             window.app = window.app || {};
                             window.app.lootManager = lootManager;
