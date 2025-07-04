@@ -117,7 +117,7 @@
         }
         
         // Initialize the test
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Create mock data manager
             const dataManager = new MockDataManager();
             
@@ -128,11 +128,9 @@
             const lootService = new LootService(dataManager);
             const lootUI = new LootUI(lootService, dataManager);
             
-            // Initialize the UI
-            lootUI.initialize();
-            
-            // Render the UI
-            lootUI.render();
+            // Initialize and render the UI
+            await lootUI.init();
+            await lootUI.refresh();
             
             console.log('Loot UI Test initialized with test data');
         });
