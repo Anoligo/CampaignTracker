@@ -22,12 +22,16 @@ export class LootManager {
     constructor(appState) {
         console.log('[LootManager] Initializing with appState/dataService:', appState ? 'valid' : 'invalid');
 
-        if (appState && typeof appState.saveData === 'function') {
-            // A DataService instance was provided
+        if (appState?.dataService) {
+            // If an AppState/DataServiceAdapter was provided, use its underlying DataService
+            this.dataManager = appState.dataService;
+            this.appState = this.dataManager.exportState();
+        } else if (appState && typeof appState.saveData === 'function') {
+            // A DataService instance was provided directly
             this.dataManager = appState;
             this.appState = appState.exportState ? appState.exportState() : appState.appState;
         } else {
-            // Fallback to legacy behaviour expecting an appState object
+            // Fallback to legacy behaviour expecting a plain appState object
             this.appState = appState;
             this.dataManager = appState?.dataManager || appState?.dataService || {
                 appState: appState,
