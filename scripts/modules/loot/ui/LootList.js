@@ -337,7 +337,15 @@ export class LootList {
         console.log('[LootList] Setting up event listeners');
         
         // Remove any existing event listeners to prevent duplicates
-        this.cleanup();
+        if (this.container) {
+            this.container.removeEventListener('click', this.handleContainerClick);
+        }
+
+        if (this.searchInput) {
+            const newInput = this.searchInput.cloneNode(true);
+            this.searchInput.parentNode.replaceChild(newInput, this.searchInput);
+            this.searchInput = newInput;
+        }
         
         // Only set up event listeners if we have a valid container
         if (!this.container) {
