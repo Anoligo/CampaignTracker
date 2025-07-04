@@ -101,7 +101,7 @@ export class CharacterUI extends BaseUI {
                     <i class="fas fa-user-shield me-2"></i>
                     <strong>${character.name}</strong>
                 </div>
-                <small>${character.race || 'Unknown Race'} ${character.classType || 'Unknown Class'} (Level ${character.level || 1})</small>
+                <small>${character.race || 'Unknown Race'} ${(character.class || character.classType || 'Unknown Class')} (Level ${character.level || 1})</small>
             </div>
             <span class="badge bg-secondary rounded-pill">${character.status || 'Active'}</span>
         `;
@@ -139,7 +139,7 @@ export class CharacterUI extends BaseUI {
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Race:</strong> ${character.race || 'Unknown'}</p>
-                            <p><strong>Class:</strong> ${character.classType || 'Unknown'}</p>
+                            <p><strong>Class:</strong> ${(character.class || character.classType || 'Unknown')}</p>
                             <p><strong>Level:</strong> ${character.level || 1}</p>
                         </div>
                         <div class="col-md-6">
@@ -459,8 +459,8 @@ export class CharacterUI extends BaseUI {
                             <label for="character-class" class="form-label">Class</label>
                             <select class="form-select" id="character-class">
                                 <option value="">Select Class</option>
-                                ${Object.entries(PlayerClass).map(([key, value]) => 
-                                    `<option value="${value}" ${character.classType === value ? 'selected' : ''}>${formatEnumValue(value)}</option>`
+                                ${Object.entries(PlayerClass).map(([key, value]) =>
+                                    `<option value="${value}" ${(character.class === value || character.classType === value) ? 'selected' : ''}>${formatEnumValue(value)}</option>`
                                 ).join('')}
                             </select>
                         </div>
@@ -585,7 +585,8 @@ export class CharacterUI extends BaseUI {
                 name: document.getElementById('character-name').value || 'Unnamed Character',
                 level: parseInt(document.getElementById('character-level').value) || 1,
                 race: document.getElementById('character-race').value || 'Unknown',
-                classType: document.getElementById('character-class').value || 'Adventurer',
+                class: document.getElementById('character-class').value || 'Adventurer',
+                status: 'alive',
                 alignment: document.getElementById('character-alignment').value || '',
                 deity: document.getElementById('character-deity').value || '',
                 attributes: {

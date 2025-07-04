@@ -14,7 +14,7 @@ export class CharacterService {
         }
         
         this.dataManager = dataManager;
-        this.STORAGE_KEY = 'characters';
+        this.STORAGE_KEY = 'npcs';
         this.initialize();
     }
     
@@ -76,23 +76,24 @@ export class CharacterService {
             }
 
             // Create character with required fields and defaults
-            const character = {
-                id: data.id || `char-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                name: data.name || 'Unnamed Character',
-                playerClass: data.playerClass || 'fighter',
-                level: typeof data.level === 'number' ? data.level : 1,
-                race: data.race || 'Human',
-                alignment: data.alignment || 'Neutral',
-                experience: typeof data.experience === 'number' ? data.experience : 0,
-                inventory: Array.isArray(data.inventory) ? [...data.inventory] : [],
-                activeQuests: Array.isArray(data.activeQuests) ? [...data.activeQuests] : [],
-                completedQuests: Array.isArray(data.completedQuests) ? [...data.completedQuests] : [],
-                notes: typeof data.notes === 'string' ? data.notes : '',
-                conditions: Array.isArray(data.conditions) ? [...data.conditions] : [],
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                ...data // Spread any additional properties
-            };
+        const character = {
+            id: data.id || `char-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            name: data.name || 'Unnamed Character',
+            class: data.class || data.classType || data.playerClass || 'Adventurer',
+            status: data.status || 'alive',
+            level: typeof data.level === 'number' ? data.level : 1,
+            race: data.race || 'Human',
+            alignment: data.alignment || 'Neutral',
+            experience: typeof data.experience === 'number' ? data.experience : 0,
+            inventory: Array.isArray(data.inventory) ? [...data.inventory] : [],
+            activeQuests: Array.isArray(data.activeQuests) ? [...data.activeQuests] : [],
+            completedQuests: Array.isArray(data.completedQuests) ? [...data.completedQuests] : [],
+            notes: typeof data.notes === 'string' ? data.notes : '',
+            conditions: Array.isArray(data.conditions) ? [...data.conditions] : [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            ...data
+        };
             
             // Persist using the data service
             return this.dataManager.add(this.STORAGE_KEY, character);
@@ -120,9 +121,17 @@ export class CharacterService {
                 return undefined;
             }
 
+            const sanitizedUpdates = { ...updates };
+            if (updates.classType && !updates.class) {
+                sanitizedUpdates.class = updates.classType;
+            }
+            if (updates.playerClass && !sanitizedUpdates.class) {
+                sanitizedUpdates.class = updates.playerClass;
+            }
+
             const updatedCharacter = {
                 ...current,
-                ...updates,
+                ...sanitizedUpdates,
                 id,
                 updatedAt: new Date().toISOString()
             };
@@ -266,9 +275,10 @@ export class CharacterService {
      */
     filterByClass(className) {
         if (!className) return this.getAllCharacters();
-        return this.getAllCharacters().filter(character => 
-            character.playerClass?.toLowerCase() === className.toLowerCase()
-        );
+        return this.getAllCharacters().filter(character => {
+            const cls = character.class || character.playerClass || character.classType || '';
+            return cls.toLowerCase() === className.toLowerCase();
+        });
     }
     
     /**
