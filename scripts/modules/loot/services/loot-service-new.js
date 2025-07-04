@@ -24,7 +24,13 @@ export class LootService {
      */
     initialize() {
         // Ensure loot array exists in appState
-        if (!Array.isArray(this.dataManager.appState.loot)) {
+        if (typeof this.dataManager.getAll === 'function') {
+            try {
+                this.dataManager.getAll('loot');
+            } catch {
+                this.dataManager.updateState({ loot: [] });
+            }
+        } else if (!Array.isArray(this.dataManager.appState.loot)) {
             this.dataManager.appState.loot = [];
             this._saveState();
         }
@@ -49,6 +55,9 @@ export class LootService {
      * @returns {Array<Item>} Array of items
      */
     getAllItems() {
+        if (typeof this.dataManager.getAll === 'function') {
+            return [...this.dataManager.getAll('loot')];
+        }
         return [...(this.dataManager.appState.loot || [])];
     }
     
@@ -58,6 +67,10 @@ export class LootService {
      * @returns {Item|undefined} The found item or undefined
      */
     getItemById(id) {
+        if (typeof this.dataManager.getAll === 'function') {
+            const loot = this.dataManager.getAll('loot');
+            return loot.find(item => item.id === id);
+        }
         return this.dataManager.appState.loot?.find(item => item.id === id);
     }
     
@@ -73,10 +86,16 @@ export class LootService {
             }
             
             // Ensure loot array exists
-            if (!Array.isArray(this.dataManager.appState.loot)) {
+            if (typeof this.dataManager.getAll === 'function') {
+                try {
+                    this.dataManager.getAll('loot');
+                } catch {
+                    this.dataManager.updateState({ loot: [] });
+                }
+            } else if (!Array.isArray(this.dataManager.appState.loot)) {
                 this.dataManager.appState.loot = [];
             }
-            
+
             // Create the item with proper defaults
             const item = new Item(
                 data.name || 'Unnamed Item',
@@ -94,17 +113,18 @@ export class LootService {
                 item.id = `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             }
             
-            // Add to the loot array
-            this.dataManager.appState.loot = [
-                ...this.dataManager.appState.loot,
-                item
-            ];
-            
-            // Save the state
-            if (!this._saveState()) {
-                throw new Error('Failed to save item');
+            if (typeof this.dataManager.add === 'function') {
+                this.dataManager.add('loot', item, { generateId: false });
+            } else {
+                this.dataManager.appState.loot = [
+                    ...this.dataManager.appState.loot,
+                    item
+                ];
+                if (!this._saveState()) {
+                    throw new Error('Failed to save item');
+                }
             }
-            
+
             return item;
         } catch (error) {
             console.error('Error creating item:', error);
@@ -124,30 +144,32 @@ export class LootService {
                 throw new Error('ID and updates are required');
             }
             
+            if (typeof this.dataManager.update === 'function') {
+                const result = this.dataManager.update('loot', id, updates);
+                return result || undefined;
+            }
+
             const index = this.dataManager.appState.loot?.findIndex(item => item.id === id) ?? -1;
             if (index === -1) {
                 console.warn(`Item with ID ${id} not found`);
                 return undefined;
             }
-            
-            // Create updated item
+
             const updatedItem = {
                 ...this.dataManager.appState.loot[index],
                 ...updates,
-                id, // Ensure ID doesn't change
+                id,
                 updatedAt: new Date().toISOString()
             };
-            
-            // Update the array
+
             const updatedLoot = [...this.dataManager.appState.loot];
             updatedLoot[index] = updatedItem;
             this.dataManager.appState.loot = updatedLoot;
-            
-            // Save the state
+
             if (!this._saveState()) {
                 throw new Error('Failed to update item');
             }
-            
+
             return updatedItem;
         } catch (error) {
             console.error(`Error updating item ${id}:`, error);
@@ -162,23 +184,26 @@ export class LootService {
      */
     deleteItem(id) {
         try {
+            if (typeof this.dataManager.remove === 'function') {
+                return this.dataManager.remove('loot', id);
+            }
+
             if (!id) {
                 throw new Error('ID is required');
             }
-            
+
             const initialLength = this.dataManager.appState.loot?.length || 0;
             this.dataManager.appState.loot = this.dataManager.appState.loot?.filter(item => item.id !== id) || [];
-            
+
             if (this.dataManager.appState.loot.length === initialLength) {
                 console.warn(`Item with ID ${id} not found`);
                 return false;
             }
-            
-            // Save the state
+
             if (!this._saveState()) {
                 throw new Error('Failed to delete item');
             }
-            
+
             return true;
         } catch (error) {
             console.error(`Error deleting item ${id}:`, error);
@@ -195,7 +220,10 @@ export class LootService {
      */
     filterItemsByType(type) {
         if (!type) return [];
-        return this.dataManager.appState.loot?.filter(item => item.type === type) || [];
+        const items = typeof this.dataManager.getAll === 'function'
+            ? this.dataManager.getAll('loot')
+            : (this.dataManager.appState.loot || []);
+        return items.filter(item => item.type === type);
     }
     
     /**
@@ -206,10 +234,13 @@ export class LootService {
     searchItems(query) {
         if (!query) return [];
         const q = query.toLowerCase();
-        return this.dataManager.appState.loot?.filter(item => 
+        const items = typeof this.dataManager.getAll === 'function'
+            ? this.dataManager.getAll('loot')
+            : (this.dataManager.appState.loot || []);
+        return items.filter(item =>
             (item.name && item.name.toLowerCase().includes(q)) ||
             (item.description && item.description.toLowerCase().includes(q))
-        ) || [];
+        );
     }
     
     /**
@@ -217,7 +248,10 @@ export class LootService {
      * @returns {number} The total value in copper pieces
      */
     getTotalValue() {
-        return this.dataManager.appState.loot?.reduce((sum, item) => sum + (item.value || 0), 0) || 0;
+        const items = typeof this.dataManager.getAll === 'function'
+            ? this.dataManager.getAll('loot')
+            : (this.dataManager.appState.loot || []);
+        return items.reduce((sum, item) => sum + (item.value || 0), 0);
     }
     
     /**
@@ -225,7 +259,10 @@ export class LootService {
      * @returns {number} The total weight in pounds
      */
     getTotalWeight() {
-        return this.dataManager.appState.loot?.reduce((sum, item) => sum + (item.weight || 0), 0) || 0;
+        const items = typeof this.dataManager.getAll === 'function'
+            ? this.dataManager.getAll('loot')
+            : (this.dataManager.appState.loot || []);
+        return items.reduce((sum, item) => sum + (item.weight || 0), 0);
     }
 }
 

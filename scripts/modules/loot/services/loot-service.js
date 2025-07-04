@@ -49,11 +49,14 @@ export class LootService {
      * @private
      */
     _updateLootState(newLoot) {
-        this.dataManager.appState.loot = newLoot;
-        
-        // Update through state manager if available
-        if (typeof this.dataManager.setState === 'function') {
-            this.dataManager.setState({ loot: [...newLoot] });
+        if (typeof this.dataManager.updateState === 'function') {
+            this.dataManager.updateState({ loot: [...newLoot] });
+        } else if (this.dataManager.appState) {
+            this.dataManager.appState.loot = newLoot;
+            if (typeof this.dataManager.setState === 'function') {
+                this.dataManager.setState({ loot: [...newLoot] });
+            }
+            this.dataManager.saveData?.();
         }
     }
 
@@ -65,19 +68,22 @@ export class LootService {
         try {
             console.log('LootService: Ensuring loot collection exists...');
             
-            // Ensure appState is initialized
-            if (!this.dataManager?.appState) {
-                throw new Error('appState is not available in dataManager');
-            }
-
-            // Initialize loot array if it doesn't exist or is invalid
-            if (!Array.isArray(this.dataManager.appState.loot)) {
-                console.log('LootService: Initializing empty loot array');
+            let loot = [];
+            if (typeof this.dataManager.getAll === 'function') {
+                try {
+                    loot = this.dataManager.getAll('loot');
+                } catch {
+                    this.dataManager.updateState?.({ loot: [] });
+                    loot = [];
+                }
+            } else if (Array.isArray(this.dataManager.appState?.loot)) {
+                loot = this.dataManager.appState.loot;
+            } else {
                 this._updateLootState([]);
             }
-            
-            console.log('LootService: Loot collection initialized with', this.dataManager.appState.loot.length, 'items');
-            return [...this.dataManager.appState.loot];
+
+            console.log('LootService: Loot collection initialized with', loot.length, 'items');
+            return [...loot];
         } catch (error) {
             console.error('LootService: Error ensuring loot collection exists:', error);
             // Ensure we always have a valid array, even if there's an error
@@ -91,6 +97,9 @@ export class LootService {
      * @returns {Array<Item>} A copy of the items array
      */
     getAllItems() {
+        if (typeof this.dataManager.getAll === 'function') {
+            return [...this.dataManager.getAll('loot')];
+        }
         if (!Array.isArray(this.dataManager.appState.loot)) {
             this.ensureLootExists();
         }
@@ -103,6 +112,10 @@ export class LootService {
      * @returns {Item|undefined} The found item or undefined
      */
     getItemById(id) {
+        if (typeof this.dataManager.getAll === 'function') {
+            const loot = this.dataManager.getAll('loot');
+            return loot.find(item => item.id === id);
+        }
         if (!Array.isArray(this.dataManager.appState.loot)) {
             this.ensureLootExists();
         }
@@ -140,9 +153,13 @@ export class LootService {
             
             console.log('LootService: Created item with ID:', item.id);
 
-            // Create a new array with the new item and update state
-            const updatedLoot = [...this.dataManager.appState.loot, item];
-            this._updateLootState(updatedLoot);
+            if (typeof this.dataManager.add === 'function') {
+                this.dataManager.add('loot', item, { generateId: false });
+            } else {
+                const current = this.dataManager.appState.loot || [];
+                const updatedLoot = [...current, item];
+                this._updateLootState(updatedLoot);
+            }
             
             console.log('LootService: Item created successfully');
             return item;
@@ -160,23 +177,26 @@ export class LootService {
      */
     updateItem(id, updates) {
         try {
+            if (typeof this.dataManager.update === 'function') {
+                const result = this.dataManager.update('loot', id, updates);
+                return result || undefined;
+            }
+
             const index = this.dataManager.appState.loot.findIndex(item => item.id === id);
             if (index === -1) return undefined;
 
-            // Create a new item with the updated data
             const updatedItem = {
                 ...this.dataManager.appState.loot[index],
                 ...updates,
                 updatedAt: new Date().toISOString()
             };
 
-            // Create a new array with the updated item and update state
             const updatedLoot = [
                 ...this.dataManager.appState.loot.slice(0, index),
                 updatedItem,
                 ...this.dataManager.appState.loot.slice(index + 1)
             ];
-            
+
             this._updateLootState(updatedLoot);
             return updatedItem;
         } catch (error) {
@@ -192,16 +212,20 @@ export class LootService {
      */
     deleteItem(id) {
         try {
+            if (typeof this.dataManager.remove === 'function') {
+                const result = this.dataManager.remove('loot', id);
+                return result;
+            }
+
             const initialLength = this.dataManager.appState.loot.length;
             const updatedLoot = this.dataManager.appState.loot.filter(item => item.id !== id);
-            
-            // Only update state if something was actually removed
+
             const wasRemoved = updatedLoot.length < initialLength;
-            
+
             if (wasRemoved) {
                 this._updateLootState(updatedLoot);
             }
-            
+
             return wasRemoved;
         } catch (error) {
             console.error(`Error deleting item ${id}:`, error);

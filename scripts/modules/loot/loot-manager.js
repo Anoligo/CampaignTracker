@@ -20,17 +20,24 @@ export class LootManager {
      * @param {Object} appState - The application state object
      */
     constructor(appState) {
-        console.log('[LootManager] Initializing with appState:', appState ? 'valid' : 'invalid');
-        this.appState = appState;
-        
-        // Initialize data manager if not provided
-        this.dataManager = appState.dataManager || {
-            appState: appState,
-            setState: (updates) => {
-                console.log('[LootManager] Updating state:', updates);
-                Object.assign(appState, updates);
-            }
-        };
+        console.log('[LootManager] Initializing with appState/dataService:', appState ? 'valid' : 'invalid');
+
+        if (appState && typeof appState.saveData === 'function') {
+            // A DataService instance was provided
+            this.dataManager = appState;
+            this.appState = appState.exportState ? appState.exportState() : appState.appState;
+        } else {
+            // Fallback to legacy behaviour expecting an appState object
+            this.appState = appState;
+            this.dataManager = appState?.dataManager || appState?.dataService || {
+                appState: appState,
+                setState: (updates) => {
+                    console.log('[LootManager] Updating state:', updates);
+                    Object.assign(appState, updates);
+                },
+                saveData: () => {}
+            };
+        }
         
         console.log('[LootManager] Creating LootService');
         this.lootService = new LootService(this.dataManager);
@@ -42,8 +49,20 @@ export class LootManager {
         console.log('[LootManager] Initialization complete');
         
         // Initialize loot array if it doesn't exist
-        if (!this.dataManager.appState.loot) {
-            this.dataManager.appState.loot = [];
+        try {
+            const currentLoot = typeof this.dataManager.getAll === 'function'
+                ? this.dataManager.getAll('loot')
+                : this.dataManager.appState?.loot;
+            if (!Array.isArray(currentLoot)) {
+                if (typeof this.dataManager.updateState === 'function') {
+                    this.dataManager.updateState({ loot: [] });
+                } else if (this.dataManager.appState) {
+                    this.dataManager.appState.loot = [];
+                    this.dataManager.saveData?.();
+                }
+            }
+        } catch (error) {
+            console.error('[LootManager] Error ensuring loot array:', error);
         }
     }
     
