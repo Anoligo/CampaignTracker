@@ -169,7 +169,15 @@ export class LocationUI {
             onLocationClick: (locationId) => this.handleSelectLocation(locationId),
             onAddLocation: (coordinates) => this.handleAddLocationAt(coordinates)
         });
-        
+
+        // Hide loading overlay once the map reports it has loaded
+        const overlay = document.getElementById('mapLoadingOverlay');
+        const hideOverlay = () => {
+            if (overlay) overlay.style.display = 'none';
+            mapContainer.removeEventListener('interactiveMapLoaded', hideOverlay);
+        };
+        mapContainer.addEventListener('interactiveMapLoaded', hideOverlay);
+
         // Add existing locations to the map
         this.updateMapMarkers();
     }

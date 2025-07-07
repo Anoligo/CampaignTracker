@@ -13,3 +13,7 @@ export { default as LocationUI } from './location-ui.js';
 
 // Export models
 export { Location } from './models/location-model.js';
+
+// Export manager and initializer for section registration
+export { LocationManager } from './location-manager.js';
+export { initializeLocationsSection } from './location-ui.js';

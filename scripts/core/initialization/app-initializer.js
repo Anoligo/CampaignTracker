@@ -119,18 +119,8 @@ export class AppInitializer {
         this._registerPlayersSection(navManager);
         this._registerFactionsSection(navManager);
         this._registerLootSection(navManager);
+        this._registerLocationsSection(navManager);
 
-        // Initialize other sections (locations) if needed
-        /*
-        import('../../modules/locations').then(module => {
-            if (module.initializeLocationsSection) {
-                navManager.registerSectionInitializer('locations', module.initializeLocationsSection);
-            }
-        }).catch(error => {
-            console.error('Failed to load locations module:', error);
-        });
-        */
-        
         // Add more section initializers as needed
     }
 
@@ -256,6 +246,16 @@ export class AppInitializer {
                 }
             })
             .catch(error => console.error('Failed to load factions module:', error));
+    }
+
+    static _registerLocationsSection(navManager) {
+        import('../../modules/locations/index.js')
+            .then(module => {
+                if (module.initializeLocationsSection) {
+                    navManager.registerSectionInitializer('locations', module.initializeLocationsSection);
+                }
+            })
+            .catch(error => console.error('Failed to load locations module:', error));
     }
     
     /**
