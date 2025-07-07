@@ -179,6 +179,11 @@ export class InteractiveMap {
 
                 // Process any pending center operations
                 this.__processPendingCenter();
+
+                // Notify listeners that the map has loaded
+                if (this.container) {
+                    this.container.dispatchEvent(new CustomEvent('interactiveMapLoaded', { detail: this }));
+                }
             };
 
             // Handle image error
