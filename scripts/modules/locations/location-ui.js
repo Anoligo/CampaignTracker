@@ -3,6 +3,7 @@ import { formatLocationForDisplay, filterLocations } from './utils/location-util
 import { LocationForm } from './components/location-form.js';
 import { LocationList } from './components/location-list.js';
 import { InteractiveMap } from './components/map/interactive-map.js';
+import { appState } from '../../core/state/app-state.js';
 
 /**
  * LocationUI - Main UI component for managing locations
@@ -562,7 +563,8 @@ export function initializeLocationsSection() {
                 // Import the location manager dynamically to avoid circular dependencies
                 import('./location-manager.js').then(module => {
                     if (module.LocationManager) {
-                        window.app.locationManager = new module.LocationManager();
+                        const dataSource = appState.dataService || appState;
+                        window.app.locationManager = new module.LocationManager(dataSource);
                         console.log('Location manager initialized');
                     }
                 });
