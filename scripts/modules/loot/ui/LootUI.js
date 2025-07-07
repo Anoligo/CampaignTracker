@@ -7,6 +7,7 @@ import { BaseUI } from '../../../components/base-ui.js';
 import { LootList } from './LootList.js';
 import { LootForm } from './LootForm.js';
 import { showToast } from '../../../components/ui-components.js';
+import { formatEnumValue, getRarityColor } from '../../../utils/style-utils.js';
 
 export class LootUI extends BaseUI {
     // Class field syntax for methods to ensure proper binding
