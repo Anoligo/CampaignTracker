@@ -226,7 +226,8 @@ export class LocationUI {
             ? filterLocations(this.locations, this.searchQuery)
             : this.locations;
         
-        this.locationList.render(filteredLocations, this.selectedLocation?.id);
+        const selectedId = this.selectedLocation ? this.selectedLocation.id : undefined;
+        this.locationList.render(filteredLocations, selectedId);
     }
     
     /**
@@ -334,7 +335,7 @@ export class LocationUI {
         this.render();
         
         // Pan to location on map if it has coordinates
-        if (this.selectedLocation?.coordinates && this.interactiveMap) {
+        if (this.selectedLocation && this.selectedLocation.coordinates && this.interactiveMap) {
             this.interactiveMap.panTo(this.selectedLocation.coordinates);
             this.interactiveMap.highlightMarker(this.selectedLocation.id);
         }
@@ -384,12 +385,12 @@ export class LocationUI {
      */
     handleSaveLocation(locationData) {
         // If we're editing an existing location, preserve its ID
-        if (this.selectedLocation?.id) {
+        if (this.selectedLocation && this.selectedLocation.id) {
             locationData.id = this.selectedLocation.id;
         }
 
         // If we have coordinates from the map, include them
-        if (this.selectedLocation?.coordinates) {
+        if (this.selectedLocation && this.selectedLocation.coordinates) {
             locationData.coordinates = this.selectedLocation.coordinates;
         }
 
@@ -438,7 +439,7 @@ export class LocationUI {
         }
         
         // Reset selection if the deleted location was selected
-        if (this.selectedLocation?.id === locationId) {
+        if (this.selectedLocation && this.selectedLocation.id === locationId) {
             this.selectedLocation = null;
             this.isEditing = false;
         }
@@ -515,7 +516,7 @@ export function initializeLocationsSection() {
         const mapContainer = document.getElementById('worldMapContainer');
         if (mapContainer) {
             // Check if the map is already initialized
-            if (!window.app?.locationMap) {
+            if (!window.app || !window.app.locationMap) {
                 console.log('Initializing interactive map...');
                 try {
                     // Create a new interactive map instance
@@ -536,7 +537,7 @@ export function initializeLocationsSection() {
                     window.app.locationMap = interactiveMap;
                     
                     // Load locations if available
-                    if (window.appState?.state?.locations) {
+                    if (window.appState && window.appState.state && window.appState.state.locations) {
                         interactiveMap.setLocations(window.appState.state.locations);
                     }
                     
@@ -557,7 +558,7 @@ export function initializeLocationsSection() {
         }
         
         // Initialize the location manager if it doesn't exist
-        if (!window.app?.locationManager) {
+        if (!window.app || !window.app.locationManager) {
             console.log('Initializing location manager...');
             try {
                 // Import the location manager dynamically to avoid circular dependencies
