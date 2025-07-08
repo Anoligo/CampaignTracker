@@ -136,8 +136,13 @@ export class InteractiveMap {
 
             // Ensure container has dimensions
             this.container.style.width = '100%';
-            this.container.style.height = '100%';
-            this.container.style.minHeight = '500px'; // Ensure minimum height
+            if (!this.container.style.height) {
+                // Only set height if not already defined to avoid collapsing to zero
+                this.container.style.height = '100%';
+            }
+            if (!this.container.style.minHeight) {
+                this.container.style.minHeight = '500px'; // Ensure minimum height
+            }
 
             // Create map container
             this.mapContainer = document.createElement('div');
