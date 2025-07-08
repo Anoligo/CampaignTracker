@@ -275,9 +275,7 @@ export class InteractiveMap {
             }
         }
     }
-
+}
 
 Object.assign(InteractiveMap.prototype, renderMethods, eventMethods, utilMethods);
-
-}
 
