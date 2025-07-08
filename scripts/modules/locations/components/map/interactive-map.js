@@ -114,6 +114,10 @@ export class InteractiveMap {
         const { width, height } = this.container.getBoundingClientRect();
         if (width <= 0 || height <= 0) {
             console.warn(`Map container has invalid dimensions: ${width}x${height}`);
+            // Attempt to recover by setting a default size
+            if (!this.container.style.height || parseInt(this.container.style.height, 10) === 0) {
+                this.container.style.height = '600px';
+            }
             return false;
         }
 
