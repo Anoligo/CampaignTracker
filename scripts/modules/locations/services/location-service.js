@@ -54,8 +54,8 @@ export class LocationService {
             data.name,
             data.description || '',
             data.type || LocationType.OTHER,
-            data.x || (data.coordinates?.x ?? 0),
-            data.y || (data.coordinates?.y ?? 0),
+            data.x || (data.coordinates && data.coordinates.x != null ? data.coordinates.x : 0),
+            data.y || (data.coordinates && data.coordinates.y != null ? data.coordinates.y : 0),
             data.discovered || false,
             data.relatedQuests || [],
             data.relatedItems || [],
@@ -76,8 +76,8 @@ export class LocationService {
         if (updates.coordinates) {
             updates = {
                 ...updates,
-                x: updates.coordinates.x ?? updates.x,
-                y: updates.coordinates.y ?? updates.y
+                x: updates.coordinates.x != null ? updates.coordinates.x : updates.x,
+                y: updates.coordinates.y != null ? updates.coordinates.y : updates.y
             };
             delete updates.coordinates;
         }
