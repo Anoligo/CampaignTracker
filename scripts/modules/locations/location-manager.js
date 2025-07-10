@@ -471,40 +471,40 @@ export class LocationManager {
                 name: 'Ironforge City',
                 description: 'A bustling city known for its skilled blacksmiths and imposing stone architecture.',
                 type: 'CITY',
-                x: 250,
-                y: 150,
+                x: 25,
+                y: 15,
                 discovered: true
             },
             {
                 name: 'Whispering Woods',
                 description: 'A mysterious forest where the trees seem to whisper ancient secrets.',
                 type: 'FOREST',
-                x: 150,
-                y: 200,
+                x: 15,
+                y: 20,
                 discovered: true
             },
             {
                 name: 'Dragon\'s Lair Cave',
                 description: 'A dangerous cave system rumored to house an ancient dragon.',
                 type: 'CAVE',
-                x: 300,
-                y: 100,
+                x: 30,
+                y: 10,
                 discovered: false
             },
             {
                 name: 'Sunhaven Village',
                 description: 'A peaceful village known for its annual harvest festival.',
                 type: 'TOWN',
-                x: 200,
-                y: 250,
+                x: 20,
+                y: 25,
                 discovered: true
             },
             {
                 name: 'Ancient Temple Ruins',
                 description: 'The crumbling remains of a once-grand temple dedicated to a forgotten deity.',
                 type: 'RUINS',
-                x: 350,
-                y: 200,
+                x: 35,
+                y: 20,
                 discovered: false
             }
         ];
