@@ -216,10 +216,21 @@ export const utilMethods = {
     addMarker({ id, title = '', coordinates, status, onClick }) {
         if (!this.pinsContainer || !coordinates) return;
 
+        // Allow coordinates to be provided in pixels or percentages
+        let { x, y } = coordinates;
+        if (this.mapImage && (x > 100 || y > 100)) {
+            const mapW = this.mapImage.naturalWidth || 0;
+            const mapH = this.mapImage.naturalHeight || 0;
+            if (mapW && mapH) {
+                x = (x / mapW) * 100;
+                y = (y / mapH) * 100;
+            }
+        }
+
         const pin = document.createElement('div');
         pin.className = 'map-pin';
-        pin.style.left = `${coordinates.x}%`;
-        pin.style.top = `${coordinates.y}%`;
+        pin.style.left = `${x}%`;
+        pin.style.top = `${y}%`;
 
         const icon = document.createElement('div');
         icon.className = 'pin-icon';
